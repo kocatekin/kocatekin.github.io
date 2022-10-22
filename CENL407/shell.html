@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Tugberk" />
+  <title>Introduction to Shell</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="style.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Introduction to Shell</h1>
+<p class="author">Tugberk</p>
+</header>
+<h1 id="introduction-to-shell">Introduction to Shell</h1>
+<p>The terminal is a program which runs shell. For example in Windows
+operating systems, there is Windows Terminal. In that terminal you can
+run several shells. Similar to it, Mac and Linux also comes with
+terminal applications. It does not mean a shell, it is a program which
+runs shell. On a single terminal you can run several shells.</p>
+<p>Shell is an application which comes with the operating system.
+Several examples to shell is Zsh, Bash, Powershell, Fish, and many
+more.</p>
+<p>Let’s start with a simple command: <code>echo $PATH</code> this
+command will show you the path. When you call a program such as
+<em>echo</em> the shell looks for the PATH for that program. You can
+have several locations saved in Path. Therefore, when you call for a
+program, if the shell can find it in the path directories, it will run.
+By using <em>which</em> command, you can see where the application
+resides in the path. For example try this one and see for yourself:
+<code>which echo</code></p>
+<p>There are several applications come with the shell. These are
+generally called <em>coreutils</em>. We are going to see several of
+them. They are applications just like Notepad, Paint, etc.</p>
+<h2 id="absolute-and-relative-path">Absolute and Relative Path</h2>
+<p>When we are talking about a directory, if we give the whole path, we
+call it the absolute path. For example when you run the <em>which</em>
+command, the result you see is an absolute path. However, when we want
+to change directories, we don’t generally use the absolute path.</p>
+<p>By using <em>cd</em> command, we can change directories. However
+while changing directories we don’t have to write the absolute path. We
+can give relative path such as <code>cd newdir</code>. The
+<em>newdir</em> is a directory which is relative to where we are. Which
+also means it is a child directory. We can see our current directory by
+using the command <code>pwd</code>.</p>
+<p><code>.</code> and <code>..</code> are special directories. First one
+means the <em>current directory</em> and the second one means <em>parent
+directory</em>. Therefore, we can go up to our parent dir by using
+<code>cd ..</code>.</p>
+<h2 id="listing-files">Listing files</h2>
+<p>By using <em>ls</em> command we can list the files and directories in
+the current directory we are in. By giving additional parameters we can
+use <em>ls</em> differently. To see all options about using ls, you can
+use <code>ls --help</code> and <code>man ls</code>. Try <code>ls</code>,
+<code>ls -a</code> and <code>ls -l</code> commands and check the
+difference. In addition we can list any directory we want by giving the
+absolute or relative path. Let us give an example on the subject.</p>
+<p>Right now, when I use <em>ls</em> on my terminal, I see several
+directories named <em>Desktop</em>, <em>Downloads</em> etc. If I want to
+see the list of elements in Desktop, all I have to do is write
+<code>ls Desktop</code>. I can also use <em>-a</em> and <em>-l</em> tags
+with my ls command as well.</p>
+<h2 id="permissions">Permissions</h2>
+<p>When you use <em>ls -l</em> you will see a different output. In the
+first part, what you see is information about the permissions. If the
+first character is <em>d</em>, that means that line represents a
+directory. After that, there are 9 characters consisting of r, w, and x.
+They represent <em>read</em>, <em>write</em> and <em>execute</em>. First
+three is about the <em>owner</em>, the second three represents <em>group
+permissions</em> and the last three is for <em>everyone</em>.</p>
+<p>For directories, x represents something different. If there is no
+<em>x</em> for a directory, you cannot see what is inside. With read (r)
+permission you can list files, with write (w) permission you can create,
+move and rename files. With execute (x), you can search a file. Also
+remember that you need that <em>x</em> for all parents too.</p>
+<h2 id="several-commands">Several commands</h2>
+<ul>
+<li><p>mv (move) It can rename and move files. This will change the name
+of <em>a.md</em> into <em>b.md</em>. <code>mv a.md b.md</code> This will
+move the file to a different directory:
+<code>mv a.md newdirectory</code></p></li>
+<li><p>cp (copy) It is used to copy files.
+<code>cp a.md b.md</code></p></li>
+<li><p>rm (remove) a file. <code>rm a.md</code></p></li>
+</ul>
+<p>It is important to remember that in Shell, you delete a directory
+with <em>rmdir</em> command. However, the directory must be empty for
+this command to run. Otherwise, if you want to delete a non-empty
+directory, you use <code>rm -rf</code>. However apply this with caution.
+People generally create aliases for rm so that the shell displays a
+prompt to ensure you want to delete that app. We will see this in
+<em>dotfiles</em>.</p>
+<h2 id="io-streams">I/O Streams</h2>
+<p>The power of shell comes from combining programs. Normally, programs
+are written independently. However with shell, you can give the output
+of a program to some other program’s input. It gives us the power to
+manipulate those streams. These are done by with <em>&lt;</em> and
+<em>&gt;</em> characters. First one rewires the input and the second one
+rewires the output.</p>
+<p>For example, <code>echo hello &gt; hello.txt</code></p>
+<p>Here, the second part is the output. Normally, the output is the
+terminal and you will see the result. However when you run this command,
+now the output becomes a file instead of the terminal. When you check
+<em>hello.txt</em> by using <code>cat hello.txt</code>. Cat is the
+command to use when we want to see the inside of a file. Something to
+remember, when you use <em>&gt;</em> it overwrites the file. When you
+want to append, you use <em>&gt;&gt;</em>.</p>
+<p>Let’s use both of these in an example:
+<code>cat &lt; hello.txt &gt; hello2.txt</code></p>
+<p>Here, <em>hello.txt</em> is the input of the <em>cat</em> command and
+the output of that is written on to hello2.txt</p>
+<h2 id="piping">Piping</h2>
+<div class="line-block">symbol helps us to take the output of left and
+make it input to the right side. For example there is a command called
+<em>tail</em> which will give you the lines from the bottom of a file.
+<code>tail -n1 hello.txt</code> will give you the last line. If you try
+to run <code>tail -n1</code> it will not give an output and will wait
+for an input.</div>
+<p>Therefore, if we do <code>ls -l | tail -n1</code> this will run
+<code>ls -l</code> and give the output of that command as an input to
+<em>tail</em> command. Another example can be
+<code>echo 'hello\n world' | tail -n1</code>.</p>
+<p>These two programs are not built for each other. They are working
+separately. However, piping wires them together.</p>
+<h2 id="root-user">Root user</h2>
+<p>The admin user is called Root in shell world. It is also referred to
+as <em>superuser</em>. It is free to do anything. Usually you are not
+the <em>root</em> user. This is actually good because you cannot do any
+harm to important files. If we want to run a command which needs a
+<em>root</em>, we put <em>sudo</em> on top of it. For example in Ubuntu,
+you can download applications by using <code>apt-get install</code> but
+this needs a root user. So you do <code>sudo apt-get install</code>
+instead. Then it will ask you for the root password and run.</p>
+<p>A shortcut is to use <code>sudo !!</code>. This will run the last
+command as root.</p>
+<h2 id="defining-variables">Defining variables</h2>
+<p>In shell, space is a reserved character which is used to determine
+the arguments. For example when you run <code>cp a.md b.md</code> there
+are three arguments. These arguments are referred to with <code>$</code>
+character. <code>$0</code> represents <em>cp</em>, <code>$1</code>
+represents <em>a.md</em> and <code>$2</code> represents <em>b.md</em>.
+The arguments are separated by space character. <code>$?</code>
+represents the error message. For example, just write <em>true</em> or
+<em>false</em> as a command and later run <code>$?</code>. If the output
+is 0, that means there is no error, if the output is 1, that means there
+is an error about the previous command.</p>
+<pre><code>foo=bar</code></pre>
+<p>Here, we say to the shell that <em>foo</em> is <em>bar</em>. When you
+write <code>echo $foo</code> you will see the output as <em>bar</em>. As
+you see we are not defining them with a space. An important distinction
+between <code>'</code> and <code>"</code> characters is that; if you use
+’ and try to write the variable using $foo, you will not succeed. That
+is why when you want to see the output you use <code>"</code> instead of
+<code>'</code>.</p>
+<p>If we want to give an output of a command to a variable, we do it by
+<code>foo=$(pwd)</code>.</p>
+<h2 id="example-script">Example script</h2>
+<p>When we want to create a script, first we open a file by using a text
+editor on the terminal. <em>Vi</em> or <em>vim</em> comes with every
+POSIX compliant shell. Therefore you are sure to have this program in
+the shell. However, for new users vi can be somewhat complicated. That
+is why there are several number of text editors such as nano, pico,
+emacs, etc. Generally, shells come with a simple text editor like
+<em>pico</em> or <em>nano</em>.</p>
+<p>Let’s open a new file called <em>myscript</em> by using
+<code>nano myscript</code>.</p>
+<p>Let’s write the function below to <em>myscript</em>.</p>
+<pre><code>#!/bin/bash
+
+echo &quot;$1&quot;</code></pre>
+<p>Let’s give it permission to run by using
+<code>chmod +x myscript</code>. As you can see, <code>$1</code>
+represents the first argument. We run this command by using
+<code>./myscript</code>. Therefore, running
+<code>./myscript hello</code> will give us an output as
+<em>hello</em>.</p>
+</body>
+</html>
