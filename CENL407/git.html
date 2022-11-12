@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Dr. Tuğberk Kocatekin" />
+  <title>Git Basics</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="style.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Git Basics</h1>
+<p class="author">Dr. Tuğberk Kocatekin</p>
+</header>
+<p>Version control systems are tools used to track changes to source
+code or other collection of files and folders/directories.</p>
+<p>On top of maintaining a history of changes, they also facilitate
+collaboration. Almost all companies are using version control and the
+standard application they use is <strong>git</strong>.</p>
+<p>Even if you are not in a group setting and working by yourself,
+version control is very useful. For example, we all used to save every
+change as a different file while we are writing our drafts for thesis,
+etc. By using <em>git</em>, we can change only one file and later come
+back to every other version and see the change we applied onto that
+file.</p>
+<p>When you are collaborating, it is impossible to work on the same
+exact file. When you try to change a file someone else is changing, the
+file will be <em>locked</em> and you are not going to be able to do some
+changes.</p>
+<p>Git solves these problems. You can create <em>branches</em> and do
+development and later you can <em>merge</em> these together into a
+single repo. There are GUI for Git, however it is best to use the
+command line. Git is built by <em>Linus Torvalds</em> who also is the
+creator of Linux kernel.</p>
+<h2 id="snapshots">Snapshots</h2>
+<p>Git stores these changes in a series of <strong>snapshots</strong>.
+In Git terminology, a file is called a <strong>blob</strong>. A
+directory is called a <strong>tree</strong>. The tree maps names to
+blobs and other trees.</p>
+<p>A snapshot is the top-level tree that is being tracked.</p>
+<h2 id="how-does-it-work">How does it work?</h2>
+<p>Git does not use a linear history. In Git, history is a DAG
+(<em>directed acyclic graph</em>) of snapshots. This means that each
+snapshot refers to a set of <em>parents</em>, the snapshots that comes
+before it. It is usually a set of parents instead of a single parent.
+The reason is, a snapshot can descend from multiple parents. An example
+would be a merging of two branches of development.</p>
+<p>Git calls there snapshots, <strong>commit</strong>s. Commits are
+<strong>immutable</strong>. That means any edit to a commit history
+creates a new commit and references to the previous one. So every change
+is tracked.</p>
+<p>By using DAG, in Git we can actually change the base version. When we
+do it linearly, we can only use the previous version as base. However,
+now we can just start to change stuff by basing changes off of another
+version.</p>
+<p>Git is immutable. You can add stuff but you cannot change any
+snapshot. Every change is a new snapshot and added to the line.</p>
+<h2 id="branching-and-merging">Branching and merging</h2>
+<p>Let’s say you are trying to fix a bug and at the same time trying to
+implement some new feature. We don’t have to do this in the same line of
+development. We can use <strong>branching</strong>, and we can work on
+them in parallel. Therefore we are not going to break the code and if
+two functionalities are not breaking each other, we can develop them
+separately.</p>
+<figure>
+<img src="git-branch.png" alt="Example git image" />
+<figcaption aria-hidden="true">Example git image</figcaption>
+</figure>
+<p>Here, a branch can be for bug-fix another branch can be for
+development. Later, we can create another <em>snapshot</em> and merge
+these two branches into the same line.</p>
+<h2 id="how-to-use-it">How to use it?</h2>
+<p>We start by writing <code>git init</code>. This will initialize git
+on the directory which we are in.</p>
+<p>Later, we can add files into the <em>staging area</em> by using
+<code>git add .</code>. This will add everything in that directory to
+the staging area. We can check what is added by using
+<code>git status</code>.</p>
+<p>Let’s create a new file, add it to the staging area and check what
+happened by using <code>git status</code>.</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> init</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> hello.txt</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add .</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status</span></code></pre></div>
+<p>Here, we first initialized git in that directory. Later, we created a
+<code>hello.txt</code>and added everything to git. Lastly, we are
+running <em>status</em> to see what happened. We can also write
+<code>git add hello.txt</code> instead of adding everything.</p>
+<pre><code>When we initialize git, git actually creates a new _hidden_ directory. We can check this directory by `ls .git` and see what it holds.</code></pre>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">On</span> branch master</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="ex">No</span> commits yet</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="ex">Changes</span> to be committed:</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">(</span><span class="ex">use</span> <span class="st">&quot;git rm --cached &lt;file&gt;...&quot;</span> to unstage<span class="kw">)</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>        <span class="ex">new</span> file:   hello.txt</span></code></pre></div>
+<p>As you can see, we can see that there is a <em>hello.txt</em> file in
+the staging area. Now, if we want to add this into our git repo, we need
+to <strong>commit</strong>. This is done by using a very simple command:
+<code>git commit</code>.</p>
+<p>However, we need to give some information as to what this commit has.
+Maybe we added a new function to our code, or maybe we fixed a bug. That
+is why, we can use <em>messages</em> in our commits. By using
+<code>-m</code> we can add message to it. Let’s commit what we have done
+above by using <code>git commit -m "First commit"</code>.</p>
+<p>At this point, if you did not configure your git by using an email
+and username, it will ask you to do so. Just do them by following the
+instructions given to you by the error message.</p>
+<p>After doing so, run the commit again. This will be an example
+output.</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">[master</span> <span class="er">(</span><span class="ex">root-commit</span><span class="kw">)</span> <span class="ex">c359dda]</span> First commit</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a> <span class="ex">1</span> file changed, 0 insertions<span class="er">(</span><span class="ex">+</span><span class="kw">)</span><span class="ex">,</span> 0 deletions<span class="er">(</span><span class="ex">-</span><span class="kw">)</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a> <span class="ex">create</span> mode 100644 hello.txt</span></code></pre></div>
+<p>Let’s give an additional information at this point. Git also stores
+some <em>metadata</em> which gives us information as to who made which
+commit, when, message, etc. This is very important especially in
+group/team settings. Let’s say that a part of a code is changed, by
+using the <em>logs</em> and <em>metadata</em> of the Git, you can now
+know who changed it when (timestamp) and why (messages). That is why
+providing a good commit message is very important.</p>
+<p>Let’s now change something in <em>hello.txt</em> and run
+<code>git status</code>. This will be the output:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">On</span> branch master</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">Changes</span> not staged for commit:</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">(</span><span class="ex">use</span> <span class="st">&quot;git add &lt;file&gt;...&quot;</span> to update what will be committed<span class="kw">)</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">(</span><span class="ex">use</span> <span class="st">&quot;git restore &lt;file&gt;...&quot;</span> to discard changes in working directory<span class="kw">)</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>        <span class="ex">modified:</span>   hello.txt</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="ex">no</span> changes added to commit <span class="er">(</span><span class="ex">use</span> <span class="st">&quot;git add&quot;</span> and/or <span class="st">&quot;git commit -a&quot;</span><span class="kw">)</span></span></code></pre></div>
+<p>As you can see here, it will give you the information that
+<em>hello.txt</em> is modified. That change or modification is not saved
+yet, that is what the last line indicates. In order to commit, we need
+to <em>add</em> that. Let’s add it by using
+<code>git add hello.txt</code> and check the status again.</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">On</span> branch master</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">Changes</span> to be committed:</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">(</span><span class="ex">use</span> <span class="st">&quot;git restore --staged &lt;file&gt;...&quot;</span> to unstage<span class="kw">)</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>        <span class="ex">modified:</span>   hello.txt</span></code></pre></div>
+<p>Here, as you can see it tells us these are changes to be committed.
+Before, it told us that some changes were not <strong>staged</strong>
+for commit. By adding them into the <strong>staging area</strong> we did
+exactly that. Now, we can commit this change by using the same command
+we used earlier. When we run git commit, the output is:</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">[master</span> ab40ee8] new line added</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a> <span class="ex">1</span> file changed, 1 insertion<span class="er">(</span><span class="ex">+</span><span class="kw">)</span></span></code></pre></div>
+<p>Previously, when we first created the file, it was 0 insertion and 0
+deletion. Here, since we added some lines into the file, we
+<em>inserted</em> stuff. If we delete, we will see deletion.</p>
+<h2 id="problems-with-merging">Problems with merging</h2>
+<p>Sometimes, two files you want to merge can conflict with each other.
+Maybe one is changing some part of the code which the other code uses.
+This is called <em>merge conflict</em>.</p>
+<p>Git will show you that there is a conflict and lets you decide what
+to do.</p>
+<h2 id="sha-1-hash-and-references">Sha-1 Hash and References</h2>
+<p>We identify objects by using a hash value. Every snapshot will have a
+different <em>id</em> which is the hash value. It is a hexadecimal
+string. However, it is hard to remember. That is why git also stores
+<em>references</em>. Human readable names are mapped to hashes. These
+are references. We can refer to snapshots by names.</p>
+<p>We know that the snapshots/commits in Git are not mutable, but the
+references are. That means we can change a reference and it can now
+refer to some other snapshot.</p>
+<p>When you look at the previous examples, you can see the hash value.
+For example in the last example, it writes <code>[master ab40ee8]</code>
+where the <code>ab40ee8</code> is the hash value for that commit.</p>
+<h2 id="committing">Committing</h2>
+<p>We can use <code>git add .</code> or <code>git commit -a</code> to
+add &amp; commit every changed file. However there may be times that we
+changed multiple files and want to commit them differently. That is why
+adding and committing manually may be a better practice in some
+cases.</p>
+<h2 id="carry-on">Carry on</h2>
+<p>We can use <code>git log</code> to see everything we have done
+previously. For example when we run <code>git log</code>, this is the
+output:</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">commit</span> ab40ee818618d9dcd9a55871fc38e91f156527cf <span class="er">(</span><span class="ex">HEAD</span> <span class="at">-</span><span class="op">&gt;</span> master<span class="kw">)</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">Author:</span> Tugberk <span class="op">&lt;</span>tugberk@gmail.com<span class="op">&gt;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Date:</span>   Wed Nov 9 16:47:14 2022 +0300</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="ex">new</span> line added</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="ex">commit</span> c359dda047efcdfe971626f5400d18c2570da89f</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="ex">Author:</span> Tugberk <span class="op">&lt;</span>tugberk@gmail.com<span class="op">&gt;</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="ex">Date:</span>   Wed Nov 9 16:34:23 2022 +0300</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    <span class="ex">First</span> commit</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">```</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="ex">As</span> you can see, we can see the Author and timestamp. Also we can see the hash of the commit, and the commit messages. We can also get detailed information by using <span class="kw">`</span>git cat-file <span class="at">-p</span> hash<span class="kw">`</span><span class="bu">.</span> For example here, lets do <span class="kw">`</span>git cat-file <span class="at">-p</span> c359dda047efcdfe971626f5400d18c2570da89f<span class="kw">`</span><span class="bu">.</span> It will give us more information on that specific commit. You can use the same command and change the hash, eventually you will get the content of the blob file.</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="ex">When</span> the line gets a little complicated, we might want to add some visual to it. For that, we can use <span class="kw">`</span>git log <span class="at">--all</span> <span class="at">--graph</span> <span class="at">--decorate</span><span class="kw">`</span><span class="bu">.</span> However, if you don<span class="st">&#39;t have any branches, it will not be that different. When you look at the output, you will see something similar to the line. In there, you will also see that `HEAD -&gt; master`. That means that we are at the _master_ branch. We are there by default. </span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="st">## Git checkout</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="st">By using this command, we can detach the _HEAD_ and check out certain commits by using the _hash_. Since the hash is too long, we can just use some characters from the top and checkout that commit. `git checkout c359dda`. This is the output:</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a><span class="st">```bash</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a><span class="st">Note: switching to &#39;</span>c359dda<span class="st">&#39;.</span></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a><span class="st">You are in &#39;</span>detached HEAD<span class="st">&#39; state. You can look around, make experimental</span></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a><span class="st">changes and commit them, and you can discard any commits you make in this</span></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a><span class="st">state without impacting any branches by switching back to a branch.</span></span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a><span class="st">If you want to create a new branch to retain commits you create, you may</span></span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a><span class="st">do so (now or later) by using -c with the switch command. Example:</span></span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a><span class="st">  git switch -c &lt;new-branch-name&gt;</span></span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a><span class="st">Or undo this operation with:</span></span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a><span class="st">  git switch -</span></span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a><span class="st">Turn off this advice by setting config variable advice.detachedHead to false</span></span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a><span class="st">HEAD is now at c359dda First commit</span></span></code></pre></div>
+<p>What happens is that, we have now gone back to that state. If we now
+go to the directory and try to see the contents of hello.txt, it is now
+changed. (Actually, it is not changed. Because we went to that commit,
+we can see the <strong>previous version</strong> of the file.)</p>
+<p>This is very useful. This way, if we have committed some errors, we
+can go back to that specific file and create snapshots out of this file!
+Now, if we do <code>git log</code> again; we will see a totally
+different thing. If we want to see some details, run the <em>long</em>
+git command we have previously ran;
+<code>git log --all --graph --decorate</code>. Now, we can see every
+commit but we will see that our <em>HEAD</em> is changed.</p>
+<p>If we want to get to the <em>master</em> (original) we can use
+<code>git checkout hash</code> to get to the original file and timeline.
+For simplicity, we can also write <code>git checkout master</code>.
+After running that, check the file again to see whether it returned to
+the original state.</p>
+<p>If you changed a file and want to change your <em>HEAD</em> pointer
+without committing them, git will give you an error. You can try that by
+changing the file and trying to <em>checkout</em> to a different branch
+to see the error. You can change it forcefully though by using
+<code>-f</code>.</p>
+<h2 id="git-diff">git diff</h2>
+<p>This command shows you what changed since the last snapshot. You can
+also modify the command to show the difference between a specific
+commit. Let’s say you changed your <em>hello.txt</em> and without doing
+anything else ran the command <code>git diff hello.txt</code>. You will
+see what you’ve changed. If you want to see the difference compared to
+another commit, you can write <code>git diff hash hello.txt</code> hash
+being the starting digits of a hash you want to compare it to. (you can
+use HEAD, master instead of hash here again.)</p>
+<h2 id="branching-and-merging-1">Branching and merging</h2>
+<p>We can see our branches by using <code>git branch -vv</code>.</p>
+<p>Instead of text, lets write some code and see the differences there.
+Let’s build a very simple file and save it as <em>animal.py</em>.</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> animal():</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&#39;Hello&#39;</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> main():</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>        default()</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">&#39;__main__&#39;</span>:</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>        main()</span></code></pre></div>
+<p>Let’s add it to the git repo. We will use <code>git branch</code> to
+create a branch. When you run this command, it will only output
+<strong>master</strong> because it is the single branch we have. We can
+use <code>-vv</code> to have extra information. If we use
+<code>git branch cat</code> we will have new branch. When we run that
+command and run the log command, we will see something different. HEAD
+will now point to <em>master</em>, and we will see <em>cat</em> near it.
+Because cat is also referring to the same commit at that point. When we
+go into the <em>cat</em> branch by using <code>git checkout cat</code>
+and use the long log command; we will see that HEAD is now pointing to
+<em>cat</em> instead of master.</p>
+<p>At this point, we know how to create a branch. We need to be careful
+at which point we want to create branches. For example, if you want to
+create another branch, you should first checkout to master and create
+the branch from there. So keep in mind where you are at all times.
+Remember that <em>HEAD</em> will point to your present location.</p>
+<p>Let’s say we added another function in the code.</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> animal():</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&#39;Hello&#39;</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cat():</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&#39;Meow&#39;</span>)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> main():</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    default()</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    cat()</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">&#39;__main__&#39;</span>:</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    main()</span></code></pre></div>
+<p>Let’s say we did some changes in the <em>cat</em> branch. We can
+later go back to master branch and create a new branch called
+<em>dog</em>. We can create a branch and checkout to it. However, there
+is a faster way. We can write <code>git checkout -b dog</code> and
+create this branch and checkout to it just by this command. Let’s add
+another function to <em>animal.py</em>, this time for the dog.</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> animal():</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&#39;Hello&#39;</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> dog():</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&#39;Woof&#39;</span>)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> main():</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    default()</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    dog()</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">&#39;__main__&#39;</span>:</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    main()</span></code></pre></div>
+<p>Now we commit this data too. At this point, lets run the long log
+command and see what happened. Here, we see a structure which has
+branches in it. You can also run the command like this to get a more
+clear output:
+<code>git log --all --graph --decorate --oneline</code>.</p>
+<h2 id="merging">Merging</h2>
+<p>Now, we can merge these two branches to go back to the master line
+and we will see that changes are written in the same file. For this, we
+go back to the <em>master</em> and use <code>git merge</code> command.
+We can either merge both of them to master at the same time by using
+<code>git merge cat dog</code> or can do them one by one.</p>
+<p>In case of a conflict, git will say there is a <em>merge
+conflict</em> and you need to solve it before committing again.</p>
+<h2 id="additional-commands">Additional commands</h2>
+<p>Most of the time we will not use git only in our computers. For that,
+we are going to have a remote git repository. So, you will need to get
+data from that remote or push some data to that remote to add.</p>
+<p>For that, first you need to add the repository to your
+<em>remote</em>. We do this by using
+<code>git remote add origin URL</code>. After that, when you apply some
+changes, you will use <code>git push</code> and when you want to fetch
+changes done to the repository (by others) you will use
+<code>git fetch</code>. When you <em>fetch</em> you will want to
+<em>merge</em> it to your own repo. So, at that point instead of using
+two commands, you can use <code>git pull</code>.</p>
+<p>For example if we have one remote, we can use
+<code>git push origin master:master</code>. This means that I am going
+to push my master branch to the master branch on the remote repo.</p>
+<p>In addition, if you want to download the repository from a remote
+location to your computer and start working on it, you will use
+<code>git clone</code> command.</p>
+</body>
+</html>
