@@ -1,0 +1,47 @@
+  <!doctype html>
+<html>
+<head>
+<style>
+.card {
+  width: 300px; /* Adjust the width to your desired size */
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f7f7f7;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card p {
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  color: #333;
+  margin: 0;
+}
+
+
+</style>
+</head>
+<body>
+
+	<textarea id="mytext"></textarea>
+	<br>
+	<button onclick="run()">run</button>
+	<div id="output"></div>
+
+
+</body>
+<script>
+	var output = document.getElementById("output");
+	function run() {
+			var text = document.getElementById("mytext").value.split("\n");
+			//console.log("<div class='card'>"+text+"</div>");
+			for(i=0;i<text.length;i++){
+					output.innerHTML += "<div class='card'>" + text[i] + "</div><br>";
+				}
+
+		}
+</script>
+
+
+
+</html>
