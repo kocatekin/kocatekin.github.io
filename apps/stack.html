@@ -3,7 +3,6 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta http-equiv="Permissions-Policy" content="interest-cohort=()">
 	<title>STACK Example</title>
 	<style type="text/css">
 		body
@@ -44,6 +43,7 @@
 //we can use an array to show the operations
 //here, we should disable the buttons first because there is no stack yet.
 
+
 var createbtn = document.getElementById("createbtn");
 var popbtn = document.getElementById("popbtn");
 var pushbtn = document.getElementById("pushbtn");
@@ -52,6 +52,9 @@ var peekbtn = document.getElementById("peekbtn");
 //var stacknames = ["lahmacun","pide","pizza","chocolate"];
 
 var myStack = [];
+
+
+
 
 function createStack() {
 
@@ -62,10 +65,17 @@ function createStack() {
 	output.innerHTML += 'We just created a stack!';
 	output.innerHTML += "<br>At this point, the buttons are disabled. The reason is simple. You cannot POP an element or PEEK at a stack, because it is empty! First, we need to PUSH some elements into the stack.";
 	
+	
+	
+	
+	
 	//disable itself and enable push
 	pushbtn.disabled = false;
 	createbtn.disabled = true;
 	
+	
+	
+
 }
 
 function pop() {
@@ -85,7 +95,8 @@ function pop() {
 		if(myStack.length == 0) {
 			popbtn.disabled = true;
 			peekbtn.disabled = true;	
-		}	
+		}
+		
 	}
 	else {
 	
@@ -94,13 +105,23 @@ function pop() {
 		peekbtn.disabled = true;
 	
 	}
+	
+	
+	
+	
+
+
 
 }
 
 function push2stack(){
+
 	
+		
 		let rndValue = Math.floor(Math.random() * (10 - 0 + 1) + 0);
 		myStack.push(rndValue);
+		
+
 		
 		output.innerHTML += "<br>New value added to the stack: [" + rndValue + "]";
 		output.innerHTML += "<br>Stack: [" + myStack + "]";
@@ -109,6 +130,9 @@ function push2stack(){
 		//createbtn.disabled = true;
 		popbtn.disabled = false;
 		peekbtn.disabled = false;
+		
+		
+
 
 }
 
@@ -118,8 +142,14 @@ function peek(){
 	
 	output.innerHTML += "<br>PEEK does not remove the top element but just shows it to us!";
 	output.innerHTML += "<br>The top element (last element added) is: " + myStack[myStack.length - 1];
+	
+
+
 
 }
 
-/script>
+
+
+
+</script>
 </html>
