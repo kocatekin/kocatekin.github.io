@@ -1,0 +1,124 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>STACK Example</title>
+	<style type="text/css">
+		body
+		{
+			margin:40px auto;
+			max-width:650px;
+			line-height:1.6;
+			font-size:18px;
+			color:#444;
+			padding:0 10px
+		}
+		h1,h2,h3
+		{
+			line-height:1.2
+		}
+	</style>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+	
+	
+</head>
+<body>
+	<h1 align="center">STACKS</h1>
+	<hr>
+
+	<button id="createbtn" onclick="createStack()">Create a Stack</button>
+	<br>
+	<button id="popbtn" onclick="pop()" disabled>POP</button>
+
+	<button id="pushbtn" onclick="push2stack()" disabled>PUSH</button>
+
+	<button id="peekbtn" onclick="peek()" disabled>PEEK</button>
+	<div id="output"></div>
+
+
+</body>
+<script>
+
+//we can use an array to show the operations
+//here, we should disable the buttons first because there is no stack yet.
+
+var createbtn = document.getElementById("createbtn");
+var popbtn = document.getElementById("popbtn");
+var pushbtn = document.getElementById("pushbtn");
+var peekbtn = document.getElementById("peekbtn");
+
+//var stacknames = ["lahmacun","pide","pizza","chocolate"];
+
+var myStack = [];
+
+function createStack() {
+
+	//we can use jquery to add some fadein and timers
+
+	let output = document.getElementById("output");
+	
+	output.innerHTML += 'We just created a stack!';
+	output.innerHTML += "<br>At this point, the buttons are disabled. The reason is simple. You cannot POP an element or PEEK at a stack, because it is empty! First, we need to PUSH some elements into the stack.";
+	
+	//disable itself and enable push
+	pushbtn.disabled = false;
+	createbtn.disabled = true;
+	
+}
+
+function pop() {
+
+
+	//here, we get the top element and we remove it!
+	//if there is no element to take out, we need to give an error
+	
+	if(myStack.length > 0) {
+	
+		output.innerHTML += "<br>";
+		output.innerHTML += "Removed: " + myStack[myStack.length - 1];
+		
+		//remove the last element
+		myStack = myStack.slice(0,-1);
+		output.innerHTML += "<br>New stack is: [" + myStack + "]";
+		if(myStack.length == 0) {
+			popbtn.disabled = true;
+			peekbtn.disabled = true;	
+		}	
+	}
+	else {
+	
+		output.innerHTML += "<br>Nothing to remove! The stack is empty!";
+		popbtn.disabled = true;
+		peekbtn.disabled = true;
+	
+	}
+
+}
+
+function push2stack(){
+	
+		let rndValue = Math.floor(Math.random() * (10 - 0 + 1) + 0);
+		myStack.push(rndValue);
+		
+		output.innerHTML += "<br>New value added to the stack: [" + rndValue + "]";
+		output.innerHTML += "<br>Stack: [" + myStack + "]";
+		
+		pushbtn.disabled = false;
+		//createbtn.disabled = true;
+		popbtn.disabled = false;
+		peekbtn.disabled = false;
+
+}
+
+function peek(){
+
+	//this checks the top element
+	
+	output.innerHTML += "<br>PEEK does not remove the top element but just shows it to us!";
+	output.innerHTML += "<br>The top element (last element added) is: " + myStack[myStack.length - 1];
+
+}
+
+/script>
+</html>
