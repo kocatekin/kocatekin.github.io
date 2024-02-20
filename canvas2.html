@@ -1,0 +1,106 @@
+<!doctype html>
+<html>
+    <head><style>canvas {
+        background: #eee;
+        display: block;
+        margin: 0 auto;
+      }</style></head>
+<body>
+    <button onclick="window.location.reload()">reload</button>
+<canvas id="game" width="400" height="400"></canvas>
+</body>
+<script>
+let canvas = document.getElementById("game");
+let ctx = canvas.getContext("2d");
+/*
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+*/
+
+
+let x = 60;
+let y = 60;
+let radius = 30;
+let color = "green";
+
+let speed = 10;
+let dx = speed;
+let dy = -speed;
+
+let collState = false;
+
+function drawBall(colour) {
+    ctx.beginPath();
+    ctx.arc(x,y,radius,0, Math.PI*2);
+    ctx.fillStyle = colour;
+    ctx.fill();
+    ctx.closePath();
+}
+
+function writeText(x,y) {
+    ctx.font = "15px Arial";
+    ctx.fillText(`x: ${x} y: ${y}`, 5, 20);
+
+}
+
+function draw() {
+    ctx.clearRect(0,0,canvas.width, canvas.height);
+    drawBall(color);
+    writeText(x,y);
+}
+draw();
+
+
+function moveRight() {
+    if(x+dx+radius >= canvas.width) {x = x; draw();}
+            else {x += dx; draw();}
+}
+function moveLeft() {
+    if(x-dx-radius <= 0) {x=x; draw();}
+            else{ x -= dx; draw(); }
+}
+function moveUp() {
+    if(y+dy-radius <= 0) {y = y; draw();}
+            else {y += dy; draw();}
+}
+function moveDown() {
+    if(y-dy+radius >= canvas.height) {y=y; draw();}
+    else {y -= dy; draw();}
+}
+
+
+
+document.addEventListener("keydown", event => {
+    //console.log(`x: ${x} y: ${y}`);
+    switch(event.code) {
+        case 'KeyS': {
+            //console.log("down");
+            moveDown();
+            console.log(`x: ${x} y: ${y}`);
+        } break;
+        case 'KeyW': {
+            //console.log("up");
+            moveUp();
+            console.log(`x: ${x} y: ${y}`);
+        } break;
+        case 'KeyA': {
+            //console.log("left");
+            moveLeft();
+            console.log(`x: ${x} y: ${y}`);
+        } break;
+        case 'KeyD': {
+            //console.log("right");
+            moveRight();
+            console.log(`x: ${x} y: ${y}`);
+    }
+}
+});
+
+function move() {
+
+}
+
+
+
+</script>
+</html>
