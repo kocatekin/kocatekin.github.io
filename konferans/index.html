@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computer Science Conferences</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">CS Konferansları</div>
+            <ul>
+                <li><a href="#home">Anasayfa</a></li>
+                <!-- <li><a href="#conferences">Conferences</a></li> -->
+                <!-- <li><a href="#about">About</a></li> -->
+                <li><a href="#contact">İletişim</a></li>
+            </ul>
+        </nav>
+    </header>
+    <section id="home">
+        <div class="hero">
+            <h1>Bilgisayar Mühendisliği Konferansları</h1>
+            <p>Gerçekleşmiş ve gerçekleşecek konferanslar listesi ve bilgileri</p>
+        </div>
+    </section>
+    <main>
+        <section id="conferences" class="conference-list">
+            <h2>Upcoming Conferences</h2>
+            <!-- 
+            <div class="conference-item">
+                <h3><a href="https://www.conference-website1.com" target="_blank">Conference Name 1</a></h3>
+                <p><strong>Location:</strong> Conference Location 1</p>
+                <p><strong>Date:</strong> Conference Date 1</p>
+                <p><strong>Due Date:</strong> Submission Due Date 1</p>
+            </div>
+            -->
+            
+            <!-- Add more conference items here -->
+        </section>
+    </main>
+    <footer>
+        <p>&copy; :)</p>
+    </footer>
+    
+</body>
+<script>
+
+let conferences = [{
+    name: "SIU - Conference on Signal Processing and Communications",
+    location: "Tarsus",
+    date: "15-18 Mayıs 2024",
+    duedate: "",
+    status: "Gerçekleşti",
+    link: "https://siu2024.tarsus.edu.tr/en/"
+},
+{
+    name: "ISCTurkey - Bilgi Güvenliği ve Kriptoloji Konferansı",
+    location: "Ankara",
+    date: "17-18 Ekim 2024",
+    duedate: "16 Agustos 2024",
+    status: "Gerçekleşmedi",
+    link: "https://iscturkiye.com/"
+},
+{
+    name: "SPRA 2024 - 5th Symposium on Pattern Recognition and Applications",
+    location: "Istanbul",
+    date: "11-13 Kasım 2024",
+    duedate: "25 Temmuz 2024",
+    status: "Gerçekleşmedi",
+    link: "https://spra.org/cfp.html"
+},
+{
+    name: "UBMK 2024 - Uluslararası Bilgisayar Bilimleri ve Mühendisliği Konferansı",
+    location: "Istanbul",
+    date: "26-28 Kasım 2024",
+    duedate: "12 Agustos 2024",
+    status: "Gerçekleşmedi",
+    link: "https://ubmk.org.tr/"
+},
+{
+    name: "ICONDATA",
+    location: "Priştina, Kosova",
+    date: "2-6 Eylül 2024",
+    duedate: "30 Temmuz 2024 (Özet)",
+    status: "Gerçekleşmedi",
+    link: "https://www.icondata.org/tr/genel-bilgiler"
+},
+{
+    name: "ICAIAME",
+    location: "Varşova, Polonya",
+    date: "26-27-28 Eylül",
+    duedate: "5 Eylül 2024",
+    status: "Gerçekleşmedi",
+    link:"http://icaiame.com/tr/conference/important-dates"
+},
+
+]
+
+let conf_sec = document.getElementById("conferences");
+
+for(let i=0;i<conferences.length;i++){
+    conf_sec.innerHTML += 
+    `<div class='conference-item'>
+        <h3><a href='${conferences[i].link}' target='_blank'>${conferences[i].name}</a></h3>
+        <p><strong>Yer: </strong>${conferences[i].location}</p>
+        <p><strong>Tarih: </strong>${conferences[i].date}</p>
+        <p><strong>Teslim Tarihi: </strong>${conferences[i].duedate}</p>
+        <p><strong>Durum: </strong>${conferences[i].status}</p>
+
+        </div>`;
+
+}
+
+
+</script>
+</html>
