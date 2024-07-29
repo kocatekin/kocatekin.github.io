@@ -1,0 +1,16 @@
+<!doctype html>
+<htmL>
+  <body>
+    <h1>Some Apps</h1>
+    <div id="links"></div>
+  </body>
+  <script>
+    let links = document.getElementById("links");
+    let names = ["Do Nothing","Endless Dogs","Stack"];
+    let urls = ["do_nothing.html","endless_dogs.html","stack.html"];
+
+    for(let i=0;i<urls.length;i++) {
+      links.innerHTML += `<br><a href='${urls[i]}'>${names[i}}</a>`
+    }
+  </script>
+</htmL>
