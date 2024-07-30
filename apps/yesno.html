@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+    <head>
+        <title>yes/no</title>
+        <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+        <style>
+           body {
+            padding: 30px;
+           }
+           #output {
+            padding: 0px;
+           }
+        </style>
+    </head>
+    <body>
+        <!-- 
+          <input type="text" id="question" placeholder="Ask a question"><br>
+          <button onclick="run()">sor</button>
+          <hr>
+        -->
+        <div id="output"></div>
+    </body>
+    <script>
+    run();
+
+    async function run() {
+        let apiurl = "https://yesno.wtf/api";
+        const res = await fetch(apiurl);
+        let data = await res.json();
+        console.log(data);
+        createUI(data);
+
+    }
+
+    function createUI(data) {
+        let output = document.getElementById("output");
+        output.innerHTML = `<img src='${data["image"]}'>`;
+        output.innerHTML += `<h3>${data['answer']}</h3>`;
+        //todo: for yes and no, prepare multiple answers and select random from them
+    }
+    
+    </script>
+</html>
