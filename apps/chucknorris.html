@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <title>Chuck Norris Facts</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .content {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        padding: 1rem;
+        font-family: 'Roboto', sans-serif;
+        font-size: 48px;
+        
+        }
+
+        .person-card {
+        text-align: center;
+        width: 16rem;
+        padding: 1rem 0.5rem;
+        border: 1px solid #E5E7EB;
+        border-radius: 4px;
+        margin: 1rem;
+        }
+
+        .person-card__avatar {
+        border-radius: 50%;
+        margin: 0 auto;
+        max-width: 200px;
+        }
+
+        .person-card__name {
+        margin-top: 0.5rem;
+        font-size: 1.25rem;
+        font-weight: 600;
+        }
+
+        .person-card__paragraph {
+        font-size: 0.875rem;
+        color: #6B7280;
+        }
+    </style>
+    <link href='http://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900italic,900' rel='stylesheet' type='text/css'>
+    </head>
+    <body>
+        <main class="content">
+            <div class="person-card">
+              <img class="person-card__avatar" src="" id="avatar">
+              <h3 class="person-card__name">Chuck Norris Facts</h3>
+              <p class="person-card__paragraph" id="mypar"></p>
+            </div>
+            
+          </main>
+
+    </body>
+    <script>
+
+        console.log("sorry, may be graphic language due to api");
+
+        let images = ["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSv_Tc6rvEIolYVGfSCFYImSbi27sFzCCSjPQ&s","https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRVAA8woXUTaDHekpxmgY9WhjfvbP9DWtycbg&s","https://images01.military.com/sites/default/files/styles/full/public/2021-04/chucknorris.jpeg.jpg","https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ39H5OZYi8lpRdlx4BQN7KkSm0_cgzVlr4Qw&s","https://www.usatoday.com/gcdn/presto/2020/03/10/USAT/14860a5d-3ae8-4049-b4b5-5a02e14c4721-Chuck_Norris_01.JPG","https://images03.military.com/sites/default/files/styles/full/public/2022-10/chucknorris.png.jpg?itok=3M8lEFs7","https://www.giantbomb.com/a/uploads/scale_medium/46/462814/3221502-8667199912-d2d02.jpg","https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Chuck_Norris.jpg/170px-Chuck_Norris.jpg",];
+
+        let avatarimg = document.getElementById("avatar");
+        let myrnd = Math.floor(Math.random() * images.length);
+        avatarimg.src = images[myrnd];
+        //console.log(myrnd);
+
+        run();
+        async function run() {
+            let apiURL = "https://api.chucknorris.io/jokes/random";
+            const res = await fetch(apiURL);
+            let data = await res.json();
+            //console.log(data);
+            createUI(data);
+        }
+
+        function createUI(data) {
+            let mypar = document.getElementById("mypar");
+            mypar.innerText = data["value"];
+        }
+
+
+
+    </script>
+</html>
