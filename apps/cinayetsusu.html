@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+<head>
+    <title>cinayet süsü</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <style type="text/css">body{margin:40px
+        auto;max-width:650px;line-height:1.6;font-size:18px;color:#444;padding:0
+        10px}h1,h2,h3{line-height:1.2}</style>
+
+</head>
+<body>
+    <h1 id="myheading"></h1>
+    <button onclick="run()" id="mybutton"></button>
+</body>
+<script>
+run();
+
+function run(){
+    let words = ["kaçta","hangi","ne ile","niçin","nolmuş","kimi","nerede","nasıl","ne zaman","kimden","neyi","ne belli","neye","kim"];
+    let mybutton = document.getElementById("mybutton");
+    let myheading = document.getElementById("myheading");
+    let myrnd = Math.floor(Math.random() * words.length);
+    myheading.innerText = words[myrnd]+"?";
+    mybutton.innerText = words[(myrnd + 1) % words.length];
+    console.log("cinayet süsü");
+}
+
+</script>
+</html>
