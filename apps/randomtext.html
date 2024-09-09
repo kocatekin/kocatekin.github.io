@@ -13,7 +13,7 @@ auto;max-width:650px;line-height:1.6;font-size:18px;color:#444;padding:0
 <body>
 
 <h2 id="output"></h2>
-<button onclick="copytext()">kopyala</button>
+<button onclick="copytext()">kopyala</button><button onclick="yeni()">yeni</button>
 
 </body>
 <script>
@@ -45,6 +45,11 @@ document.getElementById("output").innerText = output;
 function copytext() {
 	let word = document.getElementById("output");
 	navigator.clipboard.writeText(word.innerText);
+}
+
+function yeni() {
+	let output = capitalize(choice(adjs)) + "" + capitalize(choice(adjs)) + "" + capitalize(choice(nouns));
+	document.getElementById("output").innerText = output;
 }
 
 
