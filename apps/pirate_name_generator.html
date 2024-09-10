@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pirate Name Generator</title>
+  <style>
+  * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Trebuchet MS', sans-serif;
+  background-color: #f4f4f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  background-color: #333;
+  color: white;
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+}
+
+.title {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: #f8c134;
+}
+
+.input-label {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+input, select {
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+input:focus, select:focus {
+  outline: 2px solid #f8c134;
+}
+
+.btn {
+  padding: 0.75rem;
+  background-color: #f8c134;
+  border: none;
+  color: #333;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 5px;
+  width: 100%;
+  transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+  background-color: #e0a414;
+}
+
+.result {
+  margin-top: 1.5rem;
+  font-size: 1.5rem;
+  color: #f8c134;
+  display: none;
+}
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="title" id="title2">Arr! Pirate Name Generator</h1>
+    
+      <label for="name" class="input-label">What's yer name, matey?</label>
+      <input type="text" id="name" name="name" placeholder="Enter your name" required>
+
+      <label for="month" class="input-label">Which month were ye born in?</label>
+      <select id="month" name="month" required>
+        <option value="">Select Month</option>
+        <option value="January">January</option>
+        <option value="February">February</option>
+        <option value="March">March</option>
+        <option value="April">April</option>
+        <option value="May">May</option>
+        <option value="June">June</option>
+        <option value="July">July</option>
+        <option value="August">August</option>
+        <option value="September">September</option>
+        <option value="October">October</option>
+        <option value="November">November</option>
+        <option value="December">December</option>
+      </select>
+
+      <button type="submit" class="btn" onclick="pirate_name_generator()">Get Yer Pirate Name</button>
+    
+    
+    
+  </div>
+
+  <script>
+  
+	
+  function pirate_name_generator() {
+
+	let name = document.getElementById("name").value;
+	let month = document.getElementById("month").value;
+	let titletext = document.getElementById("title2");
+  
+  
+    let capital_letter = {
+        "A":"ONE EYE",
+        "B":"SHARK BAIT",
+        "C":"FISHY",
+        "D":"CUTLASS",
+        "E":"LONG JOHN",
+        "F":"CAPTAIN",
+        "G":"RUTHLESS",
+        "H":"GUNPOWDER",
+        "I":"BLACKJACK",
+        "J":"LAGOON",
+        "K":"FISHY MEAN",
+        "L":"BILLY GOAT",
+        "M":"MATEY",
+        "N":"SHIP MATE",
+        "O":"FISH FACE",
+        "P":"BOOTY",
+        "Q":"YO-HO-HO",
+        "R":"ONE LEG",
+        "S":"SCURVY",
+        "T":"PATCHES",
+        "U":"AYE AYE",
+        "V":"SMELLY",
+        "W":"MEAN",
+        "X":"CUTLASS",
+        "Y":"ROGER",
+        "Z":"COMPASS"
+    };
+
+    let birthday_month = {
+        "JANUARY":"LOBSTER LEGS",
+        "FEBRUARY":"BARNACLE",
+        "MARCH":"SWASHBUCKLER",
+        "APRIL":"SEA RAT",
+        "MAY":"SMUGGLER",
+        "JUNE":"PUFFY PANTS",
+        "JULY":"O'GREEDY",
+        "AUGUST":"SHIPWRECK",
+        "SEPTEMBER":"HOOK HAND",
+        "OCTOBER":"STINKY BREATH",
+        "NOVEMBER":"SPARROW",
+        "DECEMBER":"LANDLUBBER"
+    };
+
+	
+    
+	console.log(capital_letter[name.charAt(0).toUpperCase()], birthday_month[month.toUpperCase()]);
+	
+	titletext.innerHTML = capital_letter[name.charAt(0).toUpperCase()] + " " + birthday_month[month.toUpperCase()];
+	
+	}
+  </script>
+
+</body>
+</html>
