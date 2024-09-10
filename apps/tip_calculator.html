@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tip Calculator</title>
+  <style>* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #f7f7f7;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  background-color: #ffffff;
+  padding: 2rem;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+}
+
+.title {
+  font-size: 2.5rem;
+  color: #4CAF50;
+  margin-bottom: 1.5rem;
+}
+
+.input-group {
+  margin-bottom: 1.5rem;
+}
+
+.input-label {
+  font-size: 1.1rem;
+  color: #555;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  font-size: 1rem;
+}
+
+input:focus {
+  outline: none;
+  border-color: #4CAF50;
+}
+
+.btn {
+  padding: 1rem;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border-radius: 10px;
+  cursor: pointer;
+  width: 100%;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn:hover {
+  background-color: #45A049;
+  transform: scale(1.05);
+}
+
+.result {
+  margin-top: 2rem;
+  font-size: 1.5rem;
+  color: #333;
+  display: none;
+}
+
+.result p {
+  margin: 0.5rem 0;
+}
+
+#totalTip, #tipPerPerson {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #4CAF50;
+}
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="title">Tip Calculator 💸</h1>
+
+    
+      <div class="input-group">
+        <label for="bill" class="input-label">Bill Amount</label>
+        <input type="number" id="bill" name="bill" placeholder="Enter your bill" required>
+      </div>
+
+      <div class="input-group">
+        <label for="tip" class="input-label">Tip Percentage</label>
+        <input type="number" id="tip" name="tip" placeholder="Enter tip %" value=10>
+      </div>
+
+      <div class="input-group">
+        <label for="people" class="input-label">Number of People</label>
+        <input type="number" id="people" name="people" placeholder="Number of people" value=1>
+      </div>
+
+      <button type="submit" class="btn" onclick="calculateTip()">Calculate Tip 💵</button>
+    
+
+    <div id="result" class="result">
+      <p id="totalTip"></p>
+      <p id="tipPerPerson"></p>
+    </div>
+  </div>
+
+  <script>
+  function calculateTip() {
+  
+	let result = document.getElementById("result");
+	let tip = document.getElementById("tip").value;
+	let people = document.getElementById("people").value;
+	let bill = document.getElementById("bill").value;
+	
+	
+	console.log(bill);
+	let tipvalue = 0;
+	tipvalue = bill * (tip / 100) / people; 
+	
+	console.log(tipvalue);
+	
+	let output = `<p>Tip: ${tipvalue.toFixed(2)} per person</p>`;
+	
+	
+	let randomStuff = ["In Japan, tipping is considered rude.", "In US, tipping is a major part of income for waitstaff.", "In France, tipping is often included in the bill!", "Germans tip by rounding up the bill!", "It was illegal to tip in China!", "In New Zealand, tipping is uncommon and can be seen as a bonus for excellent service."];
+	
+	let randomNumber = Math.floor(Math.random() * randomStuff.length);
+	output += `<hr><h4>Fun Fact</h4><p>${randomStuff[randomNumber]}</p>`;
+	
+	
+	
+	
+	result.innerHTML = output;
+	
+	
+	
+	result.style.display = "block";
+  
+  }
+
+  </script>
+</body>
+</html>
