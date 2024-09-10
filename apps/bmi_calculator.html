@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BMI Calculator</title>
+  <style>
+  * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #0078d7;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  background-color: #333333;
+  padding: 2rem;
+  border-radius: 2px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+}
+
+.title {
+  font-size: 2rem;
+  color: #ffffff;
+  margin-bottom: 1.5rem;
+}
+
+.input-group {
+  margin-bottom: 1.5rem;
+}
+
+.input-label {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  display: block;
+  color: #ffffff;
+}
+
+input {
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  background-color: #1a1a1a;
+  color: #ffffff;
+  border-radius: 0;
+  font-size: 1rem;
+}
+
+input::placeholder {
+  color: #7f7f7f;
+}
+
+input:focus {
+  outline: none;
+  background-color: #0a0a0a;
+}
+
+.btn {
+  padding: 1rem;
+  background-color: #0078d7;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+  transition: background-color 0.3s;
+}
+
+.btn:hover {
+  background-color: #005ba1;
+}
+
+.result {
+  margin-top: 1.5rem;
+  font-size: 1.5rem;
+  color: #ffffff;
+  display: none;
+}
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="title" id="mytitle">BMI Calculator</h1>
+    
+      <div class="input-group">
+        <label for="weight" class="input-label">Weight (kg)</label>
+        <input type="number" id="weight" name="weight" placeholder="Enter weight" required>
+      </div>
+
+      <div class="input-group">
+        <label for="height" class="input-label">Height (cm)</label>
+        <input type="number" id="height" name="height" placeholder="Enter height" required>
+      </div>
+
+      <button type="submit" class="btn" onclick="calculateBMI()">Calculate BMI</button>
+    
+
+    <div id="result" class="result"></div>
+  </div>
+
+  <script>
+  
+  
+  function calculateBMI() {
+  
+	let mytitle = document.getElementById("mytitle");
+	let weight = document.getElementById("weight").value;
+	let height = document.getElementById("height").value;
+	
+	let bmi = 0;
+	bmi = weight / ((height * height) / 10000);
+	console.log(bmi);
+	
+	let status = "";
+	if(bmi < 18.4) {
+		status = "Underweight";
+		message = `<span>${bmi.toFixed(2)} - ${status}`;
+	}
+	if(bmi > 18.4 && bmi < 24.9) {
+		status = "Normal";
+		message = `<span>${bmi.toFixed(2)} - ${status}`;
+	}
+	if(bmi > 24.9 && bmi < 39.9) {
+		status = "Overweight";
+		message = `<span>${bmi.toFixed(2)} - ${status}`;
+	}
+	if(bmi > 39.9) {
+		status = "Obese";
+		message = "<img src='https://pokemongostop.org/images/pokemon/snorlax.png'>";
+	}
+		
+		console.log(status);
+		
+	let result = document.getElementById("result");
+	
+	result.innerHTML = message;
+	result.style.display = "block";
+	
+		
+		
+  
+  
+  }
+  </script>
+</body>
+</html>
