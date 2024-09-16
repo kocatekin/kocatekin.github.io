@@ -1,0 +1,92 @@
+<!doctype html>
+<html>
+
+	<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dog Facts</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #f9f9f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 90%;
+            max-width: 500px;
+            background: #fff;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        .dog-image {
+            width: 100%;
+            height: auto;
+        }
+        .dog-fact {
+            padding: 20px;
+            font-size: 18px;
+            background-color: #f0f0f0;
+            border-top: 1px solid #ddd;
+        }
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+        <img id="myimg" class="dog-image" src="" alt="Random doggo">
+        <div id="dogfact" class="dog-fact">Loading...</div>
+        <button id="newDog" onclick="getnew()">New Doggo</button>
+</div>
+
+
+
+</body>
+<script>
+
+console.log("reading two diff. api's and connecting them together");
+
+getimage();
+getfact();
+
+async function getimage() {
+	const res = await fetch("https://dog.ceo/api/breeds/image/random");
+	let data = await res.json();
+	document.getElementById("myimg").src = data["message"];
+	
+}
+
+async function getfact() {
+	const res = await fetch("https://dog-api.kinduff.com/api/facts");
+	let data = await res.json();
+	document.getElementById("dogfact").innerText = data["facts"];
+}
+
+function getnew() {
+	getimage();
+	getfact();
+	}
+
+
+
+</script>
+</html>
