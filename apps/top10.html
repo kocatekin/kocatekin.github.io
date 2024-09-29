@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Top 10 Episodes of Certain Tv Shows</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+
+    .container {
+      padding: 20px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .series {
+      background-color: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .series img {
+      max-width: 100%;
+      border-radius: 10px;
+    }
+
+    .episodes {
+      display: none;
+      list-style-type: none;
+      padding: 0;
+      margin-top: 10px;
+      text-align: left;
+    }
+
+    .episodes li {
+      padding: 10px;
+      background-color: #fafafa;
+      margin-bottom: 5px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Top TV Series</h1>
+    <div id="series-container"></div>
+  </div>
+
+  <script>
+    const seriesData = [
+  {
+    "title": "House M.D.",
+    "image": "https://m.media-amazon.com/images/M/MV5BMDA4NjQzN2ItZDhhNC00ZjVlLWFjNTgtMTEyNDQyOGNjMDE1XkEyXkFqcGdeQXVyNTA4NzY1MzY@._V1_FMjpg_UX1000_.jpg",
+    "episodes": [
+      "1. Three Stories - S1.E21",
+      "2. House's Head - S4.E15",
+      "3. Broken - S6.E1 and S6.E2",
+      "4. Both Sides Now - S5.E24",
+      "5. Euphoria: Part 1 - S2.E20",
+      "6. Autopsy - S2.E2",
+      "7. Detox - S1.E11",
+      "8. Help Me - S6.E22",
+      "9. No Reason - S2.E24",
+      "10. The C Word - S8.E19"
+    ]
+  },
+  {
+    "title": "The Mentalist",
+    "image": "https://m.media-amazon.com/images/M/MV5BMTQ5OTgzOTczM15BMl5BanBnXkFtZTcwMDM2OTY4MQ@@._V1_FMjpg_UX1000_.jpg",
+    "episodes": [
+      "#1 ∙ S3.E24 ∙ Strawberries and Cream: Part 2",
+      "#2 ∙ S6.E22 ∙ Blue Bird",
+      "#3 ∙ S4.E7 ∙ Blinking Red Light",
+      "#4 ∙ S7.E13 ∙ White Orchids",
+      "#5 ∙ S2.E8 ∙ His Red Right Hand",
+      "#6 ∙ S6.E6 ∙ Fire and Brimstone",
+      "#7 ∙ S4.E24 ∙ The Crimson Hat",
+      "#8 ∙ S3.E23 ∙ Strawberries and Cream: Part 1",
+      "#9 ∙ S6.E7 ∙ The Great Red Dragon",
+      "#10 ∙ S5.E2 ∙ Devil's Cherry"
+    ]
+  },
+  {
+    "title": "Mr. Monk",
+    "image": "https://m.media-amazon.com/images/M/MV5BNWM0YjQ4ZjYtNWYyYi00ZDVmLTg5NDQtOTkzZjljYzg2ZWI1XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
+    "episodes": [
+      "10. Mr. Monk and the Candidate (1.1)",
+      "9. Mr. Monk and Sharona (8.10)",
+      "8. Mr. Monk Bumps His Head (4.11)",
+      "7. Mr. Monk and the Kid (3.16)",
+      "6. Mr. Monk Is on the Run Parts I&II (6.15/6.16)",
+      "5. Mr. Monk Gets Jury Duty (4.16)",
+      "4. Mr. Monk and the Three Pies (2.11)",
+      "3. Mr. Monk Is Up All Night (6.9)",
+      "2. Mr. Monk and the Garbage Strike (5.2)",
+      "1. Mr. Monk and the End Parts I&II (8.15/8.16)"
+    ]
+  },
+  {
+    "title": "The Big Bang Theory",
+    "image": "https://m.media-amazon.com/images/M/MV5BZjgzY2QyNzItNDhhYi00ZWIwLWFjN2UtZDJkN2MxYWNjMmJjXkEyXkFqcGc@._V1_.jpg",
+    "episodes": [
+      "1. The Bath Item Gift Hypothesis - S2.E11",
+      "2. The Adhesive Duck Deficiency - S3.E8",
+      "3. The Staircase Implementation - S3.E22",
+      "4. The Love Car Displacement - S4.E13",
+      "5. The Lunar Excitation - S3.E23",
+      "6. The Scavenger Vortex - S7.E3",
+      "7. The Opening Night Excitation - S9.E11",
+      "8. The Nerdvana Annihilation - S1.E14",
+      "9. The Electric Can Opener Fluctuation - S3.E1",
+      "10. The Roommate Transmogrification - S4.E24"
+    ]
+  },
+  {
+    "title": "The Office",
+    "image": "https://m.media-amazon.com/images/M/MV5BZjQwYzBlYzUtZjhhOS00ZDQ0LWE0NzAtYTk4MjgzZTNkZWEzXkEyXkFqcGc@._V1_.jpg",
+    "episodes": [
+      "1. Stress Relief - S5.E14 & S5.E15",
+      "2. The Dinner Party - S4.E13",
+      "3. Threat Level Midnight - S7.E17",
+      "4. Goodbye, Michael - S7.E22",
+      "5. The Injury - S2.E12",
+      "6. Niagara - S6.E4 & S6.E5",
+      "7. Casino Night - S2.E22",
+      "8. Fun Run - S4.E1 & S4.E2",
+      "9. Beach Games - S3.E23",
+      "10. Finale - S9.E24 & S9.E25"
+    ]
+  },
+  {
+    "title": "Friends",
+    "image": "https://m.media-amazon.com/images/M/MV5BOTU2YmM5ZjctOGVlMC00YTczLTljM2MtYjhlNGI5YWMyZjFkXkEyXkFqcGc@._V1_QL75_UY281_CR1,0,190,281_.jpg",
+    "episodes": [
+      "1. The One Where Everybody Finds Out - S5.E14",
+      "2. The Last One - S10.E17 & S10.E18",
+      "3. The One Where Ross Got High - S6.E9",
+      "4. The One with All the Thanksgivings - S5.E8",
+      "5. The One with the Prom Video - S2.E14",
+      "6. The One with Ross's Wedding - S4.E23 & S4.E24",
+      "7. The One with Chandler in a Box - S4.E8",
+      "8. The One Where No One's Ready - S3.E2",
+      "9. The One with the Embryos - S4.E12",
+      "10. The One with the Morning After - S3.E16"
+    ]
+  },
+  {
+    "title": "Seinfeld",
+    "image": "https://m.media-amazon.com/images/M/MV5BMmRjNjZjN2ItN2FkYi00ZDg0LWExN2EtMTU2ODUwNWU1M2NhXkEyXkFqcGc@._V1_.jpg",
+    "episodes": [
+      "1. The Contest - S4.E11",
+      "2. The Soup Nazi - S7.E6",
+      "3. The Puffy Shirt - S5.E2",
+      "4. The Marine Biologist - S5.E14",
+      "5. The Hamptons - S5.E20",
+      "6. The Opposite - S5.E21",
+      "7. The Little Kicks - S8.E4",
+      "8. The Yada Yada - S8.E19",
+      "9. The Boyfriend - S3.E17 & S3.E18",
+      "10. The Finale - S9.E23 & S9.E24"
+    ]
+  }
+];
+
+
+    function buildSeries(seriesList) {
+      const container = document.getElementById('series-container');
+      seriesList.forEach((series, index) => {
+        // Create the series div
+        const seriesDiv = document.createElement('div');
+        seriesDiv.className = 'series';
+        seriesDiv.onclick = () => toggleEpisodes(index);
+
+        // Add series image
+        const img = document.createElement('img');
+        img.src = series.image;
+        img.alt = series.title;
+        seriesDiv.appendChild(img);
+
+        // Add series title
+        const title = document.createElement('h2');
+        title.textContent = series.title;
+        seriesDiv.appendChild(title);
+
+        // Create episodes list
+        const episodeList = document.createElement('ul');
+        episodeList.className = 'episodes';
+        series.episodes.forEach(episode => {
+          const li = document.createElement('li');
+          li.textContent = episode;
+          episodeList.appendChild(li);
+        });
+
+        seriesDiv.appendChild(episodeList);
+        container.appendChild(seriesDiv);
+      });
+    }
+
+    function toggleEpisodes(index) {
+      const episodesLists = document.querySelectorAll('.episodes');
+      episodesLists[index].style.display = episodesLists[index].style.display === 'block' ? 'none' : 'block';
+    }
+
+    // Build the series from JSON
+    buildSeries(seriesData);
+  </script>
+
+</body>
+</html>
