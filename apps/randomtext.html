@@ -3,55 +3,99 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>create gfycat like text</title>
-<style type="text/css">body{margin:40px
-auto;max-width:650px;line-height:1.6;font-size:18px;color:#444;padding:0
-10px}h1,h2,h3{line-height:1.2}</style>
-</head>
+<title>Create Gfycat-like Text</title>
+<style>
+    /* Mobile-first styles */
+    body {
+        margin: 0;
+        padding: 40px 20px;
+        font-family: 'Arial', sans-serif;
+        background-color: #f4f4f9;
+        color: #444;
+        text-align: center;
+        line-height: 1.6;
+    }
 
+    h2 {
+        font-size: 24px;
+        color: #333;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+        word-break: break-word;
+    }
+
+    button {
+        font-size: 18px;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 6px;
+        background-color: #007BFF;
+        color: white;
+        cursor: pointer;
+        margin: 10px 5px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+    }
+
+    /* Responsive design for larger screens */
+    @media(min-width: 768px) {
+        h2 {
+            font-size: 28px;
+            padding: 30px;
+        }
+
+        button {
+            font-size: 20px;
+            padding: 14px 24px;
+        }
+    }
+</style>
+</head>
 
 <body>
 
 <h2 id="output"></h2>
-<button onclick="copytext()">kopyala</button><button onclick="yeni()">yeni</button>
+<button onclick="copytext()">Copy</button>
+<button onclick="yeni()">New</button>
 
-</body>
 <script>
+    console.log("Creating Gfycat-like, phonetic hash. Random text will be generated.");
+    console.log("Ref: Gfycat phonetic hash links");
 
-console.log("burada gfycat gibi, phonetic hash olusturuyoruz. random bir text geliyor sonuc olarak.");
-console.log("bkz: gfycat phonetic hash links");
+    let adjs = ["hızlı", "mutlu", "güçlü", "sessiz", "sevimli", "çılgın", "fırtınalı", "parlak", "eğlenceli", "cesur", "tatlı", "sakin", "kurnaz", "vahşi", "hırçın", "neşeli", "tembel", "öfkeli", "kararlı", "zeki", "yaratıcı", "sabırlı", "fedakar", "meraklı", "huzurlu", "çekici", "utangaç", "gizemli", "enerjik", "esprili", "nazik", "dürüst", "sorumlu", "çalışkan", "duygusal", "zayıf", "iradeli", "becerikli", "nazlı", "bencil", "güvenilir", "cömert", "dikkatli", "dürüst", "özgür", "nazik", "kararsız", "zinde", "dikkatli", "alçakgönüllü", "disiplinli", "özenli", "tutkulu", "idealist", "karamsar", "iyimser", "kıskanç", "hoşgörülü", "sabırsız", "neşesiz", "dürüst", "utangaç", "cesur", "kibirli", "dakik", "duygusal", "çekici", "inatçı", "esprili", "sakin", "sevecen", "temkinli", "hayalperest", "güvenilir", "heyecanlı", "duygusal", "eğlenceli", "sakin", "fedakar", "yaratıcı", "adil", "sorumlu", "zeki", "sabırsız", "dikkatli", "yardımsever", "cömert", "neşeli", "meraklı", "hassas", "bağımsız", "özgüvenli", "öfkeli", "temkinli", "hayalperest", "duygusal", "tutkulu", "güçlü", "kararlı", "vicdanlı"];
 
-let adjs = ["hızlı", "mutlu", "güçlü", "sessiz", "sevimli", "çılgın", "fırtınalı", "parlak", "eğlenceli", "cesur", "tatlı", "sakin", "kurnaz", "vahşi", "hırçın", "neşeli", "tembel", "öfkeli", "kararlı", "zeki", "yaratıcı", "sabırlı", "fedakar", "meraklı", "huzurlu", "çekici", "utangaç", "gizemli", "enerjik", "esprili", "nazik", "dürüst", "sorumlu", "çalışkan", "duygusal", "zayıf", "iradeli", "becerikli", "nazlı", "bencil", "güvenilir", "cömert", "dikkatli", "dürüst", "özgür", "nazik", "kararsız", "zinde", "dikkatli", "alçakgönüllü", "disiplinli", "özenli", "tutkulu", "idealist", "karamsar", "iyimser", "kıskanç", "hoşgörülü", "sabırsız", "neşesiz", "dürüst", "utangaç", "cesur", "kibirli", "dakik", "duygusal", "çekici", "inatçı", "esprili", "sakin", "sevecen", "temkinli", "hayalperest", "güvenilir", "heyecanlı", "duygusal", "eğlenceli", "sakin", "fedakar", "yaratıcı", "adil", "sorumlu", "zeki", "sabırsız", "dikkatli", "yardımsever", "cömert", "neşeli", "meraklı", "hassas", "bağımsız", "özgüvenli", "öfkeli", "temkinli", "hayalperest", "duygusal", "tutkulu", "güçlü", "kararlı", "vicdanlı"];
+    let nouns = ["köpek", "kedi", "aslan", "kaplan", "fil", "kartal", "tilki", "tavşan", "panda", "balık", "kuş", "inek", "fare", "tavuk", "ördek", "yunus", "kurbağa", "geyik", "zebra", "timsah", "leopar", "kurt", "domuz", "koyun", "keçi", "yılan", "kaplumbağa", "at", "kanguru", "zürafa", "sincap", "köstebek", "penguen", "serçe", "papağan", "baykuş", "yarasa", "karınca", "arı", "kelebek", "köpekbalığı", "tilki", "jaguar", "sırtlan", "maymun", "orangutan", "goril", "tavuskuşu", "fare", "tilki", "kaplumbağa", "ceylan", "gelincik", "sülün", "güvercin", "martı", "akbaba", "yabandomuzu", "geyik", "bufalo", "bizon", "kunduz", "sansar", "rakun", "kirpi", "koala", "wombat", "rakun", "vatoz", "köpekbalığı", "denizanası", "kaplumbağa", "denizkaplumbağası", "yunusbalığı", "timsah", "karıncayiyen", "zebus", "orka", "mürekkepbalığı", "denizatı", "çita", "jaguar", "orangutan", "ahtapot", "leopar", "sırtlan", "kartal", "şahin", "deve", "lama", "alpakka", "koyun", "keçi", "tavşan", "sansar", "gelincik", "iguana", "yılan", "engerek"];
 
+    function choice(array) {
+        return array[Math.floor(Math.random() * array.length)];
+    }
 
-let nouns = ["köpek", "kedi", "aslan", "kaplan", "fil", "kartal", "tilki", "tavşan", "panda", "balık", "kuş", "inek", "fare", "tavuk", "ördek", "yunus", "kurbağa", "geyik", "zebra", "timsah", "leopar", "kurt", "domuz", "koyun", "keçi", "yılan", "kaplumbağa", "at", "kanguru", "zürafa", "sincap", "köstebek", "penguen", "serçe", "papağan", "baykuş", "yarasa", "karınca", "arı", "kelebek", "köpekbalığı", "tilki", "jaguar", "sırtlan", "maymun", "orangutan", "goril", "tavuskuşu", "fare", "tilki", "kaplumbağa", "ceylan", "gelincik", "sülün", "güvercin", "martı", "akbaba", "yabandomuzu", "geyik", "bufalo", "bizon", "kunduz", "sansar", "rakun", "kirpi", "koala", "wombat", "rakun", "vatoz", "köpekbalığı", "denizanası", "kaplumbağa", "denizkaplumbağası", "yunusbalığı", "timsah", "karıncayiyen", "zebus", "orka", "mürekkepbalığı", "denizatı", "çita", "jaguar", "orangutan", "ahtapot", "leopar", "sırtlan", "kartal", "şahin", "deve", "lama", "alpakka", "koyun", "keçi", "tavşan", "sansar", "gelincik", "iguana", "yılan", "engerek"];
+    function capitalize(word) {
+        return word[0].toUpperCase() + word.substring(1);
+    }
 
+    function generatePhoneticHash() {
+        return capitalize(choice(adjs)) + capitalize(choice(adjs)) + capitalize(choice(nouns));
+    }
 
-function choice(array) {
-	return array[Math.floor(Math.random() * array.length)];
-}
+    let output = generatePhoneticHash();
+    document.getElementById("output").innerText = output;
 
-function capitalize(noun) {
-	return noun[0].toUpperCase() + noun.substring(1);
-}
+    function copytext() {
+        let word = document.getElementById("output");
+        navigator.clipboard.writeText(word.innerText);
+    }
 
-
-
-let output = capitalize(choice(adjs)) + "" + capitalize(choice(adjs)) + "" + capitalize(choice(nouns));
-document.getElementById("output").innerText = output;
-
-
-
-function copytext() {
-	let word = document.getElementById("output");
-	navigator.clipboard.writeText(word.innerText);
-}
-
-function yeni() {
-	let output = capitalize(choice(adjs)) + "" + capitalize(choice(adjs)) + "" + capitalize(choice(nouns));
-	document.getElementById("output").innerText = output;
-}
-
-
+    function yeni() {
+        let output = generatePhoneticHash();
+        document.getElementById("output").innerText = output;
+    }
 </script>
 </html>
