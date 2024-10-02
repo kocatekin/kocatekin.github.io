@@ -1,16 +1,80 @@
-<!doctype html>
-<htmL>
-  <body>
-    <h1>Some Apps</h1>
-    <div id="links"></div>
-  </body>
-  <script>
-    let links = document.getElementById("links");
-    let names = ["Do Nothing","Endless Dogs","Stack","Yes No","Chuck Norris","Random Phonetic Hash","Pirate Name Generator","Tip Calculator","BMI Calculator","Cats", "Dogs","Top 10 Episodes"];
-    let urls = ["do_nothing.html","endless_dogs.html","stack.html","yesno.html","chucknorris.html","randomtext.html","pirate_name_generator.html","tip_calculator.html","bmi_calculator.html","cats.html","dogs.html","top10.html"];
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Links Page</title>
+    <style>
+      /* Mobile-first styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-    for(let i=0;i<urls.length;i++) {
-      links.innerHTML += `<li><a href='${urls[i]}'>${names[i]}</a></li>`;
-    }
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f7f7f7;
+    color: #333;
+    padding: 20px;
+}
+
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+#links-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+#links-list li {
+    margin-bottom: 15px;
+}
+
+#links-list a {
+    display: block;
+    text-decoration: none;
+    font-size: 18px;
+    color: #007bff;
+    padding: 10px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+#links-list a:hover {
+    background-color: #d4d4d4;
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Links</h1>
+        <ul id="links-list">
+          
+           
+        </ul>
+    </div>
+</body>
+  <script>
+    let links = document.getElementById("links-list");
+let names = ["Do Nothing","Endless Dogs","Stack","Yes No","Chuck Norris","Random Phonetic Hash","Pirate Name Generator","Tip Calculator","BMI Calculator","Cats", "Dogs","Top 10 Episodes"];
+let urls = ["do_nothing.html","endless_dogs.html","stack.html","yesno.html","chucknorris.html","randomtext.html","pirate_name_generator.html","tip_calculator.html","bmi_calculator.html","cats.html","dogs.html","top10.html"];
+for(let i=0;i<names.length;i++){
+  links.innerHTML += `<li><a href='${urls[i]}'>${names[i]}</a></li>` 
+}
   </script>
-</htmL>
+</html>
