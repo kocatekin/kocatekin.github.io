@@ -1,0 +1,140 @@
+<!doctype html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        textarea {
+            background-color: #34495e;
+            color: #ecf0f1;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            resize: none;
+            font-size: 16px;
+            width: 80%;
+            margin-bottom: 20px;
+            outline: none;
+        }
+
+        button {
+            background-color: #e74c3c;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.3s ease;
+            margin-right: 10px;
+        }
+
+        button:hover {
+            background-color: #c0392b;
+        }
+
+        #myp {
+            background-color: #16a085;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 18px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            margin-top: 20px;
+            width: 80%;
+            cursor: pointer;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #ecf0f1;
+            margin: 20px 0;
+            width: 80%;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <textarea rows="10" id="mytext" placeholder="Paste your links here..."></textarea>
+    <br>
+    <button onclick="run()">Get Random Link</button>
+    <button onclick="clean()">Clear</button>
+    <hr>
+    <p onclick="copy(this)" id="myp">Your random link will appear here...</p>
+
+    <script>
+
+        function run() {
+            let links = document.getElementById("mytext").value.split("\n");
+            let newlinks = uniq(trim(links));
+
+            let rnd = Math.floor(Math.random() * newlinks.length);
+            let toCopy = shuffle(newlinks)[rnd];
+
+            document.getElementById("myp").innerText = toCopy;
+
+            // Remove this new link from the array and rewrite the textarea
+            let idx = newlinks.indexOf(toCopy);
+            newlinks.splice(idx, 1);
+            document.getElementById("mytext").value = "";
+
+            for (let i = 0; i < newlinks.length; i++) {
+                document.getElementById("mytext").value += newlinks[i] + "\n";
+            }
+        }
+
+        function copy(elem) {
+            navigator.clipboard.writeText(elem.innerText);
+        }
+
+        function clean() {
+            document.getElementById('mytext').value = "";
+            document.getElementById('mytext').focus();
+        }
+
+        // Pre-defined functions
+        function trim(arr) {
+            let newArr = [];
+            for (let i = 0; i < arr.length; i++) {
+                if (arr[i] != '') {
+                    newArr.push(arr[i]);
+                }
+            }
+            return newArr;
+        }
+
+        function uniq(arr) {
+            let mySet = new Set(arr);
+            let myArr = [...mySet];
+            return myArr;
+        }
+
+        // Fisher-Yates algorithm
+        function shuffle(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+    </script>
+
+</body>
+</html>
