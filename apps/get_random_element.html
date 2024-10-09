@@ -101,6 +101,7 @@
 
         function copy(elem) {
             navigator.clipboard.writeText(elem.innerText);
+            document.getElementById("myp").innerText += " copied";
         }
 
         function clean() {
