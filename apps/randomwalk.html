@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fast Random Walk</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="randomWalkCanvas" width="600" height="600"></canvas>
+
+    <script>
+        const canvas = document.getElementById('randomWalkCanvas');
+        const ctx = canvas.getContext('2d');
+        const STEP_SIZE = 5; // Step size
+        const POINT_SIZE = 2; // Size of the point
+        const MOVES_PER_FRAME = 20; // we control the speed here
+
+        // Start in the center of the canvas
+        let x = canvas.width / 2;
+        let y = canvas.height / 2;
+
+        // Function to draw the current point
+        function drawPoint(x, y) {
+            ctx.fillStyle = 'red';
+            ctx.fillRect(x, y, POINT_SIZE, POINT_SIZE);
+        }
+
+        // Function to perform a random walk step
+        function randomWalk() {
+            for (let i = 0; i < MOVES_PER_FRAME; i++) {
+                const direction = Math.floor(Math.random() * 4);
+                switch (direction) {
+                    case 0: // Up
+                        y -= STEP_SIZE;
+                        break;
+                    case 1: // Down
+                        y += STEP_SIZE;
+                        break;
+                    case 2: // Left
+                        x -= STEP_SIZE;
+                        break;
+                    case 3: // Right
+                        x += STEP_SIZE;
+                        break;
+                }
+
+                // Ensure the point stays within the bounds of the canvas
+                if (x < 0) x = 0;
+                if (x >= canvas.width) x = canvas.width - 1;
+                if (y < 0) y = 0;
+                if (y >= canvas.height) y = canvas.height - 1;
+
+                drawPoint(x, y); 
+            }
+        }
+
+        // Animation loop using requestAnimationFrame
+        function animate() {
+            randomWalk();  // Move the point
+            requestAnimationFrame(animate);  // Request the next frame
+        }
+
+        // Start the animation
+        requestAnimationFrame(animate);
+    </script>
+</body>
+</html>
