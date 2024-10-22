@@ -1,55 +1,89 @@
 <!doctype html>
 <html>
-<body>
+    <body>
+        <p id="myp"></p>
+        <br>
+        <input type="text" id="myinput">
+        <br>
+        <button id="mybtn" onclick="run()">check</button>
+        <hr>
+        Score: <span id="score">0</span>
+    </body>
+    <script>
 
-</body>
-<script>
+        let words = ["harry","hermione","snape","dumbledore"];
+        let myp = document.getElementById("myp");
+        let firstword = changeWord();
+        let score = 0;
+        let scorespan = document.getElementById("score");
+        
+        //we need to fix  this part
 
-
-
-words = ["harry","hermione","dumbledore","snape"];
-
-
-scramble(getRandomWord(words));
-
-
-function gamePlay() {
-	let scrambled = scramble(getRandomWord(words));
-	//add onclick method to check
-	check(inputword, scrambled) -> returns bool
-}
-
-
-function getRandomWord(words) {
-		let rnd = Math.floor(Math.random() * words.length);
-		let x = words[rnd];
-		//remove words[rnd] from the list
-		console.log(x);
-		return x;
-	}
-
-
-function scramble(word) {
-
-	let chars = word.split("");
-	let last = chars.pop();
-	let first = chars.shift();
-	
-	let mid = shuffle(chars).join("");
-	console.log(first+mid+last);
-	let newword = first+mid+last;
-	return newword;
-
-}
-
-
-function shuffle(arr) {
-            for (let i = arr.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [arr[i], arr[j]] = [arr[j], arr[i]];
+        function run() {
+            let answer = document.getElementById("myinput").value;
+            console.log(answer);
+            console.log(myp.innerText);
+            if(check(answer, myp.innerText)) {
+                score++;
             }
-            return arr;
+            else {
+                score--;
+            }
+            scorespan.innerText = score;
+            changeWord();
+            document.getElementById("myinput").value = "";
+            document.getElementById("myinput").focus();
+            
+            
+            
         }
 
-</script>
+        function check(answer, word) {
+            if(answer != word) {
+                return false;
+            }
+            else {
+                return true;
+            }
+            
+        }
+        
+        function changeWord() {
+            let word = getRandomWord(words);
+            myp.innerHTML = scramble(word);
+            return word;
+        }
+        
+        function getRandomWord(words) {
+                let rnd = Math.floor(Math.random() * words.length);
+                let x = words[rnd];
+                //remove words[rnd] from the list
+                console.log(x);
+                return x;
+            }
+        
+        
+        function scramble(word) {
+            let chars = word.split("");
+            let last = chars.pop();
+            let first = chars.shift();
+        
+            let mid = shuffle(chars).join("");
+            console.log(first+mid+last);
+            let newword = first+mid+last;
+            return newword;
+        
+        }
+        
+        
+        function shuffle(arr) {
+                    for (let i = arr.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [arr[i], arr[j]] = [arr[j], arr[i]];
+                    }
+                    return arr;
+                }
+                
+                </script>
+
 </html>
