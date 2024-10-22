@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+<body>
+
+</body>
+<script>
+
+
+
+words = ["harry","hermione","dumbledore","snape"];
+
+
+scramble(getRandomWord(words));
+
+
+function gamePlay() {
+	let scrambled = scramble(getRandomWord(words));
+	//add onclick method to check
+	check(inputword, scrambled) -> returns bool
+}
+
+
+function getRandomWord(words) {
+		let rnd = Math.floor(Math.random() * words.length);
+		let x = words[rnd];
+		//remove words[rnd] from the list
+		console.log(x);
+		return x;
+	}
+
+
+function scramble(word) {
+
+	let chars = word.split("");
+	let last = chars.pop();
+	let first = chars.shift();
+	
+	let mid = shuffle(chars).join("");
+	console.log(first+mid+last);
+	let newword = first+mid+last;
+	return newword;
+
+}
+
+
+function shuffle(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+</script>
+</html>
