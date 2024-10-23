@@ -1,141 +1,80 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fake Pastebin</title>
+    <title>Links Page</title>
     <style>
-        /* Reset some default browser styles */
-        body, html {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
+      /* Mobile-first styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-        /* Flex container to center everything */
-        body {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
-        }
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f7f7f7;
+    color: #333;
+    padding: 20px;
+}
 
-        .container {
-            width: 100%;
-            max-width: 500px;
-            padding: 20px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            text-align: center;
-        }
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
 
-        h1 {
-            margin: 0;
-            font-size: 24px;
-            color: #333;
-        }
+h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
 
-        textarea {
-            width: 100%;
-            height: 150px;
-            padding: 10px;
-            font-size: 16px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-            resize: vertical;
-            box-sizing: border-box;
-        }
+#links-list {
+    list-style-type: none;
+    padding: 0;
+}
 
-        button {
-            padding: 15px;
-            border: none;
-            border-radius: 5px;
-            background-color: #007bff;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
+#links-list li {
+    margin-bottom: 15px;
+}
 
-        button:hover {
-            background-color: #0056b3;
-        }
+#links-list a {
+    display: block;
+    text-decoration: none;
+    font-size: 18px;
+    color: #007bff;
+    padding: 10px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
 
-        @media (max-width: 600px) {
-            .container {
-                padding: 15px;
-                margin: 0 10px;
-            }
+#links-list a:hover {
+    background-color: #d4d4d4;
+}
 
-            textarea {
-                height: 120px;
-            }
-
-            button {
-                padding: 12px;
-                font-size: 14px;
-            }
-        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Fake Pastebin</h1>
-        <textarea id="mytext" placeholder="Write something..."></textarea>
-        <button id="mybtn" onclick="run()">Share & Copy Link</button>
-        <span id="myspan"></span>
-        
+        <h1>Links</h1>
+        <ul id="links-list">
+          
+           
+        </ul>
     </div>
 </body>
-<script>
-
-first();
-
-function first() {
-    const mytext = document.getElementById("mytext");
-    let params = getParamsFromUrl();
-    //if empty
-    if(params.length == 1) {
-        window.location.href += "?text=ZW50ZXIgc29tZXRoaW5nIGhlcmU=";
-    }
-    mytext.innerText = decode(params[1]);
-    mytext.focus();
+  <script>
+    let links = document.getElementById("links-list");
+let names = ["Do Nothing","Endless Dogs","Stack","Yes No","Chuck Norris","Random Phonetic Hash","Pirate Name Generator","Tip Calculator","BMI Calculator","Cats", "Dogs","Top 10 Episodes","Get random element","Wordplay","Fake Pastebin"];
+let urls = ["do_nothing.html","endless_dogs.html","stack.html","yesno.html","chucknorris.html","randomtext.html","pirate_name_generator.html","tip_calculator.html","bmi_calculator.html","cats.html","dogs.html","top10.html","get_random_element.html","wordplay.html","pastebin.html"];
+for(let i=0;i<names.length;i++){
+  links.innerHTML += `<li><a href='${urls[i]}'>${names[i]}</a></li>` 
 }
-
-function run() {
-    const mytext = document.getElementById("mytext").value;
-    let encoded_text = encode(mytext);
-    let params = getParamsFromUrl();
-
-    let copyLink = params[0] + "?text=" + encoded_text;
-    //window.location.href = params[0] + "?text=" + encoded_text; //this eliminates the copy because it changes the page
-    navigator.clipboard.writeText(copyLink);
-    document.getElementById("myspan").innerHTML = "Copied to clipboard!";
-    
-
-}
-
-function getParamsFromUrl() {
-    const url = window.location.href;
-    let params = url.split("?text=");
-    return params;
-}
-
-function encode(param) {
-    return btoa(unescape(encodeURIComponent(param)));
-
-}
-function decode(param) {
-    return decodeURIComponent(escape(atob(param)));
-}
-
-
-
-</script>
+  </script>
 </html>
