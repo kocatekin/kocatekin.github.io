@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fake Pastebin</title>
+    <style>
+        /* Reset some default browser styles */
+        body, html {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Flex container to center everything */
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            text-align: center;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 24px;
+            color: #333;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+                margin: 0 10px;
+            }
+
+            textarea {
+                height: 120px;
+            }
+
+            button {
+                padding: 12px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Fake Pastebin</h1>
+        <textarea id="mytext" placeholder="Write something..."></textarea>
+        <button onclick="run()">Share</button>
+    </div>
+</body>
+<script>
+
+first();
+
+function first() {
+    const mytext = document.getElementById("mytext");
+    let params = getParamsFromUrl();
+    //if empty
+    if(params.length == 1) {
+        window.location.href += "?text=ZW50ZXIgc29tZXRoaW5nIGhlcmU=";
+    }
+    mytext.innerText = decode(params[1]);
+    mytext.focus();
+}
+
+function run() {
+    const mytext = document.getElementById("mytext").value;
+    let encoded_text = encode(mytext);
+    let params = getParamsFromUrl();
+    window.location.href = params[0] + "?text=" + encoded_text;
+}
+
+function getParamsFromUrl() {
+    const url = window.location.href;
+    let params = url.split("?text=");
+    return params;
+}
+
+function encode(param) {
+    return btoa(unescape(encodeURIComponent(param)));
+
+}
+function decode(param) {
+    return decodeURIComponent(escape(atob(param)));
+}
+</script>
+</html>
