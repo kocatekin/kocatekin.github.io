@@ -88,7 +88,9 @@
     <div class="container">
         <h1>Fake Pastebin</h1>
         <textarea id="mytext" placeholder="Write something..."></textarea>
-        <button onclick="run()">Share</button>
+        <button id="mybtn" onclick="run()">Share & Copy Link</button>
+        <span id="myspan"></span>
+        
     </div>
 </body>
 <script>
@@ -110,7 +112,13 @@ function run() {
     const mytext = document.getElementById("mytext").value;
     let encoded_text = encode(mytext);
     let params = getParamsFromUrl();
-    window.location.href = params[0] + "?text=" + encoded_text;
+
+    let copyLink = params[0] + "?text=" + encoded_text;
+    //window.location.href = params[0] + "?text=" + encoded_text; //this eliminates the copy because it changes the page
+    navigator.clipboard.writeText(copyLink);
+    document.getElementById("myspan").innerHTML = "Copied to clipboard!";
+    
+
 }
 
 function getParamsFromUrl() {
@@ -126,5 +134,8 @@ function encode(param) {
 function decode(param) {
     return decodeURIComponent(escape(atob(param)));
 }
+
+
+
 </script>
 </html>
