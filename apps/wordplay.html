@@ -1,51 +1,199 @@
-<!doctype html>
-<html>
-    <body>
-        <p id="myp"></p>
-        <br>
-        <input type="text" id="myinput">
-        <br>
-        <button id="mybtn" onclick="run()">check</button>
-        <hr>
-        Score: <span id="score">0</span>
-    </body>
-    <script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Side by Side UI</title>
+    <style>
+    /* General reset */
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+}
 
-        let words = ["harry","hermione","snape","dumbledore"];
-        let myp = document.getElementById("myp");
-        let firstword = changeWord();
-        let score = 0;
-        let scorespan = document.getElementById("score");
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff;
+}
+
+.left-side, .right-side {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 300px;
+}
+
+h2 {
+    margin-bottom: 10px;
+    font-size: 20px;
+    color: #333333;
+}
+
+input[type="text"] {
+    padding: 8px;
+    margin-bottom: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+button {
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    border-radius: 4px;
+    background-color: #333333;
+    color: #ffffff;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #555555;
+}
+
+img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+p {
+    font-size: 16px;
+    color: #666666;
+    text-align: center;
+}
+    
+    </style>
+
+</head>
+<body>
+    <div class="container">
+        <div class="left-side">
+            <h2 id="myp">Word</h2>
+            <input type="text" id="myinput" placeholder="Enter text...">
+            <button id="submitButton" onclick="run()">Submit</button>
+        </div>
+        <div class="right-side">
+            <img src="https://www.pokemon.com/static-assets/content-assets/cms2/img/pokedex/full/001.png" alt="Placeholder Image" id="image">
+            Level:<p id="textBelowImage">0</p>
+        </div>
+    </div>
+</body>
+<script>
+
+//let words = ["harry","hermione","snape","dumbledore"];
+const words = [
+  "Bulbasaur", "Ivysaur", "Venusaur", "Charmander", "Charmeleon", "Charizard",
+  "Squirtle", "Wartortle", "Blastoise", "Caterpie", "Metapod", "Butterfree",
+  "Weedle", "Kakuna", "Beedrill", "Pidgey", "Pidgeotto", "Pidgeot",
+  "Rattata", "Raticate", "Spearow", "Fearow", "Ekans", "Arbok",
+  "Pikachu", "Raichu", "Sandshrew", "Sandslash", "Nidoran", "Nidorina",
+  "Nidoqueen", "Nidorino", "Nidoking", "Clefairy", "Clefable",
+  "Vulpix", "Ninetales", "Jigglypuff", "Wigglytuff", "Zubat", "Golbat",
+  "Oddish", "Gloom", "Vileplume", "Paras", "Parasect", "Venonat",
+  "Venomoth", "Diglett", "Dugtrio", "Meowth", "Persian", "Psyduck",
+  "Golduck", "Mankey", "Primeape", "Growlithe", "Arcanine", "Poliwag",
+  "Poliwhirl", "Poliwrath", "Abra", "Kadabra", "Alakazam", "Machop",
+  "Machoke", "Machamp", "Bellsprout", "Weepinbell", "Victreebel", "Tentacool",
+  "Tentacruel", "Geodude", "Graveler", "Golem", "Ponyta", "Rapidash",
+  "Slowpoke", "Slowbro", "Magnemite", "Magneton", "Doduo",
+  "Dodrio", "Seel", "Dewgong", "Grimer", "Muk", "Shellder",
+  "Cloyster", "Gastly", "Haunter", "Gengar", "Onix", "Drowzee",
+  "Hypno", "Krabby", "Kingler", "Voltorb", "Electrode", "Exeggcute",
+  "Exeggutor", "Cubone", "Marowak", "Hitmonlee", "Hitmonchan", "Lickitung",
+  "Koffing", "Weezing", "Rhyhorn", "Rhydon", "Chansey", "Tangela",
+  "Kangaskhan", "Horsea", "Seadra", "Goldeen", "Seaking", "Staryu",
+  "Starmie", "Mr. Mime", "Scyther", "Jynx", "Electabuzz", "Magmar",
+  "Pinsir", "Tauros", "Magikarp", "Gyarados", "Lapras", "Ditto",
+  "Eevee", "Vaporeon", "Jolteon", "Flareon", "Porygon", "Omanyte",
+  "Omastar", "Kabuto", "Kabutops", "Aerodactyl", "Snorlax", "Articuno",
+  "Zapdos", "Moltres", "Dratini", "Dragonair", "Dragonite", "Mewtwo", "Mew"
+];
+
+
+let myp = document.getElementById("myp");
+let firstword = changeWord();
+let score = 0;
+let scorespan = document.getElementById("textBelowImage");
+      
+  // Add an event listener to the input field
+  document.getElementById("myinput").addEventListener("keypress", function(event) {
+    // Check if the Enter key is pressed
+    if (event.key === "Enter") {
+      event.preventDefault(); // Prevent the default form submission (if any)
+      document.getElementById("submitButton").click(); // Trigger the button click
+    }
+  });
         
-        //we need to fix  this part
 
         function run() {
+            if(words.length == 0){
+                alert("game over. score: " + score);
+                //gameOver();
+            }
             let answer = document.getElementById("myinput").value;
-            console.log(answer);
-            console.log(myp.innerText);
-            if(check(answer, myp.innerText)) {
+            if(check(answer, firstword)) {
                 score++;
+                
             }
             else {
                 score--;
             }
             scorespan.innerText = score;
-            changeWord();
+            levelUp(score);
+            //remove the word from the list
+            words.splice(words.indexOf(firstword),1);
+            firstword = changeWord();
             document.getElementById("myinput").value = "";
             document.getElementById("myinput").focus();
             
-            
-            
+        }
+
+        function gameOver() {
+            //disable div
+            //disable the button and show the result on the right
+            //maybe an output
         }
 
         function check(answer, word) {
-            if(answer != word) {
+            
+            if(answer.toLowerCase() != word.toLowerCase()) {
                 return false;
             }
             else {
                 return true;
             }
             
+        }
+
+        //based on certain levels we need to evolve
+        function levelUp(score) {
+            let ivysaur = "https://www.pokemon.com/static-assets/content-assets/cms2/img/pokedex/full/002.png";
+            let venusaur = "https://www.pokemon.com/static-assets/content-assets/cms2/img/pokedex/full/003.png";
+
+            if(score == 16) {
+                document.getElementById("image").src = ivysaur;
+            }
+            if(score == 32) {
+                document.getElementById("image").src = venusaur;
+            }
+
         }
         
         function changeWord() {
@@ -74,8 +222,6 @@
             return newword;
         
         }
-        
-        
         function shuffle(arr) {
                     for (let i = arr.length - 1; i > 0; i--) {
                         const j = Math.floor(Math.random() * (i + 1));
@@ -83,7 +229,7 @@
                     }
                     return arr;
                 }
-                
-                </script>
-
+    
+</script>
 </html>
+
