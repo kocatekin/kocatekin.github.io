@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fake Pastebin</title>
 
-
     <meta property="og:title" content="Fake Pastebin">
     <meta property="og:description" content="Share your short messages with ease!">
     <meta property="og:image" content="https://github.com/kocatekin/kocatekin.github.io/blob/main/apps/images/barney.png?raw=true">
@@ -75,6 +74,11 @@
             background-color: #0056b3;
         }
 
+        .char-limit {
+            font-size: 14px;
+            color: #888;
+        }
+
         @media (max-width: 600px) {
             .container {
                 padding: 15px;
@@ -95,10 +99,10 @@
 <body>
     <div class="container">
         <h1>Fake Pastebin</h1>
-        <textarea id="mytext" placeholder="Write something..."></textarea>
-        <button id="mybtn" onclick="run()">Share & Copy Link</button>
+        <textarea id="mytext" placeholder="Buraya mesajını yaz..."></textarea>
+        <div class="char-limit" id="charCount">180 characters remaining</div>
+        <button id="mybtn" onclick="run()">Paylaş ve Linki Kopyala</button>
         <span id="myspan"></span>
-        
     </div>
 </body>
 <script>
@@ -108,25 +112,29 @@ first();
 function first() {
     const mytext = document.getElementById("mytext");
     let params = getParamsFromUrl();
-    //if empty
-    if(params.length == 1) {
-        window.location.href += "?text=ZW50ZXIgc29tZXRoaW5nIGhlcmU=";
+    // If empty
+    if (params.length == 1) {
+        window.location.href += "?text=QnVyYXlhIG1lc2FqxLFuxLEgeWF6";
     }
-    mytext.innerText = decode(params[1]);
+    mytext.value = decode(params[1]);
+    updateCharCount(); // Update the character count based on initial text
+    mytext.addEventListener('input', updateCharCount);
     mytext.focus();
 }
 
 function run() {
     const mytext = document.getElementById("mytext").value;
+    if (mytext.length > 180) {
+        alert("Text exceeds the 180 character limit.");
+        return;
+    }
+
     let encoded_text = encode(mytext);
     let params = getParamsFromUrl();
 
     let copyLink = params[0] + "?text=" + encoded_text;
-    //window.location.href = params[0] + "?text=" + encoded_text; //this eliminates the copy because it changes the page
     navigator.clipboard.writeText(copyLink);
-    document.getElementById("myspan").innerHTML = "Copied to clipboard!";
-    
-
+    document.getElementById("myspan").innerHTML = "URL panoya kopyalandı!";
 }
 
 function getParamsFromUrl() {
@@ -137,13 +145,34 @@ function getParamsFromUrl() {
 
 function encode(param) {
     return btoa(unescape(encodeURIComponent(param)));
-
 }
+
 function decode(param) {
     return decodeURIComponent(escape(atob(param)));
 }
 
+// Function to update the character count
+function updateCharCount() {
+    const mytext = document.getElementById("mytext");
+    const charCount = document.getElementById("charCount");
+    const remaining = 180 - mytext.value.length;
+    document.getElementById("myspan").innerHTML = "";
 
+    charCount.textContent = `${remaining} karakter kaldı`;
 
+    // If the text exceeds the limit, make it red
+    if (remaining < 0) {
+        //disable copy button
+        document.getElementById("mybtn").disabled = true;
+        document.getElementById("mybtn").style.backgroundColor = "gray";
+        
+        charCount.style.color = 'red';
+        charCount.textContent = `Karakter limiti aşıldı. 180 karakterin altına düş.`;
+    } else {
+        document.getElementById("mybtn").disabled = false;
+        document.getElementById("mybtn").style.backgroundColor = "#007bff";
+        charCount.style.color = '#888';
+    }
+}
 </script>
 </html>
