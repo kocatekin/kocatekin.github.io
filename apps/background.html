@@ -1,0 +1,103 @@
+<!doctype html>
+<html>
+<head>
+    <style>
+        /* Reset styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Body styling */
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f0f4f8;
+            font-family: Arial, sans-serif;
+            color: #333;
+            transition: background-color 0.4s ease;
+            overflow: hidden;
+        }
+
+        /* Header styling */
+        #header {
+            font-size: 3rem;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+            transition: color 0.4s ease, transform 0.2s ease;
+            cursor: pointer;
+        }
+
+        #header:hover {
+            transform: scale(1.05);
+        }
+
+        /* Toast styling */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            opacity: 0;
+            transition: opacity 0.4s ease, bottom 0.4s ease;
+            font-size: 1rem;
+        }
+
+        .toast.show {
+            opacity: 1;
+            bottom: 40px;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="header" onclick="handleClick()">Color Generator</h1>
+    <div id="toast" class="toast">Copied to clipboard</div>
+</body>
+<script>
+    function change() {
+        let stuff = [];
+        for(let i = 0; i < 10; i++) {
+            stuff.push(i);
+        }
+        stuff.push("a", "b", "c", "d", "e", "f");
+        let out = [];
+        for(let i = 0; i < 6; i++) {
+            let num = Math.floor(Math.random() * stuff.length);
+            out.push(stuff[num]);
+        }
+        let output = "#" + out.join("");
+        console.log(output);
+
+        // Change h1 to new name
+        document.getElementById("header").innerText = output;
+        // Change background to new color
+        document.body.style.backgroundColor = output;
+    }
+
+    function copy(params) {
+        navigator.clipboard.writeText(params.innerText);
+        showToast();
+    }
+
+    function showToast() {
+        const toast = document.getElementById("toast");
+        toast.classList.add("show");
+        setTimeout(() => {
+            toast.classList.remove("show");
+        }, 2000);
+    }
+
+    function handleClick() {
+        change();
+        copy(document.getElementById("header"));
+    }
+</script>
+</html>
