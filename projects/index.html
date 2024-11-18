@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Ideas for Students</title>
+    <style>
+        /* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background: #f4f4f9;
+    padding: 20px;
+}
+
+/* Header */
+header {
+    text-align: center;
+    padding: 20px;
+    background: #4caf50;
+    color: #fff;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+header h1 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+header p {
+    font-size: 1.2rem;
+}
+
+/* Main Content */
+main {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Project Sections */
+.project {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.project h2 {
+    color: #4caf50;
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+.project p {
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #555;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    margin-top: 20px;
+    color: #777;
+    font-size: 0.9rem;
+}
+
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Graduation project ideas</h1>
+        <p>Here below are some the projects to choose from. If you have similar, let me know.</p>
+    </header>
+    <main id="mymain">
+        Loading...
+        <!-- 
+        <section class="project">
+            <h2></h2>
+            <p>
+            </p>
+        </section>
+    -->
+       
+    </main>
+    <footer>
+        <p></p>
+    </footer>
+</body>
+<script>
+
+    //projects here
+    let projects = [];
+    projects.push({name:"IMPORTANT",details:"<b>Everyone should visit me biweekly. If not, you will lose points. Everyone is to use Github Projects and Git version control system.</b>"});
+    
+    projects.push({name:"Curve Calculator", details:"A web application where the user uploads a csv file of grades, and the program calculates the letter grades for curve system. Will be expanded for multiuser, etc."});
+    projects.push({name:"Password Manager", details:"Password storage, password creation and password strength meter. Will use all popular methods and compare between them."});
+    projects.push({name:"List App",details:" A multi-user web application. Users will create lists and add stuff to them. They can add friends and see their list(if wanted)."});
+    projects.push({name:"Static site generator", details:"A ssg for professors. They will have text or markdown files, they will be converted into modern looking websites. We also need themes to choose from."});
+    projects.push({name:"Online Journal",details:"A multiuser web application where a user can add friends and encrypt their journal post. Can be seen to others if wanted. Add gamification to it with badges. Analytics are important here."});
+    projects.push({name:"QR Code Asset Management", details:"A multiuser web app with permissions. On everything, there will be a QR code. If you have permission, you get info when you read it and based on your level, you can add information. No editing, similar to a ledger."});
+
+
+
+
+
+
+
+
+    //build the website
+    document.getElementById("mymain").innerHTML = "";
+    for(let i=0;i<projects.length;i++){
+        document.getElementById("mymain").innerHTML += `<section class='project'><h2>${projects[i].name}</h2><p>${projects[i].details}</p></section>`; 
+
+    }
+
+
+    //lets make this into a library
+    let quotes = ["The happiness of your life depends upon the quality of your thoughts.", "Be tolerant with others and strict with yourself.", "Waste no more time arguing about what a good man should be. Be one.","For the good and just is in me.","Only the educated are free.","If you want to improve, be content to be thought foolish and stupid.","No man is free who is not master of himself."];
+    console.log(quotes[Math.floor(Math.random() * quotes.length)]);
+
+
+</script>
+</html>
