@@ -1,0 +1,210 @@
+<!doctype html>
+<html>
+<head>
+   <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nereye Shitter?</title>
+   <style>
+         body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f0f0f0;
+   }
+
+   .container {
+      text-align: center;
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      width: 90%;
+      max-width: 400px;
+   }
+
+   .emoji {
+      font-size: 48px;
+   }
+
+   .header-info {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin-top: 20px;
+   }
+
+   h1 {
+      font-size: 24px;
+      margin: 0;
+   }
+
+   .info-tag {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      background-color: #e0e0f0;
+      color: #5c5c5c;
+      line-height: 20px;
+      border-radius: 50%;
+      font-size: 16px;
+      text-align: center;
+      cursor: help;
+   }
+
+   .action-btn {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 18px;
+      border-radius: 5px;
+      margin-top: 20px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+   }
+
+   .action-btn:hover {
+      background-color: #0056b3;
+   }
+
+   .details {
+      display: block;
+      text-align: left;
+      margin-top: 20px;
+   }
+
+   .details p {
+      margin: 5px 0;
+   }
+
+   </style>
+</head>
+<body>
+   <div class="container" id="container">
+      <div class="emoji">💩</div>
+      <div class="header-info" id="headerinfo">
+         <h1>Shitter</h1>
+      </div>
+      <button onclick="run()" class="action-btn" id="action-btn">Nereye?</button>
+   </div>
+</body>
+<script src="wcdata.js"></script>
+<script>
+
+
+
+var userLatitude;
+var userLongitude;
+
+
+function run() {
+   getLocationData();
+}
+
+
+//get location from the user
+
+function getLocationData() {
+   if ("geolocation" in navigator) {
+  // Geolocation API is supported
+  console.log("Geolocation is supported");
+   } else {
+   // Geolocation API is not supported
+   console.log("Geolocation is not supported by your browser");
+   }
+
+   if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(showPosition, showError);
+  } else {
+    console.log("Geolocation is not supported by this browser.");
+  }
+
+}
+
+function showPosition(position) {
+   userLatitude = position.coords.latitude;
+   userLongitude = position.coords.longitude;
+   //document.getElementById("output").innerHTML = userLatitude + " " + userLongitude;
+   getClosestToilet();
+}
+
+//go through json find closest.
+function getClosestToilet() {
+   let distances = [];
+   for(let i=0;i<wcData.features.length;i++){
+      distances.push(calculateDistance(wcData.features[i].geometry.coordinates));
+   }
+   //getMinDistance index -> get that index to learn data.
+   minValue = distances[0];
+   minIndex = 0;
+   for(let i=0;i<distances.length;i++){
+      if(distances[i] < minValue) {
+         minValue = distances[i];
+         minIndex = i;
+      }
+   }
+
+   //show the data on the screen
+   console.log("Closest toilet");
+   console.log(wcData.features[minIndex].properties);
+   const feature = wcData.features[minIndex].properties;
+
+   
+
+   //this did not work -- why ? css issue meh
+   document.getElementById("headerinfo").innerHTML = `
+   
+   <div class="details">
+      <h1>İşte Buraya!</h1>
+         <p><b>Mekan: </b> ${feature["MAHAL_ADI"] || "N/A"}</p>
+         <p><b>İlçe: </b>${feature["ILCE"] || "N/A"}</p>
+         <p><b>Durum: </b>${feature["TUVALET_DURUM"] || "N/A"}</p>
+         <p><b>Tip: </b>${feature["TUVALET_TIP"] || "N/A"} Tuvalet</p>
+         <p><b>Bakım Odası: </b>${feature["BAKIM_ODASI"] || "N/A"}</p>
+         <p><b>Hizmet Yeri: </b>${feature["HIZMET_YERI"] || "N/A"}</p>
+   </div>`;
+      
+   const forLocation = wcData.features[minIndex].geometry.coordinates;
+   document.getElementById("action-btn").innerText = "GÖTÜR BENİ";
+   //document.getElementById("action-btn").onclick = `gomaps(forLocation[0],forLocation[1])`;
+   document.getElementById("action-btn").onclick = function() {
+      window.location.href = `https://www.google.com/maps/?q=${forLocation[1]},${forLocation[0]}`;
+   }
+
+
+      //change button to google maps link --> should go there on clcik
+}
+
+
+
+function calculateDistance(params) {
+   //a simple cartesian formula
+   const deltaX = params[0] - userLongitude;
+   const deltaY = params[1] - userLatitude;
+   return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+}
+
+function showError(error) {
+  switch(error.code) {
+    case error.PERMISSION_DENIED:
+      console.log("User denied the request for Geolocation.");
+      break;
+    case error.POSITION_UNAVAILABLE:
+      console.log("Location information is unavailable.");
+      break;
+    case error.TIMEOUT:
+      console.log("The request to get user location timed out.");
+      break;
+    case error.UNKNOWN_ERROR:
+      console.log("An unknown error occurred.");
+      break;
+  }
+}
+
+</script>
+</html>
