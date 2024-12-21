@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Heart Rate Zones</title>
+  <style>
+    /* General Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: #f5f5f5;
+      color: #333;
+      padding: 20px;
+    }
+
+    header {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 20px;
+      text-align: center;
+      color: #6200ea;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 400px;
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      border: 2px solid #ddd;
+      border-radius: 5px;
+      outline: none;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+
+    .input-group input::placeholder {
+      color: #757575;
+    }
+
+    button {
+      padding: 12px;
+      font-size: 1.1rem;
+      color: #ffffff;
+      background-color: #6200ea;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    button:hover {
+      background-color: #3700b3;
+    }
+
+    button:active {
+      transform: scale(0.95);
+    }
+
+    .zone {
+      display: block;
+      padding: 15px;
+      border-radius: 5px;
+      margin-top: 10px;
+      font-size: 1rem;
+      font-weight: bold;
+      text-align: left;
+    }
+
+    .zone.zone-1 {
+      background-color: #e3f2fd;
+      border: 2px solid #90caf9;
+      color: #1565c0;
+    }
+
+    .zone.zone-2 {
+      background-color: #e8f5e9;
+      border: 2px solid #a5d6a7;
+      color: #2e7d32;
+    }
+
+    .zone.zone-3 {
+      background-color: #fff3e0;
+      border: 2px solid #ffcc80;
+      color: #ef6c00;
+    }
+
+    .zone.zone-4 {
+      background-color: #fbe9e7;
+      border: 2px solid #ffab91;
+      color: #d84315;
+    }
+
+    .zone.zone-5 {
+      background-color: #efebe9;
+      border: 2px solid #bcaaa4;
+      color: #4e342e;
+    }
+
+    .zone-text {
+      font-size: 0.9rem;
+      margin-top: 5px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <header>Heart Rate Zones</header>
+  <div class="container">
+    <div class="input-group">
+      <input type="number" id="age" placeholder="Enter your age">
+    </div>
+    <button id="calculate-btn" onclick="calculate_zone()">Calculate Zones</button>
+    <div class="zone zone-1" id="zone1">
+      Zone 1: Min - Max BPM
+      
+    </div>
+    <div class="zone zone-2" id="zone2">
+      Zone 2: Min - Max BPM
+      
+    </div>
+    <div class="zone zone-3" id="zone3">
+      Zone 3: Min - Max BPM
+      
+    </div>
+    <div class="zone zone-4" id="zone4">
+      Zone 4: Min - Max BPM
+      
+    </div>
+    <div class="zone zone-5" id="zone5">
+      Zone 5: Min - Max BPM
+      
+    </div>
+  </div>
+</body>
+<script>
+
+function calculate_zone() {
+
+    let age = document.getElementById("age").value;
+    console.log(age);
+    hrmax = 220 - age;
+    //this can be improved but how?
+    let zone1 = [gr(age, 50), gr(age, 60)];
+    let zone2 = [gr(age, 60), gr(age, 70)];
+    let zone3 = [gr(age, 70), gr(age, 80)];
+    let zone4 = [gr(age, 80), gr(age, 90)];
+    let zone5 = [gr(age, 90), gr(age, 100)];
+
+    //update divs
+    document.getElementById("zone1").innerHTML = `Zone 1: ${zone1[0]} - ${zone1[1]} BPM <p class="zone-text">This is the warm-up zone, ideal for light exercise and improving overall fitness.</p>`;
+    document.getElementById("zone2").innerHTML = `Zone 2: ${zone2[0]} - ${zone2[1]} BPM <p class="zone-text">Light cardio zone for moderate activities to improve endurance.</p>`;
+    document.getElementById("zone3").innerHTML = `Zone 3: ${zone3[0]} - ${zone3[1]} BPM <p class="zone-text">Aerobic zone, suitable for improving cardiovascular health and stamina.</p>`;
+    document.getElementById("zone4").innerHTML = `Zone 4: ${zone4[0]} - ${zone4[1]} BPM <p class="zone-text">Anaerobic zone, excellent for high-intensity training and performance improvement.</p>`;
+    document.getElementById("zone5").innerHTML = `Zone 5: ${zone5[0]} - ${zone5[1]} BPM <p class="zone-text">Maximum effort zone, used for peak performance and intense interval training.</p>`;
+
+}
+
+
+//gr for getResults
+function gr(age, percentage) {
+  let hrmax = 220-age;
+  return (hrmax*percentage/100).toFixed(2);
+
+}
+
+
+
+</script>
+</html>
