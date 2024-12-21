@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ninja Name Generator</title>
+  <style>
+    /* General Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Courier New', monospace;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #ffcc00, #ff6600);
+      color: #000;
+    }
+
+    header {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-bottom: 20px;
+      text-align: center;
+      color: #000;
+      text-shadow: 2px 2px #fff;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 400px;
+      background: #333;
+      padding: 20px;
+      border: 5px solid #ffcc00;
+      text-align: center;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      box-shadow: 10px 10px 0 #000;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 10px;
+      font-size: 1rem;
+      border: 3px solid #ffcc00;
+      outline: none;
+      background-color: #fff;
+      color: #000;
+      text-align: center;
+    }
+
+    .input-group input::placeholder {
+      color: #666;
+    }
+
+    button {
+      padding: 10px;
+      font-size: 1.2rem;
+      color: #000;
+      background-color: #ffcc00;
+      border: 3px solid #000;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s;
+      font-weight: bold;
+      text-transform: uppercase;
+      box-shadow: 4px 4px 0 #000;
+    }
+
+    button:hover {
+      background-color: #ff9933;
+    }
+
+    button:active {
+      transform: scale(0.95);
+      box-shadow: 2px 2px 0 #000;
+    }
+
+    .result {
+      font-size: 1.5rem;
+      font-weight: bold;
+      background: #ff6600;
+      padding: 10px;
+      border: 3px solid #000;
+      color: #fff;
+      display: none;
+      text-shadow: 1px 1px #000;
+    }
+  </style>
+</head>
+<body>
+  <header>Ninja Name Generator</header>
+  <div class="container">
+    <div class="input-group">
+      <input type="text" id="name" placeholder="Enter your name">
+      <input type="text" id="surname" placeholder="Enter your surname">
+    </div>
+    <button id="generate-btn" onclick="generate()">Generate Ninja Name</button>
+    <div id="ninja-name" class="result">Your Ninja Name Appears Here</div>
+  </div>
+</body>
+<script>
+
+var letters = " abcdefghijklmnopqrstuvwxyz".split("");
+var ninja = [" ", "ka","zu","mi","te","ku","li","ji","ri","ki","zu","me","ta",
+"rin","to","mo","no","ke","shi","ari","chi","do","ru","mei","ma","fu","zi"];
+
+function generate() {
+    let name = document.getElementById("name").value;
+    let surname = document.getElementById("surname").value;
+    let fullname = name + " " + surname;
+    let out = [];
+    for(let i=0;i<fullname.length;i++) {
+        out.push(change(fullname[i]));
+    }
+    let output_string = out.join("");
+    document.getElementById("ninja-name").style.display = "block";
+    document.getElementById("ninja-name").innerHTML = output_string;
+}
+
+function change(a) {
+    return ninja[letters.indexOf(a)];
+}
+
+
+</script>
+</html>
