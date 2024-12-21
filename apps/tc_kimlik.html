@@ -133,7 +133,9 @@
 	//console.log(myarr);
 	if(myarr.length != 11) {
 		console.log("must be 11 chars");
-        document.getElementById("invalid_chars").style.display = "block";
+		document.getElementById("correct_indicator").style.display = "none";
+		document.getElementById("incorrect_indicator").style.display = "none";
+        	document.getElementById("invalid_chars").style.display = "block";
 		return;
 	}
 	let sum = 0;
