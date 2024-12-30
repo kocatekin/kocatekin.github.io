@@ -1,0 +1,240 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Text Editor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Courier+Prime&display=swap" rel="stylesheet">
+    <style type="text/css">
+        body {
+            margin: 40px auto;
+            max-width: 800px;
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            font-size: 18px;
+            color: #333;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        h1, h2, h3 {
+            line-height: 1.2;
+        }
+        textarea {
+            width: 100%;
+            height: 400px;
+            padding: 15px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            resize: vertical;
+            font-family: 'Courier Prime', monospace;
+        }
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        input[type="text"] {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            width: calc(100% - 22px);
+        }
+        #output {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #e7f5fe;
+            border-left: 4px solid #007bff;
+            border-radius: 4px;
+            color: #0056b3;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 20px 0;
+        }
+		span {
+			font-size: 12px;
+			
+				
+		}
+    </style>
+</head>
+
+<body>
+    <div>
+        <h1>Text Editor</h1>
+        <textarea id="mytext"></textarea>
+		<span id="myspan">0 satır</span>
+        <br><br>
+        <button onclick="clean()">Clear</button>
+        <button onclick="run()">Remove Whitespace</button>
+		<button onclick="deleteEmptyLines()">Delete Empty Lines</button>
+        <button onclick="rep()">Replace</button>
+        <button onclick="trim()">Trim</button>
+        <button onclick="uniq()">Unique Lines</button>
+        <button onclick="copy()">Copy Area</button>
+        <button onclick="shuffle()">Shuffle</button>
+		<button onclick="sortText()">Sort</button>
+		
+        <hr>
+        <input type="text" id="filter" placeholder="Filter Text">
+        <button onclick="grepv()">Grep -v</button>
+        <br>
+        <input type="text" id="filter2" placeholder="Filter Text">
+        <button onclick="grep()">Grep</button>
+        <hr>
+		<input type="text" id="replacefrom">
+		<input type="text" id="replaceto">
+		<button onclick="replace()">replace</button>
+		<hr>
+        <input type="text" id="filename" placeholder="File Name">
+        <input type="text" id="uzanti" value=".txt">
+        <button onclick="save()">Save</button>
+		
+    </div>
+    <div id="output"></div>
+    <script>
+	
+	
+		document.getElementById("mytext").addEventListener("input",getAnalytics);
+	
+		//get line count and char and word count
+		function getAnalytics() {
+			let mytext = document.getElementById("mytext").value.split("\n");
+			let numOfElements = mytext.length;
+			document.getElementById("myspan").innerText = `${numOfElements} satır`;
+		}
+		
+		
+		//Replace
+		function replace() {
+			let replacefrom = document.getElementById("replacefrom").value;
+			let replaceTo = document.getElementById("replaceto").value;
+			
+			let mytext = document.getElementById("mytext").value.split("\n");
+			for(let i=0;i<mytext.length;i++){
+				if(mytext[i].includes(replacefrom)) {
+					mytext[i] = mytext[i].replace(replacefrom,replaceTo);
+				}
+			}
+			document.getElementById("mytext").value = mytext.join("\n");
+		}
+			
+			
+			
+			
+		
+	
+		//sort function
+		function sortText() {
+			let mytext = document.getElementById("mytext").value.split("\n");
+			mytext.sort();
+			document.getElementById("mytext").value = mytext.join("\n");
+		}
+
+         function shuffle() {
+            console.log("under construction");
+            //get values and put in an array
+            //later put the array back in
+			let mytext = document.getElementById("mytext").value.split("\n");
+			mytext = mytext.sort(() => Math.random() - 0.5);
+			document.getElementById("mytext").value = mytext.join("\n");
+            
+            
+        }
+		
+		
+		function deleteEmptyLines() {
+			let mytext = document.getElementById("mytext").value.split("\n");
+			let temp = [];
+			for(let i = 0; i < mytext.length; i++){
+				if(mytext[i] != "") {
+					temp.push(mytext[i]);
+				}
+			}
+			console.log(temp);
+			document.getElementById("mytext").value = temp.join("\n");
+		
+		}
+
+        function copyText() {
+            navigator.clipboard.writeText(document.getElementById("mytext").value);
+        }
+        
+        function clean() {
+            document.getElementById('mytext').value = "";
+            document.getElementById('mytext').focus();
+        }
+        function save() {
+            var textToWrite = document.getElementById('mytext').value;
+            let rnd = Math.floor(Math.random() * 101);
+            let uzanti = document.getElementById("uzanti").value;
+            var textFileAsBlob = new Blob([textToWrite], { type: 'text/plain' });
+            let fname = document.getElementById("filename").value;
+            var fileNameToSaveAs = fname.replace(" ", "-") + "_" + rnd.toString() + uzanti;
+            var downloadLink = document.createElement("a");
+            downloadLink.download = fileNameToSaveAs;
+            downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.getElementById("output").innerHTML = `${fname} downloaded`;
+        }
+        function uniq() {
+            let mytext = document.getElementById("mytext").value.split("\n");
+            let newlist = [];
+            for (let i = 0; i < mytext.length; i++) {
+                if (!newlist.includes(mytext[i])) {
+                    newlist.push(mytext[i]);
+                }
+            }
+            document.getElementById("mytext").value = newlist.join("\n");
+        }
+        function rep() {
+            let mytext = document.getElementById("mytext").value.split(",");
+            document.getElementById("mytext").value = mytext.join("\n");
+        }
+        function grepv() {
+            let mytext = document.getElementById("mytext").value.split("\n");
+            let filterText = document.getElementById("filter").value.split(",");
+            let newlist = mytext.filter(line => !filterText.some(word => line.includes(word)));
+            document.getElementById("mytext").value = newlist.join("\n");
+        }
+        function grep() {
+            let mytext = document.getElementById("mytext").value.split("\n");
+            let filterText = document.getElementById("filter2").value;
+            let newlist = mytext.filter(line => line.includes(filterText));
+            document.getElementById("mytext").value = newlist.join("\n");
+        }
+        function trim() {
+            let mytext = document.getElementById("mytext").value.split("\n");
+            let newlist = mytext.map(line => line.trim());
+            document.getElementById("mytext").value = newlist.join("\n");
+        }
+        function run() {
+            let mytext = document.getElementById("mytext").value.split("\n");
+            let newlist = [];
+            for (let i = 0; i < mytext.length; i++) {
+                let to_add = mytext[i].trim().replace('"', '').replace(",", "");
+                if (!newlist.includes(to_add)) {
+                    newlist.push(to_add);
+                }
+            }
+            document.getElementById("mytext").value = newlist.join("\n");
+        }
+    </script>
+</body>
+
+</html>
