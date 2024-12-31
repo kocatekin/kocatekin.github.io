@@ -1,0 +1,62 @@
+/* General Body Styling */
+body {
+   font-family: 'Arial', sans-serif;
+   background-color: #f4f4f4;
+   margin: 0;
+   padding: 0;
+   color: #333;
+}
+
+/* Container Styling */
+#sci-journals, #non-sci-journals, #conferences {
+   margin: 20px auto;
+   max-width: 960px;
+   background: white;
+   padding: 20px;
+   border-radius: 8px;
+   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Title of each section - aligned left */
+#sci-journals h2, #non-sci-journals h2, #conferences h2 {
+   color: #2c3e50;
+   text-align: left; /* Aligns the headers to the left */
+   padding: 0;
+   margin: 0 0 10px 0; /* Adds some space below the header */
+}
+
+/* Each Publication Block */
+div {
+   border-bottom: 1px solid #e1e1e1;
+   padding: 10px 0;
+   margin: 10px 0;
+}
+
+/* Headings within publications */
+h3 {
+   color: #3498db;
+   margin: 10px 0 5px;
+}
+
+/* Paragraph styling */
+p {
+   color: #555;
+   line-height: 1.6;
+   margin: 4px 0;
+}
+
+/* Strong (bold) elements for better emphasis */
+strong {
+   color: #333;
+   font-weight: bold;
+}
+
+/* Keywords styling to make them stand out */
+/*
+p:last-child {
+   background-color: #def;
+   padding: 5px;
+   border-radius: 5px;
+   display: inline-block;
+}
+*/
