@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Publications</title>
+   <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+   <div id="sci-journals">
+      <h2>Papers published in SCI Journals</h2>
+   </div>
+   <div id="non-sci-journals">
+      <h2>Papers published in Non-Sci Journals</h2>
+   </div>
+   <div id="conferences">
+      <h2>Conference Papers</h2>
+   </div>
+
+
+
+</body>
+
+<script src="all_publications.js"></script>
+<script>
+   console.warn("Hey!");
+   console.log("always good to check the console for stuff.");
+   console.log("as a price, a quote for you!");
+   console.log("remember that very little is needed to make a happy life; it is all in yourself, in your way of thinking");
+   
+
+function renderPublications(publications, containerId) {
+   const container = document.getElementById(containerId);
+   publications.forEach(publication => {
+      const publicationDiv = document.createElement("div");
+      publicationDiv.innerHTML += `
+         <h3><a href='${publication.link}' target="_blank">${publication.title}</a></h3>
+         <p><strong>Journal/Conference: </strong>${publication.journal || publication.conference}</p>
+         <p><strong>Date: </strong>${publication.publicationDate}</p>
+         <p><strong>Authors: </strong>${publication.authors.join(", ")}</p>
+         <p><strong>Abstract: </strong>${publication.abstract}</p>
+         <p><strong>DOI: </strong>${publication.doi}</p>
+         
+      `;
+      container.appendChild(publicationDiv);
+   });
+}
+
+renderPublications(data.SCI_Journals, 'sci-journals');
+renderPublications(data.Non_SCI_Journals, 'non-sci-journals');
+renderPublications(data.Conferences, 'conferences');
+</script>
+</html>
