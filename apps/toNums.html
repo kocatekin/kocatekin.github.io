@@ -1,0 +1,95 @@
+<!doctype html>
+<html>
+<head>
+<style>
+    body, html {
+        margin: 0;
+        padding: 0;
+        font-family: 'Arial', sans-serif; /* Clean and modern font */
+        background-color: #f4f4f9; /* Light grey background for a modern look */
+        color: #333; /* Dark grey text for better readability */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh; /* Full viewport height */
+    }
+
+    #container {
+        text-align: center;
+        background-color: #fff; /* White background for the container */
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Subtle shadow for 3D effect */
+        width: 90%; /* Responsive width */
+        max-width: 400px; /* Maximum width of the container */
+    }
+
+    input[type="text"] {
+        width: 80%; /* Responsive width */
+        padding: 10px;
+        margin-top: 20px;
+        border: 2px solid #ddd; /* Light grey border */
+        border-radius: 4px; /* Rounded corners for the input box */
+        font-size: 16px; /* Larger font size for better readability */
+    }
+
+    button {
+        width: 80%;
+        padding: 10px;
+        font-size: 16px;
+        color: white; /* White text color */
+        background-color: #007BFF; /* Bootstrap primary color */
+        border: none;
+        border-radius: 4px;
+        margin-top: 10px;
+        cursor: pointer; /* Pointer cursor on hover */
+        transition: background-color 0.3s; /* Smooth transition for hover effect */
+    }
+
+    button:hover {
+        background-color: #0056b3; /* Darker blue on hover for better interaction feedback */
+    }
+
+    div {
+        margin-top: 10px;
+        word-wrap: break-word; /* Ensures long strings do not overflow */
+    }
+</style>
+
+</head>
+<body>
+
+
+
+<div id="container">
+<input type="text" id="input"></br>
+<button onclick="run()">run</button>
+
+</div>
+	
+</body>
+<script>
+function createNums(string) {
+	alp_array = Array.from("abcçdefgğhıijklmnoöprsştuüvyz");
+	out = [];
+	Array.from(string).forEach(character => {
+		out.push(alp_array.indexOf(character));
+	}); 
+	console.log(out);
+	
+	//output
+	let container = document.getElementById("container");
+	const newDiv = document.createElement("div");
+	newDiv.innerText = `${string}: ${out}`;
+	container.appendChild(newDiv);
+
+}
+
+function run() {
+	let name = document.getElementById("input").value;
+	createNums(name);
+}
+</script>
+
+
+</html>
