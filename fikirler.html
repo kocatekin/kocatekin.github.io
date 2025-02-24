@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dünyayı Anlatan Fikirler</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+      body {
+          font-family: 'Inter', sans-serif;
+          margin: 0;
+          padding: 0;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+          background-color: #e9f5f9;
+          color: #333;
+      }
+
+      .card {
+          width: 90%;
+          max-width: 600px;
+          background-color: #ffffff;
+          padding: 30px;
+          box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+          border-radius: 12px;
+          text-align: left;
+          border-left: 6px solid #007bff;
+      }
+
+      .card-header {
+          font-size: 28px;
+          font-weight: 600;
+          color: #007bff;
+          margin-bottom: 15px;
+          border-bottom: 2px solid #dee2e6;
+          padding-bottom: 10px;
+      }
+
+      .card-text {
+          font-size: 16px;
+          color: #495057;
+          line-height: 1.6;
+      }
+  </style>
+</head>
+<body>
+   
+    <div class="card" onclick="run()">
+        <div class="card-header">Professional Card Header</div>
+        <div class="card-text">This is a clean, professional-looking card design suitable for business or formal use. It is simple, elegant, and easy to read.</div>
+    </div>
+</body>
+<script>
+   console.log("please go to for more!");
+   console.log("https://akilmodelleri.substack.com/p/dunyay-anlatan-fikirler-seckisi");
+   // {"heading":"", "text":``},
+   let texts = [
+      {"heading":"Sturgeon Yasası (Sturgeon’s Law)", "text":`"Her şeyin %90'ı saçmalıktır." Pareto İlkesi'nin bariz bir tersi olsa da pratikte kabul edilebilir bir kural. Bu kural, her alanda düşük kaliteli işlerin yüksek oranda bulunduğunu ifade eder. Kişisel olarak, hayata dair çoğu rafine zevkin bu kapsamda değerlendirilmesi gerektiğine inanıyorum. Yani eğer “blues” türünü dinlemeyi sevmiyorsanız, muhtemelen çok iyi blues’lara denk gelmediniz. Herhangi bir şeyi “sevmiyorum” demeden önce, o şeyle ilgili çok iyi seviyedeki %10’luk dilimi araştırıp araştırmadığınızı sorgulamakta fayda var.`},
+      {"heading":"Kümülatif Avantaj (Cumulative advantage)", "text":`Sosyal statü, kartopu gibi büyür; çünkü insanlar başarılı insanlarla ilişki kurmayı sever, bu nedenle onlara kapılar açılır ve başarısız insanlarla ilişki kurmaktan kaçınırlar, bu nedenle onlara kapılar kapanır. Bu durum, başarı ve başarısızlığın zamanla katlanarak artmasına neden olur.`},
+      {"heading":"Sahtekar Sendromu (Impostor Syndrome)", "text":`İnsanların, sizi düşündüklerinden daha az yetenekli olduğunuzun ortaya çıkmasından duyulan korkudur. Genellikle yeteneğin gerçek çaba veya beceriden ziyade kümülatif avantaja bağlı olmasından kaynaklanır. Kişi, başarılarını şansa veya dış etkenlere bağlar ve yeteneklerini küçümser.`},
+      {"heading":"Golem Etkisi (Golem Effect)", "text":`Yönetici veya öğretmenlerin yeteneklerinize dair düşük beklentileri olduğunda performansın düşmesidir. Beklentiler, performansı doğrudan etkileyebilir; düşük beklentiler performansı olumsuz etkilerken, yüksek beklentiler olumlu etkileyebilir.`},
+      {"heading":"Hard-Easy Effect (Zor-Kolay Etkisi)", "text":`Zor görevler aşırı güveni teşvik eder çünkü ödüller yüksektir ve hayal kurmak eğlencelidir; kolay görevler ise yetersiz güveni teşvik eder çünkü sıkıcıdırlar ve ertelemek kolaydır. Görevlerin zorluğu, kişinin kendine olan güvenini ve motivasyonunu farklı şekillerde etkiler.`},
+      {"heading":"Peter İlkesi (Peter Principle)", "text":`İyi çalışanlar, kötü oldukları bir role gelene kadar terfi ettirilmeye devam edeceklerdir. Bu ilke, çalışanların yetkinlik seviyelerinin ötesinde terfi ettirildiklerinde performanslarının düşeceğini öne sürer.`},
+      {"heading":"Yanlış Konsensüs Etkisi (False-Consensus Effect)", "text":`Kendi inançlarınızın ne kadar yaygın olduğunu abartma eğilimidir. Bu, diğer insanların deneyimlerini hayal etme zorluğundan kaynaklanır. Başka bir deyişle, herkesin sizin gibi düşündüğünü veya düşüneceğini varsayarsınız.`},
+      {"heading":"Baader-Meinhof Olayı (Baader-Meinhof Phenomenon)", "text":`Bir şeyi öğrendikten sonra her yerde görmeye başlamanız ve bunun yaygınlığını abartmanız durumudur. Yeni karşılaştığınız bir şeyin birdenbire her yerde görünmesi, onun aslında yeni olmadığı, sadece dikkatinizi çektiği anlamına gelir.`},
+      {"heading":"Normalcy Bias (Normallik Yanılgısı)", "text":`Felaketlerin olasılığını hafife alma eğilimidir çünkü işlerin her zaman olduğu gibi işleyeceğini varsaymaya meyilliyiz. Bu, rahatlatıcı bir düşünce olsa da tehlike anlarında hazırlıksız yakalanmaya neden olabilir.`},
+      {"heading":"Texas Sharpshooter Fallacy (Teksas Keskin Nişancı Yanılgısı)", "text":`Bir olay gerçekleştikten sonra hedefleri geriye dönük olarak belirlemektir. Örneğin, önce duvara ateş edip sonra mermi deliklerinin etrafına hedef çizmek veya yatırım yaptıktan sonra bir kıyaslama noktası seçmek gibi.`},
+      {"heading":"Apophenia", "text":`Alakasız şeyler arasında korelasyonlar algılama eğilimidir. Zihniniz küçük örneklem boyutlarıyla başa çıkmak zorunda olduğundan, şeylerin ilişkili olduğunu varsaymak, dünyanın nasıl çalıştığına dair rahatlatıcı açıklamalar yaratır.`},
+      {"heading":"False Uniqueness Effect (Yanlış Benzersizlik Etkisi)", "text":`Becerilerinizin benzersiz olduğunu varsaymaktır, ancak aslında durum böyle değildir. "Ben bu konuda iyiyim" ile "Diğerleri bu konuda kötü" arasındaki farkı karıştırmaktan kaynaklanır.`},
+      {"heading":"Neglect of Probability (Olasılık İhmali)", "text":`Bir tahminin doğruluğunu değerlendirirken olasılıkları göz ardı etmektir. Örneğin, bir seçeneğin %70 kazanma şansı olduğunu söyleyen bir tahmini, sonucun gerçekleşmemesi durumunda tamamen yanlış olarak değerlendirmek... İyi tahminler olasılıklara dayanır, ancak tahminlerin değerlendirilmesi her zaman ikilidir: doğru veya yanlış.`},
+      {"heading":"Woozle Effect (Woozle Etkisi)", "text":`Bir yanlışı sık tekrar yoluyla doğru olduğuna inandırmaktır. Daniel Kahneman'a göre, aşinalık gerçeklikten kolayca ayırt edilemez.`},
+      {"heading":"Dunning-Kruger Effect (Dunning-Kruger Etkisi)", "text":`Zekanızın sınırlarını bilmek için belirli bir zeka seviyesi gerekir, bu nedenle bazı insanlar ne kadar aptal olduklarını bilecek kadar zeki değildir.`},
+      {"heading":"Middle Ground Fallacy (Orta Yol Yanılgısı)", "text":`İki karşıt görüş arasındaki anlaşmazlığı gidermek için orta yolu bulmanın sağlıklı bir uzlaşma olduğunu varsaymaktır. Örneğin, bir kişi aşıların otizme neden olduğunu söylerse ve başka bir kişi neden olmadığını söylerse, uzlaşmak için aşıların bazen otizme neden olduğunu söylemek doğru değildir.`},
+      {"heading":"Depresif Gerçekçilik (Depressive Realism)", "text":`Depresif insanların dünya hakkında daha gerçekçi bir bakış açısına sahip olduklarını, çünkü hayatın ne kadar riskli ve kırılgan olduğu konusunda daha gerçekçi olduklarını belirtir. "Mutlu cahilliğin" tam tersidir.`},
+      {"heading":"Yetenek Telafisi (Skill Compensation)", "text":`Bir konuda olağanüstü derecede iyi olan kişilerin, başka bir konuda olağanüstü derecede kötü olma eğiliminde olduklarını ifade eder.`},
+      {"heading":"Bilgi Laneti (Curse of Knowledge)", "text":`Başkalarının gerekli altyapıya sahip olduğunu varsayarak fikirlerinizi iletememe durumudur. İnsanlar, bir konudaki fikirlerini aktarırken, başkalarının da konu hakkında aynı seviyede bilgiye sahip olduğunu varsayabilir ve bu da iletişim sorunlarına yol açabilir.`},
+      {"heading":"Temel Oranlar (Base Rates)", "text":`Sizin denemek üzere olduğunuz şeyi daha önce yapmış olan herkesin başarı oranıdır. Bu, karar verirken dikkate alınması gereken önemli bir faktördür.`},
+      {"heading":"Temel Oran İhmali (Base-Rate Neglect)", "text":`Sizin denemek üzere olduğunuz şeyi daha önce yapmış olan herkesin başarı oranının sizin için geçerli olmadığını varsaymaktır. Bunun nedeni, işleri herkesten farklı yaptığınızı abartmanızdır.`},
+      {"heading":"Buridan'ın Eşeği (Buridan’s Ass)", "text":`Susamış bir eşek, iki kova suyun tam ortasına yerleştirilir. Hangi birini seçeceği konusunda rasyonel bir karar veremediği için ölür. Bu, bir tür karar verme felcidir.`},
+      {"heading":"McNamara Yanılgısı (McNamara Fallacy)", "text":`Rasyonel kararların yalnızca ölçülebilir verilerle alınabileceği inancıdır. Ölçülemeyen şeylerin genellikle en önemli olduğu gerçeğini göz ardı eder. Savunma Bakanı McNamara'nın Vietnam Savaşı'nın her yönünü ölçmeye çalışmasından adını almıştır. McNamara ve ekibinin savaş sırasında önem verdikleri temel gösterge giderek artan öldürdükleri Vietnam asker sayısı olmuş, ancak buna karşılık işgal altında ülkesini savunan asker psikolojisini ve moralini, bağımsızlık arzusunu ölçemedikleri için yok saymışlar ve savaşı kazandık zannederken kaybetmişlerdir.`},
+      {"heading":"Fredkin Paradoksu (Fredkin’s Paradox)", "text":`Eşit derecede iyi iki seçenekle karşı karşıya kaldığınızda karar vermekte zorlanırsınız, ancak kararınızın bir önemi yoktur çünkü her iki seçenek de eşit derecede iyidir. Seçenekler ne kadar eşitse, karar almak o kadar zor olur.`},
+      {"heading":"Hanlon'ın Usturası (Hanlon’s Razor)", "text":`Kötülüğe atfedilebilecek bir şeyi aptallıkla açıklamak daha doğrudur. Başka bir deyişle, birinin kötü niyetli olduğunu varsaymadan önce, hatasının basit bir aptallık sonucu olup olmadığını düşünmek önemlidir.`},
+      {"heading":"Sistem Gerekçelendirme Teorisi (System Justification Theory)", "text":`Verimsiz sistemler, onlardan faydalanan insanların ihtiyaçlarını karşılıyorsa onlar tarafından savunulacak ve sürdürülecektir. Bireysel teşvikler, sistemsel aptallığı sürdürebilir.`},
+      {"heading":"Lüks Paradoksu (Luxury Paradox)", "text":`Bir şey ne kadar pahalıysa, onu kullanma olasılığınız o kadar düşüktür. Bu nedenle fiyat ve fayda arasındaki ilişki ters U şeklindedir. Örnek olarak Ferrariler garajlarda otururken, Hondalar kullanılır.`},
+      {"heading":"Abilene Paradoksu (Abilene Paradox)", "text":`Bir grup, gruptaki hiç kimsenin yapmak istemediği bir şeyi yapmaya karar verir çünkü herkes fikre itiraz eden tek kişi olduğunu varsayar ve konuşarak ortalığı karıştırmak istemez.`},
+      {"heading":"Mükemmel Çözüm Yanılgısı (Perfect Solution Fallacy)", "text":`Gerçekliği, idealize edilmiş bir alternatifle karşılaştırmaktır. Belirsizliğin hakim olduğu herhangi bir alanda yaygındır.`},
+      {"heading":"Sınırlı Rasyonellik (Bounded Rationality)", "text":`İnsanlar tam olarak rasyonel olamazlar çünkü beyinleri bir hormon makinesidir, bir Excel tablosu değildir.`},
+      {"heading":"Aumann'ın Anlaşma Teoremi (Aumann’s Agreement Theorem)", "text":`Rakibinizin inançlarını gerçekten anlıyorsanız, aynı fikirde olmamayı kabul etmezsiniz. Aynı fikirde olmamayı kabul ediyorsanız, bunun nedeni bir tarafın diğer tarafın tam olarak görüşünü anlamamasıdır.`}
+
+
+   ];
+
+   run();
+//document.getElementsByClassName("card-header")[0].innerText = texts[0].heading;
+//document.getElementsByClassName("card-text")[0].innerText = texts[0].text;
+
+function run() {
+   let rnd = Math.floor(Math.random() * texts.length);
+   
+   document.getElementsByClassName("card-header")[0].innerText = texts[rnd].heading;
+   document.getElementsByClassName("card-text")[0].innerText = texts[rnd].text;
+   
+}
+
+</script>
+</html>
