@@ -1,0 +1,189 @@
+<!doctype html>
+<html>
+   <head>
+      <title>endless feed</title>
+      <style>
+         body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #f0f2f5;
+}
+
+h2 {
+  text-align: center;
+  margin: 20px 0;
+}
+
+#feed {
+  padding-bottom: 50px; /* Extra space at the bottom for scrolling */
+}
+
+.post {
+  background: #fff;
+  margin: 20px auto;
+  padding: 15px;
+  width: 90%;
+  max-width: 600px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.username {
+  font-weight: bold;
+  color: #385898;
+}
+
+.timestamp {
+  font-size: 12px;
+  color: #999;
+}
+
+.content {
+  margin: 10px 0;
+  font-size: 16px;
+  color: #333;
+}
+
+/* --- Footer Area --- */
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #eee;
+}
+
+.footer-left,
+.footer-right {
+  display: flex;
+  align-items: center;
+}
+
+.footer-left .action {
+  display: flex;
+  align-items: center;
+  margin-right: 15px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #555;
+  transition: color 0.2s ease;
+}
+
+.footer-left .action:hover {
+  color: #111;
+}
+
+.footer-left .action i {
+  margin-right: 5px;
+}
+
+.footer-right {
+  font-size: 12px;
+  color: #999;
+}
+
+/* Heart Animation */
+.heart-button {
+  color: #999;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.heart-button.liked {
+  color: #e0245e;
+  transform: scale(1.2);
+}
+
+       </style>
+   </head>
+   <body>
+      <h1 align="center">Endless feed</h1>
+      <div id="feed"></div>
+
+   </body>
+   <script>
+
+      const feed = document.getElementById('feed');
+
+      const subjects = ["My cat","The algorithm","My morning coffee","The universe","The guy next door","AI overlords","That one friend","My brain at 3 AM","A random stranger", "Society","My inner child","The moon","The pizza guy","Our ancestors","The cloud","My Wi-Fi", "The void", "I", "My dog", "Barney"];
+      const verbs = ["discovered","embraced","questioned","rejected","analyzed","worshipped","hacked","decoded","reimagined","whispered to","ignored","exposed","challenged","broke","connected with","ghosted","roasted","observed","simulated"];
+      const objects = ["the meaning of life","my notifications","an existential crisis","the metaverse","infinite possibilities","bad decisions","a glitch in the system","my 7th coffee","human nature","unread messages","a lost connection","universal truths","broken dreams","unsent messages","a viral trend","parallel realities"];
+      const usernames = ["hogwartsExplorer","quidditchSeeker","honeydukesHunter","muggleBornWizard","slytherinPrince","gryffindorLion","ravenclawRiddle","hufflepuffSoul","polyjuicePotion","aurorInTraining","horcruxHunter","diagonWanderer","butterbeerLover","threeBroomsticks","roomOfSecrets","chamberDweller","fireboltRider","elderWandMaster","theHalfBloodCode","phoenixFeather","thestralSeeker","hogwartsAlumni","accioSnacks","lumosMaxima","nimbusTwoThousand","malfoyHeir","weasleyTwin","felixFelicisVibes","expectoFun","sortingHatSays","patronusCaster","merlinBeard","darkMarkWatcher","triwizardChampion","snitchSnatcher","wandWaver","leviosaNotLeviohsa","dobbyIsFree","parseltongueWhisperer","severusAlways","knightBusRider","moonyPadfootProngs","gobletOfFireFan","hogsmeadeWalker","magicalMischief","crookshanksPurr","hedwigFlies","wizardChessMaster","galleonsGringotts","curseBreakerBill"];
+
+
+      function generateSentence() {
+         const s = randomChoice(subjects);
+         const v = randomChoice(verbs);
+         const o = randomChoice(objects);
+         const u = randomChoice(usernames);
+         return `${s} ${v} ${o}`;
+      }
+
+      function generateLikes() {
+         return Math.floor(Math.random() * 100) + 1;
+      }
+      function generateRetweet() {
+         return Math.floor(Math.random() * 50);
+      }
+      function generateSeen() {
+         return Math.floor(Math.random() * 500) + 1;
+      }
+      function generateComment() {
+         return Math.floor(Math.random() * 10) + 1;
+      }
+
+      function generatePost() {
+         const post = document.createElement('div');
+         post.className = "post";
+
+         const user = "@"+randomChoice(usernames);
+         const time = `${Math.floor(Math.random() * 59) + 1} mins ago`;
+
+         //let likesCount = document.getElementById("likes");
+
+
+         post.innerHTML = `
+         <div class="username">${user}</div>
+         <div class="timestamp">${time}</div>
+         <div class="content">${generateSentence()}</div>
+         <div class="footer">
+         <div class="footer-left">
+            <div class="action heart-button" id="heartButton"><span id="likes">❤️ ${generateLikes()} </span></div>
+            <div class="action">🔄<span>${generateRetweet()}</span></div>
+            <div class="action">💬<span>${generateComment()}</span></div>
+         </div>
+         <div class="footer-right">
+            <span>👁️ ${generateSeen()}</span>
+         </div>
+         </div>
+
+         `;
+
+         feed.appendChild(post);
+
+      }
+
+       //infinite scroll
+      window.addEventListener('scroll', () => {
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
+         loadMorePosts();
+      }
+      });
+
+      // Load multiple posts
+      function loadMorePosts(count = 5) {
+      for (let i = 0; i < count; i++) {
+         generatePost();
+      }
+      }
+
+      function randomChoice(param) {
+         return param[Math.floor(Math.random() * param.length)];
+      }
+
+      loadMorePosts(10);
+   </script>
+</html>
