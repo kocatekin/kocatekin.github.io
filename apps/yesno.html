@@ -13,30 +13,30 @@
         </style>
     </head>
     <body>
-        <!-- 
+         <h2>Ask a yes/no question:</h2>
           <input type="text" id="question" placeholder="Ask a question"><br>
           <button onclick="run()">sor</button>
           <hr>
-        -->
+        
         <div id="output"></div>
     </body>
     <script>
-    run();
 
+    document.getElementById("question").focus();
+    
     async function run() {
+        document.getElementById("output").innerText = "Loading...";
         let apiurl = "https://yesno.wtf/api";
         const res = await fetch(apiurl);
         let data = await res.json();
         console.log(data);
         createUI(data);
-
     }
 
     function createUI(data) {
         let output = document.getElementById("output");
         output.innerHTML = `<img src='${data["image"]}'>`;
-        output.innerHTML += `<h3>${data['answer']}</h3>`;
-        //todo: for yes and no, prepare multiple answers and select random from them
+        //output.innerHTML += `<h3>${data['answer']}</h3>`;
     }
     
     </script>
