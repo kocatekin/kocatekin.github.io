@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Decision Maker</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 24px;
+      color: #333333;
+    }
+
+    input[type="text"] {
+      width: 80%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 1px solid #cccccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 12px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .loader {
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid #4CAF50;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+      display: none;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .message {
+      font-size: 16px;
+      color: #666666;
+      min-height: 40px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Get an answer!</h1>
+    <input type="text" id="questionInput" placeholder="Ask your question...">
+    <button onclick="startThinking()">Ask</button>
+
+    <div class="loader" id="loader"></div>
+    <div class="message" id="messageArea"></div>
+  </div>
+
+  <script>
+    const messages = [
+      "Analyzing the possibilities...", "Consulting the ancient scrolls...", "Calculating... recalculating...",
+      "Weighing the pros and cons... again.", "Thinking outside the box... and back in.",
+      "Double-checking the double-checks...", "Cross-referencing with the stars...", "Asking the wise old owl...",
+      "Running simulations... forever.", "Flipping an imaginary coin...", "Gathering more opinions...",
+      "Polling the universe...", "Re-evaluating the re-evaluation...", "Searching for deeper meaning...",
+      "Calculating the meaning of life... again.", "Downloading wisdom... progress: 1%.",
+      "Bringing in another committee...", "Spinning the wheel of destiny...", "Rebooting the decision engine...",
+      "Uncovering hidden truths...", "Sweeping for clues...", "Consulting my crystal ball...",
+      "Meditating on the options...", "Sorting possibilities alphabetically...", "Calling in the experts...",
+      "Rewriting the rules...", "Composing an epic saga about this choice...", "Checking with Schrödinger’s cat...",
+      "Sending thoughts through a time machine...", "Still thinking... this must be important!"
+    ];
+
+    let messageIndex = 0;
+    let interval;
+
+    function startThinking() {
+      const question = document.getElementById("questionInput").value.trim();
+
+      if (question === "") {
+        alert("dude...");
+        return;
+      }
+
+      clearInterval(interval); // Clear any previous intervals
+      messageIndex = 0; // Reset index
+
+      document.getElementById("loader").style.display = "block";
+      const messageArea = document.getElementById("messageArea");
+      messageArea.innerText = messages[messageIndex];
+
+      interval = setInterval(() => {
+        messageIndex = (messageIndex + 1) % messages.length;
+        messageArea.innerText = messages[messageIndex];
+      }, 2000);
+    }
+  </script>
+
+</body>
+</html>
