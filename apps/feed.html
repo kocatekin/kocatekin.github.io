@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html>
    <meta charset="utf-8">
@@ -110,9 +111,239 @@ h2 {
 
       const feed = document.getElementById('feed');
 
-      const subjects = ["My cat","The algorithm","My morning coffee","The universe","The guy next door","AI overlords","That one friend","My brain at 3 AM","A random stranger", "Society","My inner child","The moon","The pizza guy","Our ancestors","The cloud","My Wi-Fi", "The void", "I", "My dog", "Barney"];
-      const verbs = ["discovered","embraced","questioned","rejected","analyzed","worshipped","hacked","decoded","reimagined","whispered to","ignored","exposed","challenged","broke","connected with","ghosted","roasted","observed","simulated"];
-      const objects = ["the meaning of life","my notifications","an existential crisis","the metaverse","infinite possibilities","bad decisions","a glitch in the system","my 7th coffee","human nature","unread messages","a lost connection","universal truths","broken dreams","unsent messages","a viral trend","parallel realities"];
+      const subjects = [
+           "My cat",
+           "The algorithm",
+           "My morning coffee",
+           "The universe",
+           "The guy next door",
+           "AI overlords",
+           "That one friend",
+           "My brain at 3 AM",
+           "A random stranger",
+           "Society",
+           "My inner child",
+           "The moon",
+           "The pizza guy",
+           "Our ancestors",
+           "The cloud",
+           "My Wi-Fi",
+           "The void",
+           "I",
+           "My dog",
+           "Barney",
+
+           // More fun additions!
+           "The last donut",
+           "The group chat",
+           "My future self",
+           "A parallel version of me",
+           "The simulation",
+           "My phone battery",
+           "The neighbor's cat",
+           "A rogue AI",
+           "My favorite hoodie",
+           "The time traveler",
+           "The delivery drone",
+           "My spirit animal",
+           "The last brain cell",
+           "A conspiracy theorist",
+           "The hacker known as 4chan",
+           "The overlords",
+           "My unfinished project",
+           "The forgotten password",
+           "My ex’s playlist",
+           "The autocorrect",
+           "A deepfake influencer",
+           "The vending machine",
+           "My smartwatch",
+           "The final boss",
+           "A Gen Z philosopher",
+           "The nostalgic playlist",
+           "The glitch in the matrix",
+           "The council of elders",
+           "A TikTok oracle",
+           "My digital footprint",
+           "The caffeine gods",
+           "The voice in my head",
+           "A cosmic entity",
+           "The spam folder",
+           "My clone",
+           "The person behind the screen",
+           "A wandering bard",
+           "The forgotten meme",
+           "My sleep paralysis demon",
+           "An NFT collector",
+           "The gamer squad",
+           "My plant that's barely alive",
+           "The smart fridge",
+           "My old Tamagotchi",
+           "The last survivor",
+           "The blockchain",
+           "The nostalgia fairy"
+         ];
+
+      const verbs = [
+           "discovered",
+           "embraced",
+           "questioned",
+           "rejected",
+           "analyzed",
+           "worshipped",
+           "hacked",
+           "decoded",
+           "reimagined",
+           "whispered to",
+           "ignored",
+           "exposed",
+           "challenged",
+           "broke",
+           "connected with",
+           "ghosted",
+           "roasted",
+           "observed",
+           "simulated",
+
+           // More similar ones
+           "uploaded",
+           "downloaded",
+           "streamed",
+           "deleted",
+           "backed up",
+           "rebooted",
+           "unplugged",
+           "glitched",
+           "encrypted",
+           "unfollowed",
+           "followed",
+           "liked",
+           "shared",
+           "muted",
+           "scrolled past",
+           "double-tapped",
+           "swiped left on",
+           "swiped right on",
+           "debugged",
+           "upgraded",
+           "downgraded",
+           "configured",
+           "compiled",
+           "rendered",
+           "deconstructed",
+           "mapped",
+           "remixed",
+           "looped",
+           "paused",
+           "fast-forwarded",
+           "rewound",
+           "uploaded to the cloud",
+           "compressed",
+           "unzipped",
+           "mined",
+           "spawned",
+           "respawned",
+           "teleported to",
+           "summoned",
+           "banished",
+           "forged",
+           "decoded",
+           "pinged",
+           "traced",
+           "debugged",
+           "scrambled",
+           "scrapped",
+           "upcycled",
+           "hijacked",
+           "corrupted",
+           "patched",
+           "recharged",
+           "synced",
+           "jammed with",
+           "vibed with",
+           "philosophized about",
+           "dreamed of",
+           "pondered",
+           "meditated on",
+           "woke up from",
+           "dove into",
+           "escaped from",
+           "got lost in"
+         ];
+
+      
+      const objects = [
+        "the meaning of life",
+        "my notifications",
+        "an existential crisis",
+        "the metaverse",
+        "infinite possibilities",
+        "bad decisions",
+        "a glitch in the system",
+        "my 7th coffee",
+        "human nature",
+        "unread messages",
+        "a lost connection",
+        "universal truths",
+        "broken dreams",
+        "unsent messages",
+        "a viral trend",
+        "parallel realities",
+        
+        // More similar ones
+        "forgotten passwords",
+        "another timeline",
+        "yesterday’s regrets",
+        "tomorrow’s promises",
+        "the last slice of pizza",
+        "my unfinished thoughts",
+        "a ghost in the machine",
+        "the final countdown",
+        "an awkward silence",
+        "the sound of typing",
+        "404 errors",
+        "a random memory",
+        "midnight cravings",
+        "unanswered questions",
+        "the last notification",
+        "a cosmic joke",
+        "my browser history",
+        "a spilled secret",
+        "glitched reality",
+        "a half-written song",
+        "the WiFi signal",
+        "buffering thoughts",
+        "invisible likes",
+        "an unposted selfie",
+        "someone else’s playlist",
+        "an overused meme",
+        "a deep sigh",
+        "the group chat",
+        "my backup plan",
+        "a past life",
+        "the void",
+        "a pocket dimension",
+        "an unsaved game",
+        "a coffee stain",
+        "digital footprints",
+        "a missed call",
+        "someone’s dream",
+        "an inside joke",
+        "the wrong timeline",
+        "autocorrect fails",
+        "the loading screen",
+        "my inner monologue",
+        "the last brain cell",
+        "quantum uncertainty",
+        "recycled thoughts",
+        "a random glitch",
+        "someone's last emoji",
+        "the cloud",
+        "an NFT collection",
+        "the last level",
+        "a secret folder"
+      ];
+
+
       const usernames = ["hogwartsExplorer","quidditchSeeker","honeydukesHunter","muggleBornWizard","slytherinPrince","gryffindorLion","ravenclawRiddle","hufflepuffSoul","polyjuicePotion","aurorInTraining","horcruxHunter","diagonWanderer","butterbeerLover","threeBroomsticks","roomOfSecrets","chamberDweller","fireboltRider","elderWandMaster","theHalfBloodCode","phoenixFeather","thestralSeeker","hogwartsAlumni","accioSnacks","lumosMaxima","nimbusTwoThousand","malfoyHeir","weasleyTwin","felixFelicisVibes","expectoFun","sortingHatSays","patronusCaster","merlinBeard","darkMarkWatcher","triwizardChampion","snitchSnatcher","wandWaver","leviosaNotLeviohsa","dobbyIsFree","parseltongueWhisperer","severusAlways","knightBusRider","moonyPadfootProngs","gobletOfFireFan","hogsmeadeWalker","magicalMischief","crookshanksPurr","hedwigFlies","wizardChessMaster","galleonsGringotts","curseBreakerBill"];
 
 
@@ -153,7 +384,11 @@ h2 {
          <div class="content">${generateSentence()}</div>
          <div class="footer">
          <div class="footer-left">
-            <div class="action heart-button" id="heartButton"><span id="likes">❤️ ${generateLikes()} </span></div>
+            <div class="action heart-button" id="heartButton">
+				<span id="likes" class="likesSpan">❤️ ${generateLikes()}</span>
+				
+				
+			</div>
             <div class="action">🔄<span>${generateRetweet()}</span></div>
             <div class="action">💬<span>${generateComment()}</span></div>
          </div>
@@ -177,9 +412,9 @@ h2 {
 
       // Load multiple posts
       function loadMorePosts(count = 5) {
-      for (let i = 0; i < count; i++) {
-         generatePost();
-      }
+		  for (let i = 0; i < count; i++) {
+			 generatePost();
+		  }
       }
 
       function randomChoice(param) {
@@ -187,5 +422,26 @@ h2 {
       }
 
       loadMorePosts(10);
+	  	  
+	 
+
+    //handles the heart click
+	 const spans = document.querySelectorAll('.likesSpan');
+    const likeCounts = document.querySelectorAll('.likeCounts');
+	 
+
+	 spans.forEach((span) => {
+         
+		  span.addEventListener('click', () => {
+			//console.log('You clicked:', span.textContent);
+         let myText = span.textContent.split(" "); //key
+         let count = myText[1];
+         count++;
+         span.textContent = `❤️ ${count}`;
+			
+			});
+		});
+	
+	
    </script>
 </html>
