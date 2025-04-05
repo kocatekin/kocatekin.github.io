@@ -1,0 +1,110 @@
+<!doctype html>
+<html>
+    <head>
+        <style>
+            * {
+              padding: 0;
+              margin: 0;
+            }
+            canvas {
+              background: #eee;
+              display: block;
+              margin: 0 auto;
+            }
+          </style>
+    </head>
+<body>
+    <canvas id="game" width="480" height="320"></canvas>
+    <button id="runButton">Start Game</button>
+    
+</body>
+<script>
+let canvas = document.getElementById("game");
+let ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+//define x and y
+//let x = canvas.width / 2;
+//let y = canvas.height - 30;
+let x = 50;
+let y = 50;
+let radius = 50;
+let color = "green";
+let count = 0;
+
+
+
+
+//speed
+let speed = 2;
+let dx = speed;
+let dy = -speed;
+
+function writeText(text) {
+    ctx.font = "30px Arial";
+    ctx.fillText(`Hit count: ${text}`, 10, 50);
+}
+
+function drawBall(colour) {
+    ctx.beginPath();
+    ctx.arc(x,y,radius,0, Math.PI*2);
+    ctx.fillStyle = colour;
+    ctx.fill();
+    ctx.closePath();
+}
+//general draw
+function draw() {
+    
+    ctx.clearRect(0,0,canvas.width, canvas.height);
+
+    //following 2 lines is for resize. when i resize the page, it always refreshes the width
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    
+    drawBall(color);
+    writeText(count);
+    
+
+    //collision detection
+    if(x + dx + radius >= window.innerWidth || x + dx - radius < 0) 
+    {
+        color = getRandomColor();
+        dx = -dx;
+        count++;
+        console.log(`Collision count: ${count}`);
+    }
+    if(y + dy + radius >= canvas.height || y + dy - radius < 0) 
+    { 
+        color = getRandomColor();
+        dy = -dy;
+        count++;
+        console.log(`Collision count: ${count}`);
+    }
+
+    x += dx;
+    y += dy;
+}
+
+function startGame() {
+    const interval = setInterval(draw, 10);
+}
+startGame();
+document.getElementById("runButton").addEventListener("click", function() {
+    startGame();
+    this.disabled = true;
+})
+
+//random color builder
+function getRandomColor() {
+  var letters = '0123456789ABCDEF';
+  var color = '#';
+  for (var i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}
+
+</script>
+</html>
