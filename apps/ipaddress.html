@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -67,12 +68,13 @@
 </body>
 <script>
 
-function show(data) {
+function show(data, ipaddr) {
     //data has several fields
     console.log(data);
     let output = document.getElementById("output");
    
     output.innerHTML = `<h1>📍 Location</h1><div class="info"><span>City:</span> <span>${data.city}</span></div>
+        <div class="info"><span>IP:</span> <span>${ipaddr}</span></div>
         <div class="info"><span>Country:</span> <span>${data.country}</span></div>
         <div class="info"><span>Coordinates:</span> <span>${data.loc}</span></div>
         <div class="info"><span>Org:</span> <span>${data.org}</span></div>
@@ -97,7 +99,7 @@ function errorMessage(param) {
 async function main() {
 	let ipaddr = await getIPAddress();
 	let locationData = await getLocation(ipaddr);
-	show(locationData);
+	show(locationData, ipaddr);
 }
 
 async function getLocation(ipAddr) {
