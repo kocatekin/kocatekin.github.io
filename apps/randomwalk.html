@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,17 +11,76 @@
             display: block;
             margin: 0 auto;
         }
+        .slidecontainer {
+  width: 100%;
+}
+
+.slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 25px;
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+
+.slider:hover {
+  opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  background: #04AA6D;
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 25px;
+  height: 25px;
+  background: #04AA6D;
+  cursor: pointer;
+}
     </style>
 </head>
-<body>
+<body style="text-align:center">
+
     <canvas id="randomWalkCanvas" width="600" height="600"></canvas>
+    <br><button id="mybtn" onclick="start()">start</button> <button id="stopButton" onclick="stopButton()">stop</button>
+    <div class="slidecontainer">
+      <p>Select Color</p>
+      <select id="mycolor">
+         <option value="red">Red</option>
+         <option value="green">Green</option>
+         <option value="random">Random</option>
+      </select>
+
+      <p>Step size</p>
+      <input type="range" id="stepSizeSlider" min="1" max="10" value=8>
+      <p>Point size</p>
+      <input type="range" id="pointSizeSlider" min="1" max="10" value=5>
+      <p>Moves per frame</p>
+      <input type="range" id="speedSlider" min="1" max="100" value=20>
+      <br>
+
+    </div>
 
     <script>
-        const canvas = document.getElementById('randomWalkCanvas');
-        const ctx = canvas.getContext('2d');
-        const STEP_SIZE = 5; // Step size
-        const POINT_SIZE = 2; // Size of the point
-        const MOVES_PER_FRAME = 20; // we control the speed here
+        var canvas = document.getElementById('randomWalkCanvas');
+        var ctx = canvas.getContext('2d');
+
+         var STEP_SIZE;
+         var POINT_SIZE;
+         var MOVES_PER_FRAME;
+         var myColor;
+
+         var animationId; // To keep track of the animation frame ID
+         var isPaused = false;
+         var isStopped = false;
 
         // Start in the center of the canvas
         let x = canvas.width / 2;
@@ -28,12 +88,36 @@
 
         // Function to draw the current point
         function drawPoint(x, y) {
-            ctx.fillStyle = 'red';
+            if(myColor === "random") {
+               ctx.fillStyle = create_rgb_code();
+            }
+            else {
+               ctx.fillStyle = myColor;
+            }
             ctx.fillRect(x, y, POINT_SIZE, POINT_SIZE);
+        }
+
+        function create_rgb_code(){
+         let stuff = [];
+         for(let i = 0; i < 10; i++) {
+               stuff.push(i);
+         }
+         stuff.push("a", "b", "c", "d", "e", "f");
+            let out = [];
+            for(let i = 0; i < 6; i++) {
+               let num = Math.floor(Math.random() * stuff.length);
+               out.push(stuff[num]);
+         }
+         let output = "#" + out.join("");
+         return output;
         }
 
         // Function to perform a random walk step
         function randomWalk() {
+
+         if (isPaused || isStopped) return;
+
+
             for (let i = 0; i < MOVES_PER_FRAME; i++) {
                 const direction = Math.floor(Math.random() * 4);
                 switch (direction) {
@@ -63,12 +147,36 @@
 
         // Animation loop using requestAnimationFrame
         function animate() {
+          if (isStopped) return;
             randomWalk();  // Move the point
-            requestAnimationFrame(animate);  // Request the next frame
+            //requestAnimationFrame(animate);  // Request the next frame
+            animationId = requestAnimationFrame(animate);
         }
 
+        
         // Start the animation
-        requestAnimationFrame(animate);
+        function start() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); //clear the canvas
+
+            //get values from sliders
+            STEP_SIZE = parseInt(document.getElementById("stepSizeSlider").value); 
+            POINT_SIZE = parseInt(document.getElementById("pointSizeSlider").value);
+            MOVES_PER_FRAME = parseInt(document.getElementById("speedSlider").value);
+            myColor = document.getElementById("mycolor").value;
+            //requestAnimationFrame(animate);
+
+            isPaused = false;
+            isStopped = false;
+            animate();
+      }
+      
+      //stop the animation
+      function stopButton() 
+      {
+         isStopped = true;
+        cancelAnimationFrame(animationId);
+         
+      }
     </script>
 </body>
 </html>
