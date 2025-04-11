@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Catch Pokémon!</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      background: #f0f8ff;
+      padding: 40px;
+    }
+    #timer {
+      font-size: 32px;
+      margin-bottom: 20px;
+    }
+    #pokeball {
+      width: 100px;
+      cursor: pointer;
+    }
+    #caught-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 30px;
+      gap: 10px;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 10px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+      text-align: center;
+      width: 100px;
+    }
+    .card img {
+      width: 72px;
+      height: 72px;
+    }
+    .card small {
+      display: block;
+      margin-top: 5px;
+      font-size: 14px;
+      color: #333;
+    }
+    @keyframes shake {
+  0% { transform: rotate(0deg); }
+  20% { transform: rotate(-20deg); }
+  40% { transform: rotate(20deg); }
+  60% { transform: rotate(-10deg); }
+  80% { transform: rotate(10deg); }
+  100% { transform: rotate(0deg); }
+}
+
+.shake {
+  animation: shake 0.6s ease;
+}
+
+  </style>
+</head>
+<body>
+  <h1>Catch Pokémon!</h1>
+  <div id="timer">Time: 30s</div>
+  <img id="pokeball" src="https://upload.wikimedia.org/wikipedia/commons/5/53/Poké_Ball_icon.svg" alt="Pokeball" />
+  
+  <div id="caught-container"></div>
+
+  <script>
+
+
+
+    const pokemons = [
+      {name:"Bulbasaur",chance: 18},
+      {name:"Ivysaur",chance: 18},
+      {name:"Venusaur",chance: 18},
+      {name:"Charmander",chance: 18},
+      {name:"Charmeleon",chance: 18},
+      {name:"Charizard",chance: 18},
+      {name:"Squirtle",chance: 18},
+      {name:"Wartortle",chance: 18},
+      {name:"Blastoise",chance: 18},
+      {name:"Caterpie",chance: 100},
+      {name:"Metapod",chance: 47},
+      {name:"Butterfree",chance: 18},
+      {name:"Weedle",chance: 100},
+      {name:"Kakuna",chance: 47},
+      {name:"Beedrill",chance: 18},
+      {name:"Pidgey",chance: 100},
+      {name:"Pidgeotto",chance: 47},
+      {name:"Pidgeot",chance: 18},
+      {name:"Rattata",chance: 100},
+      {name:"Raticate",chance: 50},
+      {name:"Spearow",chance: 100},
+      {name:"Fearow",chance: 35},
+      {name:"Ekans",chance: 100},
+      {name:"Arbok",chance: 35},
+      {name:"Pikachu",chance: 75},
+      {name:"Raichu",chance: 29},
+      {name:"Sandshrew",chance: 100},
+      {name:"Sandslash",chance: 35},
+      {name:"Nidoran-f",chance: 92},
+      {name:"Nidorina",chance: 47},
+      {name:"Nidoqueen",chance: 18},
+      {name:"Nidoran-m",chance: 92},
+      {name:"Nidorino",chance: 47},
+      {name:"Nidoking",chance: 18},
+      {name:"Clefairy",chance: 59},
+      {name:"Clefable",chance: 10},
+      {name:"Vulpix",chance: 75},
+      {name:"Ninetales",chance: 29},
+      {name:"Jigglypuff",chance: 67},
+      {name:"Wigglytuff",chance: 20},
+      {name:"Zubat",chance: 100},
+      {name:"Golbat",chance: 35},
+      {name:"Oddish",chance: 100},
+      {name:"Gloom",chance: 47},
+      {name:"Vileplume",chance: 18},
+      {name:"Paras",chance: 75},
+      {name:"Parasect",chance: 29},
+      {name:"Venonat",chance: 75},
+      {name:"Venomoth",chance: 29},
+      {name:"Diglett",chance: 100},
+      {name:"Dugtrio",chance: 20},
+      {name:"Meowth",chance: 100},
+      {name:"Persian",chance: 35},
+      {name:"Psyduck",chance: 75},
+      {name:"Golduck",chance: 29},
+      {name:"Mankey",chance: 75},
+      {name:"Primeape",chance: 29},
+      {name:"Growlithe",chance: 75},
+      {name:"Arcanine",chance: 29},
+      {name:"Poliwag",chance: 100},
+      {name:"Poliwhirl",chance: 47},
+      {name:"Poliwrath",chance: 18},
+      {name:"Abra",chance: 78},
+      {name:"Kadabra",chance: 39},
+      {name:"Alakazam",chance: 20},
+      {name:"Machop",chance: 71},
+      {name:"Machoke",chance: 35},
+      {name:"Machamp",chance: 18},
+      {name:"Bellsprout",chance: 100},
+      {name:"Weepinbell",chance: 47},
+      {name:"Victreebel",chance: 18},
+      {name:"Tentacool",chance: 75},
+      {name:"Tentacruel",chance: 24},
+      {name:"Geodude",chance: 100},
+      {name:"Graveler",chance: 47},
+      {name:"Golem",chance: 18},
+      {name:"Ponyta",chance: 75},
+      {name:"Rapidash",chance: 24},
+      {name:"Slowpoke",chance: 75},
+      {name:"Slowbro",chance: 29},
+      {name:"Magnemite",chance: 75},
+      {name:"Magneton",chance: 24},
+      {name:"Farfetchd",chance: 18},
+      {name:"Doduo",chance: 75},
+      {name:"Dodrio",chance: 18},
+      {name:"Seel",chance: 75},
+      {name:"Dewgong",chance: 29},
+      {name:"Grimer",chance: 75},
+      {name:"Muk",chance: 29},
+      {name:"Shellder",chance: 75},
+      {name:"Cloyster",chance: 24},
+      {name:"Gastly",chance: 75},
+      {name:"Haunter",chance: 35},
+      {name:"Gengar",chance: 18},
+      {name:"Onix",chance: 18},
+      {name:"Drowzee",chance: 75},
+      {name:"Hypno",chance: 29},
+      {name:"Krabby",chance: 88},
+      {name:"Kingler",chance: 24},
+      {name:"Voltorb",chance: 75},
+      {name:"Electrode",chance: 24},
+      {name:"Exeggcute",chance: 35},
+      {name:"Exeggutor",chance: 18},
+      {name:"Cubone",chance: 75},
+      {name:"Marowak",chance: 29},
+      {name:"Hitmonlee",chance: 18},
+      {name:"Hitmonchan",chance: 18},
+      {name:"Lickitung",chance: 18},
+      {name:"Koffing",chance: 75},
+      {name:"Weezing",chance: 24},
+      {name:"Rhyhorn",chance: 47},
+      {name:"Rhydon",chance: 24},
+      {name:"Chansey",chance: 12},
+      {name:"Tangela",chance: 18},
+      {name:"Kangaskhan",chance: 18},
+      {name:"Horsea",chance: 88},
+      {name:"Seadra",chance: 29},
+      {name:"Goldeen",chance: 88},
+      {name:"Seaking",chance: 24},
+      {name:"Staryu",chance: 88},
+      {name:"Starmie",chance: 24},
+      {name:"Mr. Mime",chance: 18},
+      {name:"Scyther",chance: 18},
+      {name:"Jynx",chance: 18},
+      {name:"Electabuzz",chance: 18},
+      {name:"Magmar",chance: 18},
+      {name:"Pinsir",chance: 18},
+      {name:"Tauros",chance: 18},
+      {name:"Magikarp",chance: 100},
+      {name:"Gyarados",chance: 18},
+      {name:"Lapras",chance: 18},
+      {name:"Ditto",chance: 14},
+      {name:"Eevee",chance: 18},
+      {name:"Vaporeon",chance: 18},
+      {name:"Jolteon",chance: 18},
+      {name:"Flareon",chance: 18},
+      {name:"Porygon",chance: 18},
+      {name:"Omanyte",chance: 18},
+      {name:"Omastar",chance: 18},
+      {name:"Kabuto",chance: 18},
+      {name:"Kabutops",chance: 18},
+      {name:"Aerodactyl",chance: 18},
+      {name:"Snorlax",chance: 10},
+      {name:"Articuno",chance: 1},
+      {name:"Zapdos",chance: 1},
+      {name:"Moltres",chance: 1},
+      {name:"Dratini",chance: 18},
+      {name:"Dragonair",chance: 18},
+      {name:"Dragonite",chance: 18},
+      {name:"Mewtwo",chance: 1},
+      {name:"Mew",chance: 18},
+];
+
+    let timeLeft = 30;
+    let caughtPokemons = [];
+    const timerDisplay = document.getElementById("timer");
+    const pokeball = document.getElementById("pokeball");
+    const container = document.getElementById("caught-container");
+
+    pokeball.classList.add("shake");
+    setTimeout(() => pokeball.classList.remove("shake"), 600);
+
+    const timer = setInterval(() => {
+      timeLeft--;
+      timerDisplay.textContent = `Time: ${timeLeft}s`;
+      if (timeLeft <= 0) {
+        clearInterval(timer);
+        pokeball.style.display = "none";
+        timerDisplay.textContent = "Time's up!";
+        console.log("done"); //ends
+        //at this point i want to create a share button --> or make display block
+        
+      }
+    }, 1000);
+
+    pokeball.addEventListener("click", () => {
+      if (timeLeft <= 0) return;
+
+      //this adds the shake with every click
+      pokeball.classList.add("shake");
+      setTimeout(() => pokeball.classList.remove("shake"), 600);
+      
+
+      const randomIndex = Math.floor(Math.random() * pokemons.length);
+      const pokemon = pokemons[randomIndex];
+      const roll = Math.random() * 100;
+
+      if (roll <= pokemon.chance) {
+        if(!caughtPokemons.includes(pokemon)) {
+         caughtPokemons.push(pokemon);
+         addToGrid(pokemon);
+         }
+        
+      } else {
+        //alert(`${pokemon.name} escaped!`);
+        console.log(`${pokemon.name} escaped!`);
+      }
+    });
+
+    function addToGrid(pokemon) {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <img src="https://img.pokemondb.net/sprites/home/normal/${pokemon.name.toLowerCase()}.png" alt="${pokemon.name}" />
+        <small>${pokemon.name}</small>
+      `;
+      container.appendChild(card);
+    }
+  </script>
+</body>
+</html>
