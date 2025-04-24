@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <title>Plaka Bilgi</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f0fdf4;
+    }
+
+    .app {
+      max-width: 420px;
+      margin: auto;
+      padding: 16px;
+    }
+
+    .search-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .search-bar input {
+      flex: 1;
+      padding: 12px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .search-bar input:focus {
+      outline: none;
+      border-color: #4caf50;
+      box-shadow: 0 0 4px rgba(76, 175, 80, 0.4);
+    }
+
+    .search-bar button {
+      padding: 12px 16px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .search-bar button:hover {
+      background-color: #43a047;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      padding: 16px;
+      margin-bottom: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .card h2 {
+      margin-top: 0;
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .image-banner {
+      width: 100%;
+      height: 180px;
+      border-radius: 16px;
+      object-fit: cover;
+      margin-bottom: 12px;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+    }
+
+    .image-banner.loaded {
+      opacity: 1;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      margin: 6px 0;
+    }
+
+    .info-row span:first-child {
+      font-weight: 500;
+      color: #333;
+    }
+
+    .info-row span:last-child {
+      color: #666;
+    }
+
+    .info-row #yerler {
+      font-size: 15px;
+      text-align: right;
+    }
+
+    .hot {
+      color: red;
+      font-weight: bold;
+      margin-top: 12px;
+    }
+
+    .fa {
+      margin-left: -12px;
+      margin-right: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="search-bar">
+      <input type="text" id="city-input" placeholder="Plaka No (örn. 34)" autofocus />
+      <button onclick="showCard()">Ara</button>
+    </div>
+
+    <div class="card">
+      <img id="sehirFoto" src="https://www.newzealand.com/assets/externally-managed-assets/tbd-assets/tbd-folder-4936190/img-1713486563-9589-615421-tbd-asset__aWxvdmVrZWxseQo_CropResizeWzE5MDAsMTAwMCw3NSwianBnIl0.jpg" class="image-banner" />
+      <h2 id="city-name">Hobbiton</h2>
+      <div class="info-row"><span>Bölge:</span><span id="bolge">The Shire</span></div>
+      <div class="info-row"><span>Nüfus:</span><span id="nufus">450k</span></div>
+      <!-- <div class="info-row"><span>Yüzölçümü:</span><span id="yuzolcumu">5.343 km²</span></div> -->
+      <div class="info-row"><span>Yerler:</span><span id="yerler">Hobbit Holes, The Mill</span></div>
+    </div>
+
+    <div class="card">
+      <h2>🌤️ Hava Durumu</h2>
+      <div class="info-row"><span>Sıcaklık:</span><span id="sicaklik">18°C</span></div>
+      <div class="info-row"><span>Durum:</span><span id="havadurumu">Güneşli</span></div>
+    </div>
+
+    <!-- 
+    <div class="card hot" id="infospace">
+      🔥 Bugün İstanbul'da Lale Festivali var!
+    </div>
+    -->
+  </div>
+
+  <script src="cities.js"></script>
+  <script>
+    document.getElementById("city-input").addEventListener("keypress", function (e) {
+      if (e.key === "Enter") {
+        showCard();
+      }
+    });
+
+    async function showCard() {
+      document.getElementById("sicaklik").innerHTML = '<i class="fa fa-refresh fa-spin"></i>';
+      document.getElementById("havadurumu").innerHTML = '<i class="fa fa-refresh fa-spin"></i>';
+      const img = document.getElementById("sehirFoto");
+      img.classList.remove("loaded");
+      img.src = "https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif";
+
+      const cityInput = document.getElementById('city-input').value.trim().toLowerCase();
+
+      if (cities[cityInput]) {
+        const city = cities[cityInput];
+        getImage(city.name);
+        document.getElementById('city-name').textContent = city.name;
+        document.getElementById('bolge').textContent = city.location;
+        document.getElementById('nufus').textContent = city.population;
+        
+        //document.getElementById('yerler').innerHTML = city.highlights.join(", ");
+         
+        let links = [];
+        for(let i=0;i<city.highlights.length;i++){
+         links.push(`<a href='https://www.google.com/maps/?q=${city.highlights[i]}'>${city.highlights[i]}</a>`);
+        }
+        document.getElementById('yerler').innerHTML = links.join(", ");
+        
+
+        const data = await getWeatherDetails(city.name);
+        document.getElementById("sicaklik").innerText = data.current_condition[0].temp_C + "°C";
+        document.getElementById("havadurumu").innerText = data.current_condition[0].weatherDesc[0].value;
+      } else {
+        alert('Şehir bulunamadı.');
+      }
+    }
+
+    async function getWeatherDetails(cityName) {
+      const res = await fetch(`https://wttr.in/${cityName}?format=j1`);
+      const data = await res.json();
+      return data;
+    }
+
+    async function getImage(cityName) {
+      const apiURL = `https://en.wikipedia.org/api/rest_v1/page/summary/${cityName}`;
+      try {
+        const resp = await fetch(apiURL);
+        const data = await resp.json();
+        const img = document.getElementById("sehirFoto");
+        if (data.thumbnail && data.thumbnail.source) {
+          img.src = data.thumbnail.source;
+        } else {
+          img.src = "https://www.victoriabox.ca/img/no-product-img.png";
+        }
+        img.onload = () => img.classList.add("loaded");
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  </script>
+</body>
+</html>
