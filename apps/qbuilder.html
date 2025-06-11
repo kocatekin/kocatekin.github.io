@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>LaTeX Exam Module MCQ Builder</title>
+<style>
+  body {
+    font-family: sans-serif;
+    padding: 20px;
+  }
+  textarea {
+    width: 80%;
+    height: 200px;
+    margin-bottom: 10px;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #0056b3;
+  }
+  pre {
+    background-color: #f4f4f4;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    overflow-x: auto;
+    white-space: pre-wrap; /* Ensures long lines wrap */
+    word-wrap: break-word; /* Breaks words if necessary */
+  }
+  code {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+  }
+</style>
+</head>
+<body>
+
+  <h1>Question builder</h1>
+
+  <textarea id="input" placeholder="Write question here."></textarea>
+  <br>
+  <button onclick="run()" id="runCode">Create LaTeX Code</button>   <button onclick="clean()" id="runCode">Clear</button>
+
+  <h2>Output:</h2>
+  <pre id="outputBlock"><code></code></pre>
+  <button onclick="copy()">copy</button><span id="myspan"></span>
+
+  <script>
+    function run() {
+      let mytext = document.getElementById("input").value;
+      data = mytext.split("\n");
+      console.log(data);
+      let output = `\\part ${data[0]}\n`;
+      output += `\\begin{choices}\n`;
+      for(let i=1;i<data.length;i++) {
+         output += `  \\choice ${data[i].substring(3)}\n`;
+      }
+      output += `\\end{choices}\n`;
+      //output += `\\end{parts}`;
+
+      console.log(output);
+
+      document.getElementById("outputBlock").innerText = output;
+
+
+    }
+
+    function copy(){
+      let params = document.getElementById("outputBlock").innerText;
+      console.log(params);
+      navigator.clipboard.writeText(params);
+      document.getElementById("myspan").innerText = "icerik kopyalandi";
+    }
+    function clean() {
+      document.getElementById("input").value = "";
+      document.getElementById("input").focus();
+    }
+
+     
+  </script>
+
+</body>
+</html>
