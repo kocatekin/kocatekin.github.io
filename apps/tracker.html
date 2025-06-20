@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Tracker App</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Apply Inter font to the entire body */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5; /* Light gray background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 16px; /* Padding around the app container */
+            box-sizing: border-box;
+        }
+
+        /* Simulate a mobile device frame for better visual context */
+        .mobile-frame {
+            background-color: #ffffff;
+            border-radius: 2.5rem; /* More rounded corners for the frame */
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); /* Stronger shadow for depth */
+            width: 100%;
+            max-width: 375px; /* Typical iPhone width */
+            min-height: 667px; /* Typical iPhone height */
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Hide overflow content within the frame */
+            position: relative; /* For absolute positioning of notch etc. if needed */
+        }
+
+        /* Custom scrollbar for better aesthetics */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f0f2f5;
+            border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-frame">
+        <!-- Header Section -->
+        <header class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-4 rounded-t-3xl flex items-center justify-between shadow-md">
+            <h1 class="text-2xl font-bold"><span id="movement3">Squat</span> Tracker</h1>
+            <button class="text-white text-xl p-2 rounded-full hover:bg-white hover:bg-opacity-20 transition-all duration-200 focus:outline-none">
+                <!-- Plus icon for adding new entries -->
+                 <!--
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                </svg>-->
+            </button>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 p-4 overflow-y-auto custom-scrollbar bg-gray-50">
+            <!-- Section: Overview - Now more detailed for tracking -->
+            <section class="mb-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-3">Progress Towards <span id="goalSpan">1000</span> <span id="movementSpan">Squats</span></h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                        <p class="text-sm text-gray-500">Total</p>
+                        <p class="text-2xl font-bold text-blue-600" id="totalNumber">5,876</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                        <p class="text-sm text-gray-500">Average by sess.</p>
+                        <p class="text-2xl font-bold text-green-600" id="dailyAverage">85</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                        <p class="text-sm text-gray-500">Sessions Tracked</p>
+                        <p class="text-2xl font-bold text-purple-600" id="daysTracked">68</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                        <p class="text-sm text-gray-500">Goal Progress</p>
+                        <p class="text-2xl font-bold text-orange-600"><span id="goalPercentage">20%</span></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Add Daily Squats -->
+            <section class="mb-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-3">Add Daily <span id="movementSpan2">Squats</span></h2>
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col items-center">
+                    <input type="number" id="dailySquatsInput" placeholder="Enter" class="w-full p-3 mb-4 border border-gray-300 rounded-lg text-center text-lg font-medium focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none" min="0">
+                    <button class="w-full bg-blue-500 text-white py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors shadow-md" id="addButton">
+                        Log it!
+                    </button>
+                </div>
+            </section>
+        </main>
+
+       
+    </div>
+</body>
+<script>
+
+function getParams() {
+
+   let params = new URLSearchParams(document.location.search);
+   let move = params.get("move");
+   let goal = parseInt(params.get("goal"));
+   let done = parseInt(params.get("done"));
+   let daysTracked = parseInt(params.get("daysTracked"));
+   return [move, goal, done, daysTracked];
+}
+
+function updateUI(arr) {
+
+   //arr : move, goal, done, daysTracked
+   document.getElementById("movementSpan2").innerText = arr[0];
+   document.getElementById("movementSpan").innerText = arr[0];
+   document.getElementById("movement3").innerText = arr[0];
+   document.getElementById("daysTracked").innerText = arr[3];
+   document.getElementById("goalSpan").innerText = arr[1];
+   document.getElementById("totalNumber").innerText = arr[2];
+   document.getElementById("goalPercentage").innerText = progress(arr[2], arr[1]) + "%";
+   document.getElementById("dailyAverage").innerText = getAverage(arr[3], arr[1]);
+
+   //change the URL
+   console.log(document.location.search);
+   const url = `${window.location.pathname}?move=${arr[0]}&goal=${arr[1]}&done=${arr[2]}&daysTracked=${arr[3]}`;
+   console.log(url);
+   history.pushState({},'',url); //change the URL without reloading the page
+   navigator.clipboard.writeText(document.location.href);
+   console.log("copied");
+}
+
+function first() {
+   let mylist = getParams();
+   updateUI(mylist);
+}
+
+first();
+
+function progress(h,a) {
+   return Math.floor((parseInt(h) / parseInt(a))/100).toFixed(2);
+}
+function getAverage(days, done){
+   return Math.floor(parseInt(days) / parseInt(done)).toFixed(2);
+}
+
+//button add
+document.getElementById("addButton").addEventListener('click', () => {
+         let squatNum = document.getElementById("dailySquatsInput").value;
+         let params = getParams();
+         let move = params[0];
+         let goal = params[1];
+         let done = params[2];
+         let daysTracked = params[3];
+         let newTotal = done + parseInt(squatNum);
+         let newArr = [move, goal, newTotal, daysTracked+1];
+         updateUI(newArr);
+         
+        });
+
+
+</script>
+</html>
