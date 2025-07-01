@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Data Comparison</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+  @keyframes shine {
+    0% {
+      background-color: #f0f9ff;
+      color: #2563eb;
+      transform: scale(1);
+    }
+    50% {
+      background-color: #dbeafe;
+      color: #1d4ed8;
+      transform: scale(1.1);
+    }
+    100% {
+      background-color: #f0f9ff;
+      color: #2563eb;
+      transform: scale(1);
+    }
+  }
+  .shine {
+    animation: shine 0.6s ease-in-out;
+  }
+</style>
+
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+  <div class="w-full max-w-md bg-white p-6 rounded-2xl shadow-lg space-y-4">
+    <h1 class="text-2xl font-bold text-center mb-4">Compare Data</h1>
+
+    <!-- Input 1 -->
+    <div>
+      <textarea id="input1" rows="4" placeholder="Enter first data..."
+        class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"></textarea>
+      <div id="length1" class="text-right text-sm text-gray-500 mt-1">
+        Characters: 0
+      </div>
+    </div>
+
+    <!-- Input 2 -->
+    <div>
+      <textarea id="input2" rows="4" placeholder="Enter second data..."
+        class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"></textarea>
+      <div id="length2" class="text-right text-sm text-gray-500 mt-1">
+        Characters: 0
+      </div>
+    </div>
+
+    <!-- Button -->
+    <button id="compareBtn"
+      class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition">
+      Compare
+    </button>
+
+    <!-- Result -->
+    <div id="result"
+  class="mt-4 p-4 text-center text-lg font-medium text-gray-800 bg-gray-50 border border-gray-200 rounded-lg transition-all">
+  Your similarity score will appear here.
+</div>
+
+  </div>
+
+  <script>
+  const input1 = document.getElementById('input1');
+  const input2 = document.getElementById('input2');
+  const length1 = document.getElementById('length1');
+  const length2 = document.getElementById('length2');
+
+  function updateLength() {
+    length1.textContent = `Characters: ${input1.value.length}`;
+    length2.textContent = `Characters: ${input2.value.length}`;
+  }
+
+  input1.addEventListener('input', updateLength);
+  input2.addEventListener('input', updateLength);
+
+  const btn = document.getElementById('compareBtn');
+  btn.addEventListener('click', () => {
+    const data1 = input1.value.trim();
+    const data2 = input2.value.trim();
+
+    let dogru = 0;
+    for(let i=0; i<data1.length; i++) {
+      if(data2[i] === data1[i]) {
+        dogru++;
+      }
+    }
+    let score = (dogru/40)*100;
+
+    const result = document.getElementById('result');
+    result.textContent = `Similarity Score: ${score}%, ${dogru} dogru cevap`;
+
+    // ✨ Add shine animation:
+    result.classList.remove('shine');
+    void result.offsetWidth; // Force reflow
+    result.classList.add('shine');
+  });
+</script>
+
+</body>
+</html>
