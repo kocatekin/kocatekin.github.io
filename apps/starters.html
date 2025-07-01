@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon Team Generator</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            color: #333;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
+
+        .container {
+            text-align: center;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 600px;
+            box-sizing: border-box; /* Include padding in width */
+        }
+
+        h1 {
+            color: #e3350d; /* Pokémon Red color */
+            margin-bottom: 20px;
+        }
+
+        .pokeball-container {
+            margin-bottom: 30px;
+        }
+
+        #pokeball {
+            width: 100px;
+            height: 100px;
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        #pokeball:hover {
+            transform: scale(1.1);
+        }
+
+        .team-display {
+            display: flex;
+            flex-wrap: wrap; /* Allow items to wrap to the next line */
+            justify-content: center;
+            gap: 15px; /* Space between Pokémon cards */
+            margin-top: 20px;
+        }
+
+        .pokemon-card {
+            background-color: #eee;
+            border-radius: 8px;
+            padding: 10px;
+            /* Default to 3 per row on larger screens / desktops */
+            width: calc(33.333% - 15px); /* Adjusted for 3 per row with 15px gap */
+            box-sizing: border-box;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .pokemon-card img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            margin-bottom: 5px;
+        }
+
+        .pokemon-card p {
+            margin: 0;
+            font-weight: bold;
+            color: #007bff; /* A blue color for names */
+        }
+
+        .score-display {
+            margin-top: 25px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #4CAF50; /* Green for score */
+        }
+
+        .party-message {
+            margin-top: 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #ffc107; /* Yellow for party message */
+            animation: bounce 0.8s infinite alternate; /* Simple bounce animation */
+        }
+
+        /* Animations for party */
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-10px); }
+        }
+
+
+        /* Media Queries for Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+                width: 95%;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            #pokeball {
+                width: 80px;
+                height: 80px;
+            }
+
+            .pokemon-card {
+                /* Target 2 cards per row for screens up to 768px (tablets and larger phones) */
+                width: calc(50% - 12.5px); /* Adjusted for 2 per row with 15px gap (15/2=7.5 per side, so 15px total gap) */
+            }
+
+            .pokemon-card img {
+                width: 60px;
+                height: 60px;
+            }
+
+            .pokemon-card p {
+                font-size: 0.9em;
+            }
+
+            .score-display {
+                font-size: 1.1em;
+            }
+
+            .party-message {
+                font-size: 1.3em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .pokemon-card {
+                /* Target 2 cards per row for smaller phones (less than 480px wide) */
+                width: calc(50% - 12.5px); /* Keep 2 per row */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Your Pokémon Team</h1>
+        <div class="pokeball-container">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/512px-Pok%C3%A9_Ball_icon.svg.png?20161023215848" alt="Pokeball" id="pokeball">
+            <p>Click the Pokeball to generate your team!</p>
+        </div>
+
+        <div id="score-display" class="score-display">
+            </div>
+
+        <div id="team-display" class="team-display">
+            </div>
+
+        <div id="party-message" class="party-message">
+            </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const pokeball = document.getElementById('pokeball');
+            const teamDisplay = document.getElementById('team-display');
+            const scoreDisplay = document.getElementById('score-display');
+            const partyMessage = document.getElementById('party-message');
+
+            const ashStarters = ["Pikachu", "Pidgeotto", "Bulbasaur", "Squirtle", "Charmander", "Butterfree"];
+
+            const gen1PokemonData = [
+                { id: 1, name: "Bulbasaur" }, { id: 2, name: "Ivysaur" }, { id: 3, name: "Venusaur" },
+                { id: 4, name: "Charmander" }, { id: 5, name: "Charmeleon" }, { id: 6, name: "Charizard" },
+                { id: 7, name: "Squirtle" }, { id: 8, name: "Wartortle" }, { id: 9, name: "Blastoise" },
+                { id: 10, name: "Caterpie" }, { id: 11, name: "Metapod" }, { id: 12, name: "Butterfree" },
+                { id: 13, name: "Weedle" }, { id: 14, name: "Kakuna" }, { id: 15, name: "Beedrill" },
+                { id: 16, name: "Pidgey" }, { id: 17, name: "Pidgeotto" }, { id: 18, name: "Pidgeot" },
+                { id: 19, name: "Rattata" }, { id: 20, name: "Raticate" }, { id: 21, name: "Spearow" },
+                { id: 22, name: "Fearow" }, { id: 23, name: "Ekans" }, { id: 24, name: "Arbok" },
+                { id: 25, name: "Pikachu" }, { id: 26, name: "Raichu" }, { id: 27, name: "Sandshrew" },
+                { id: 28, name: "Sandslash" }, { id: 29, name: "Nidoran♀" }, { id: 30, name: "Nidorina" },
+                { id: 31, name: "Nidoqueen" }, { id: 32, name: "Nidoran♂" }, { id: 33, name: "Nidorino" },
+                { id: 34, name: "Nidoking" }, { id: 35, name: "Clefairy" }, { id: 36, name: "Clefable" },
+                { id: 37, name: "Vulpix" }, { id: 38, name: "Ninetales" }, { id: 39, name: "Jigglypuff" },
+                { id: 40, name: "Wigglytuff" }, { id: 41, name: "Zubat" }, { id: 42, name: "Golbat" },
+                { id: 43, name: "Oddish" }, { id: 44, name: "Gloom" }, { id: 45, name: "Vileplume" },
+                { id: 46, name: "Paras" }, { id: 47, name: "Parasect" }, { id: 48, name: "Venonat" },
+                { id: 49, name: "Venomoth" }, { id: 50, name: "Diglett" }, { id: 51, name: "Dugtrio" },
+                { id: 52, name: "Meowth" }, { id: 53, name: "Persian" }, { id: 54, name: "Psyduck" },
+                { id: 55, name: "Golduck" }, { id: 56, name: "Mankey" }, { id: 57, name: "Primeape" },
+                { id: 58, name: "Growlithe" }, { id: 59, name: "Arcanine" }, { id: 60, name: "Poliwag" },
+                { id: 61, name: "Poliwhirl" }, { id: 62, name: "Poliwrath" }, { id: 63, name: "Abra" },
+                { id: 64, name: "Kadabra" }, { id: 65, name: "Alakazam" }, { id: 66, name: "Machop" },
+                { id: 67, name: "Machoke" }, { id: 68, name: "Machamp" }, { id: 69, name: "Bellsprout" },
+                { id: 70, name: "Weepinbell" }, { id: 71, name: "Victreebel" }, { id: 72, name: "Tentacool" },
+                { id: 73, name: "Tentacruel" }, { id: 74, name: "Geodude" }, { id: 75, name: "Graveler" },
+                { id: 76, name: "Golem" }, { id: 77, name: "Ponyta" }, { id: 78, name: "Rapidash" },
+                { id: 79, name: "Slowpoke" }, { id: 80, name: "Slowbro" }, { id: 81, name: "Magnemite" },
+                { id: 82, name: "Magneton" }, { id: 83, name: "Farfetch'd" }, { id: 84, name: "Doduo" },
+                { id: 85, name: "Dodrio" }, { id: 86, name: "Seel" }, { id: 87, name: "Dewgong" },
+                { id: 88, name: "Grimer" }, { id: 89, name: "Muk" }, { id: 90, name: "Shellder" },
+                { id: 91, name: "Cloyster" }, { id: 92, name: "Gastly" }, { id: 93, name: "Haunter" },
+                { id: 94, name: "Gengar" }, { id: 95, name: "Onix" }, { id: 96, name: "Drowzee" },
+                { id: 97, name: "Hypno" }, { id: 98, name: "Krabby" }, { id: 99, name: "Kingler" },
+                { id: 100, name: "Voltorb" }, { id: 101, name: "Electrode" }, { id: 102, name: "Exeggcute" },
+                { id: 103, name: "Exeggutor" }, { id: 104, name: "Cubone" }, { id: 105, name: "Marowak" },
+                { id: 106, name: "Hitmonlee" }, { id: 107, name: "Hitmonchan" }, { id: 108, name: "Lickitung" },
+                { id: 109, name: "Koffing" }, { id: 110, name: "Weezing" }, { id: 111, name: "Rhyhorn" },
+                { id: 112, name: "Rhydon" }, { id: 113, name: "Chansey" }, { id: 114, name: "Tangela" },
+                { id: 115, name: "Kangaskhan" }, { id: 116, name: "Horsea" }, { id: 117, name: "Seadra" },
+                { id: 118, name: "Goldeen" }, { id: 119, name: "Seaking" }, { id: 120, name: "Staryu" },
+                { id: 121, name: "Starmie" }, { id: 122, name: "Mr. Mime" }, { id: 123, name: "Scyther" },
+                { id: 124, name: "Jynx" }, { id: 125, name: "Electabuzz" }, { id: 126, name: "Magmar" },
+                { id: 127, name: "Pinsir" }, { id: 128, name: "Tauros" }, { id: 129, name: "Magikarp" },
+                { id: 130, name: "Gyarados" }, { id: 131, name: "Lapras" }, { id: 132, name: "Ditto" },
+                { id: 133, name: "Eevee" }, { id: 134, name: "Vaporeon" }, { id: 135, name: "Jolteon" },
+                { id: 136, name: "Flareon" }, { id: 137, name: "Porygon" }, { id: 138, name: "Omanyte" },
+                { id: 139, name: "Omastar" }, { id: 140, name: "Kabuto" }, { id: 141, name: "Kabutops" },
+                { id: 142, name: "Aerodactyl" }, { id: 143, name: "Snorlax" }, { id: 144, name: "Articuno" },
+                { id: 145, name: "Zapdos" }, { id: 146, name: "Moltres" }, { id: 147, name: "Dratini" },
+                { id: 148, name: "Dragonair" }, { id: 149, name: "Dragonite" }, { id: 150, name: "Mewtwo" },
+                { id: 151, name: "Mew" }
+            ];
+
+            pokeball.addEventListener('click', generateTeam);
+
+            function getPokemonImageUrl(id) {
+                return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
+            }
+
+            function generateTeam() {
+                teamDisplay.innerHTML = '';
+                scoreDisplay.textContent = '';
+                partyMessage.textContent = '';
+
+                const generatedTeam = [];
+                const chosenIndices = new Set();
+
+                while (generatedTeam.length < 6) {
+                    const randomIndex = Math.floor(Math.random() * gen1PokemonData.length);
+                    if (!chosenIndices.has(randomIndex)) {
+                        generatedTeam.push(gen1PokemonData[randomIndex]);
+                        chosenIndices.add(randomIndex);
+                    }
+                }
+
+                displayTeam(generatedTeam);
+                compareWithAsh(generatedTeam);
+            }
+
+            function displayTeam(team) {
+                team.forEach(pokemon => {
+                    const pokemonCard = document.createElement('div');
+                    pokemonCard.classList.add('pokemon-card');
+
+                    const img = document.createElement('img');
+                    img.src = getPokemonImageUrl(pokemon.id);
+                    img.alt = pokemon.name;
+
+                    const p = document.createElement('p');
+                    p.textContent = pokemon.name;
+
+                    pokemonCard.appendChild(img);
+                    pokemonCard.appendChild(p);
+                    teamDisplay.appendChild(pokemonCard);
+                });
+            }
+
+            function compareWithAsh(generatedTeam) {
+                let score = 0;
+                const generatedNames = generatedTeam.map(p => p.name);
+
+                ashStarters.forEach(ashPokemon => {
+                    if (generatedNames.includes(ashPokemon)) {
+                        score++;
+                    }
+                });
+
+                scoreDisplay.textContent = `Score: ${score}/6`;
+
+                if (score === 6) {
+                    partyMessage.textContent = "It's a party!!! You matched all of Ash's starters!";
+                }
+            }
+        });
+    </script>
+</body>
+</html>
