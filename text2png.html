@@ -1,0 +1,135 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+</style>
+
+</head>
+<body>
+
+<textarea id="input" rows="4" cols="50"></textarea>
+<br>
+<button onclick="getInput()">create canvas</button>
+
+
+<script>
+	
+	
+	//demo 
+	//let myArr = ["hello world","how are you today","fine thanks"];
+	//arrayToCanvasImages(myArr); //it works now
+	
+	function getInput() {
+	
+	
+	
+	//helper function
+	//this can also have font and color and background etc.
+	
+	
+		let myArr = document.getElementById("input").value.split("\n"); //multi-line support
+		arrayToCanvasImages(myArr);
+		document.getElementById("input").value = "";
+		
+	
+	}
+	
+	
+	function wrapText(word, x, y, maxWidth, lineHeight) {
+	
+	
+	
+	}
+	
+	
+	
+	function arrayToCanvasImages(myArr) {
+	
+		
+	
+		for(let i=0;i<myArr.length;i++) {
+		
+			let canvas_new = document.createElement("canvas");
+			canvas_new.id = "CursorLayer"; //irrelevant
+			//canvas_new.width = 200;
+			//canvas_new.height = 100;
+			canvas_new.style.zIndex = 8;
+			//canvas_new.style.position = "absolute";
+			canvas_new.style.border = "1px solid";
+			let body = document.getElementsByTagName("body")[0];
+			//body.appendChild(canvas_new);
+			let ctx_new = canvas_new.getContext("2d");
+			
+			//write to canvas
+			ctx_new.font = "30px Arial";   //make this come from somewhere else
+			
+			
+			
+			//trying another soln
+			/* ------------------ */
+			//create a new list
+			
+			console.log(myArr[i]);
+			let splitter = myArr[i].split(" ");
+			console.log(splitter);
+			
+			let output = [];
+			let x = 50;
+			let wrap = false;
+			
+			for(let j=0;j<splitter.length;j++){
+			
+				output.push(splitter[j]);
+				if(ctx_new.measureText(output).width >= parseInt(canvas_new.width) - 10){
+					console.log("word wrap");
+					console.log("exit");
+					output.pop();
+					console.log(output);
+					//write to canvas!
+					ctx_new.fillText(output.join(' '), 10, x);
+					wrap = true;
+					j--;
+					output = [];
+					x += 30;
+					continue;
+				}
+				else {
+					console.log("ok");
+					wrap = false;
+					
+				}
+				
+			
+			}
+			
+			if(!wrap) {
+					ctx_new.fillText(output.join(' '), 10, x);
+				}
+			
+			
+			//
+			
+			
+			let imgFile = canvas_new.toDataURL("image/png");
+			let myimgElm = document.createElement("img");
+			myimgElm.id = "myimg"+i;
+			body.appendChild(myimgElm);
+			let myimg = document.getElementById("myimg"+i);
+			myimg.src = imgFile;
+			
+			//console.log("i am putting" + imgFile + "into " + i + "th place");
+		
+		
+			
+		
+		
+		}
+		
+	}
+		
+	
+	</script>
+</body>
+</html>
