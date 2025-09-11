@@ -1,110 +1,160 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-   <meta charset="UTF-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nereye Shitter?</title>
-   <style>
-         body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background-color: #f0f0f0;
-   }
+    <title>En Yakın Tuvalet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="wcdata.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background-color: #f3f4f6;
+        }
 
-   .container {
-      text-align: center;
-      background-color: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      width: 90%;
-      max-width: 400px;
-   }
-
-   .emoji {
-      font-size: 48px;
-   }
-
-   .header-info {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 10px;
-      margin-top: 20px;
-   }
-
-   h1 {
-      font-size: 24px;
-      margin: 0;
-   }
-
-   .info-tag {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      background-color: #e0e0f0;
-      color: #5c5c5c;
-      line-height: 20px;
-      border-radius: 50%;
-      font-size: 16px;
-      text-align: center;
-      cursor: help;
-   }
-
-   .action-btn {
-      background-color: #007bff;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      font-size: 18px;
-      border-radius: 5px;
-      margin-top: 20px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-   }
-
-   .action-btn:hover {
-      background-color: #0056b3;
-   }
-
-   .details {
-      display: block;
-      text-align: left;
-      margin-top: 20px;
-   }
-
-   .details p {
-      margin: 5px 0;
-   }
-
-   </style>
+        /* Custom scrollbar for better aesthetics */
+        body::-webkit-scrollbar {
+            width: 8px;
+        }
+        body::-webkit-scrollbar-track {
+            background: #e5e7eb;
+        }
+        body::-webkit-scrollbar-thumb {
+            background-color: #9ca3af;
+            border-radius: 4px;
+        }
+        body::-webkit-scrollbar-thumb:hover {
+            background-color: #6b7280;
+        }
+    </style>
 </head>
-<body>
-   <div class="container" id="container">
-      <div class="emoji">💩</div>
-      <div class="header-info" id="headerinfo">
-         <h1>Shitter</h1>
-      </div>
-      <button onclick="run()" class="action-btn" id="action-btn">Nereye?</button>
-   </div>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-md w-full bg-white rounded-3xl shadow-lg overflow-hidden">
+        <!-- Header Section -->
+        <header class="p-4 flex items-center justify-between border-b border-gray-200">
+            <div class="flex items-center space-x-4">
+                <i class="ph ph-arrow-left text-xl text-gray-700"></i>
+                <h1 class="text-lg font-semibold text-gray-800">En Yakın Tuvalet</h1>
+            </div>
+            <i class="ph ph-dots-three text-xl text-gray-700"></i>
+        </header>
+
+        <!-- Map Section -->
+         
+        <!--  <div class="h-64 bg-gray-300 relative"> -->
+            <!-- A placeholder for the map image to match the design -->
+            <!-- <img src="https://placehold.co/400x256/e2e8f0/0f172a?text=San+Francisco+Map" class="w-full h-full object-cover" alt="Map of San Francisco"> -->
+          <!--  <img src="https://staticmap.openstreetmap.de/staticmap.php?center=41.0082,28.9784&zoom=14&size=600x400&markers=41.0082,28.9784,red-pushpin" class="w-full h-full object-cover" alt="Map" />
+
+        </div>
+
+        -->
+
+        <!-- Map Section -->
+<div class="h-64 bg-gray-300 relative">
+    <iframe
+        id="mapFrame"
+        class="w-full h-full"
+        style="border:0"
+        src="https://www.openstreetmap.org/export/embed.html?bbox=28.9684,41.0032,28.9884,41.0132&layer=mapnik&marker=41.0082,28.9784"
+        allowfullscreen
+        loading="lazy">
+    </iframe>
+</div>
+
+
+
+        <!-- Details Section -->
+        <div class="p-5">
+            <!-- Location Title and Action Buttons -->
+            <div class="flex items-start justify-between mb-4">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800" id="mekanismi">Merkez Park</h2>
+                    <h2 class="text-3xl font-bold text-gray-800"></h2>
+                    <!-- <p class="text-sm text-gray-500 mt-1">0.2 km uzaklıkta</p> -->
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="goTo()" class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-500 transition-colors hover:bg-blue-200">
+                        <!-- Changed icon to a map-pin-line to indicate opening a map app -->
+                        <span class="ph ph-map-pin-line text-2xl">-></span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Details Grid -->
+            <div class="grid grid-cols-2 gap-y-4 gap-x-6 text-gray-600">
+             
+
+                <!-- İlçe (District) -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 flex items-center justify-center bg-gray-100 rounded-lg">
+                        <i class="ph ph-map-trifold text-lg text-gray-500"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm">İlçe</p>
+                        <p class="font-medium text-gray-800" id="ilce">Çankaya</p>
+                    </div>
+                </div>
+
+                <!-- Durum (Status) -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 flex items-center justify-center bg-gray-100 rounded-lg">
+                        <i class="ph ph-check-circle text-lg text-gray-500"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm">Durum</p>
+                        <p class="font-medium text-green-500" id="durum">Açık</p>
+                    </div>
+                </div>
+
+                <!-- Tip (Type) -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 flex items-center justify-center bg-gray-100 rounded-lg">
+                        <i class="ph ph-toilet text-lg text-gray-500"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm">Tip</p>
+                        <p class="font-medium text-gray-800" id="tip">Umumi</p>
+                    </div>
+                </div>
+
+                <!-- Bakım Odası (Changing Room) -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 flex items-center justify-center bg-gray-100 rounded-lg">
+                        <i class="ph ph-baby text-lg text-gray-500"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm">Bakım Odası</p>
+                        <p class="font-medium text-gray-800" id="bakimodasi">Var</p>
+                    </div>
+                </div>
+
+                <!-- Hizmet Yeri (Service Point) -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 flex items-center justify-center bg-gray-100 rounded-lg">
+                        <i class="ph ph-building-office text-lg text-gray-500"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm">Hizmet Yeri</p>
+                        <p class="font-medium text-gray-800" id="hizmetyeri">Belediye</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
-<script src="wcdata.js"></script>
 <script>
-
-
-
-var userLatitude;
-var userLongitude;
-
+   var userLatitude;
+   var userLongitude;
+   run();
 
 function run() {
    getLocationData();
 }
-
 
 //get location from the user
 
@@ -123,6 +173,13 @@ function getLocationData() {
     console.log("Geolocation is not supported by this browser.");
   }
 
+}
+
+function showPosition(position) {
+   userLatitude = position.coords.latitude;
+   userLongitude = position.coords.longitude;
+   //document.getElementById("output").innerHTML = userLatitude + " " + userLongitude;
+   getClosestToilet();
 }
 
 function showPosition(position) {
@@ -153,11 +210,17 @@ function getClosestToilet() {
    console.log(wcData.features[minIndex].properties);
    const feature = wcData.features[minIndex].properties;
 
-   
+   document.getElementById("mekanismi").innerText = `${feature['MAHAL_ADI']}`;
+   //document.getElementById("mekan").innerText = `${feature['MAHAL_ADI']}`;
+   document.getElementById("ilce").innerText = `${feature['ILCE']}`;
+   document.getElementById("durum").innerText = `${feature['TUVALET_DURUM']}`;
+   document.getElementById("tip").innerText = `${feature['TUVALET_TIP'] || "N/A"}`;
+   document.getElementById("bakimodasi").innerText = `${feature['BAKIM_ODASI']}`;
+   document.getElementById("hizmetyeri").innerText = `${feature['HIZMET_YERI']}`;
 
    //this did not work -- why ? css issue meh
-   document.getElementById("headerinfo").innerHTML = `
-   
+    /*document.getElementById("headerinfo").innerHTML = `
+  
    <div class="details">
       <h1>İşte Buraya!</h1>
          <p><b>Mekan: </b> ${feature["MAHAL_ADI"] || "N/A"}</p>
@@ -167,17 +230,42 @@ function getClosestToilet() {
          <p><b>Bakım Odası: </b>${feature["BAKIM_ODASI"] || "N/A"}</p>
          <p><b>Hizmet Yeri: </b>${feature["HIZMET_YERI"] || "N/A"}</p>
    </div>`;
-      
+   */
+
+
+      /*
    const forLocation = wcData.features[minIndex].geometry.coordinates;
    document.getElementById("action-btn").innerText = "GÖTÜR BENİ";
    //document.getElementById("action-btn").onclick = `gomaps(forLocation[0],forLocation[1])`;
    document.getElementById("action-btn").onclick = function() {
       window.location.href = `https://www.google.com/maps/?q=${forLocation[1]},${forLocation[0]}`;
    }
+      */
 
 
       //change button to google maps link --> should go there on clcik
+
+   const coords = wcData.features[minIndex].geometry.coordinates;
+   const lon = coords[0];
+   const lat = coords[1];
+   const delta = 0.01;
+   const bbox = `${lon - delta},${lat - delta},${lon + delta},${lat + delta}`;
+
+   //mapFrame
+   document.getElementById("mapFrame").src =
+  `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat},${lon}`;
+
 }
+
+function goTo() {
+   const forLocation = wcData.features[minIndex].geometry.coordinates;
+   console.log(forLocation);
+   window.location.href = `https://www.google.com/maps/?q=${forLocation[1]},${forLocation[0]}`;
+}
+
+
+
+
 
 
 
@@ -205,6 +293,5 @@ function showError(error) {
       break;
   }
 }
-
 </script>
 </html>
