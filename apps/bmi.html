@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BMI Tracker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex flex-col items-center min-h-screen p-4">
+  <!-- Header -->
+  <header class="text-center mb-4 flex justify-between items-center w-full max-w-md">
+    <div class="flex items-center space-x-3">
+      <img id="userAvatar" src="" alt="avatar" class="w-10 h-10 rounded-full hidden">
+      <h1 id="welcomeText" class="text-xl font-bold text-gray-800">Welcome to BMI Tracker</h1>
+    </div>
+    <button id="optionsBtn" class="bg-gray-200 px-3 py-1 rounded-lg text-sm hover:bg-gray-300">Options</button>
+  </header>
+
+  <!-- Options Section (Hidden by default) -->
+  <section id="optionsSection" class="w-full max-w-md bg-white rounded-xl shadow p-3 mb-4 hidden">
+    <div class="mb-2">
+      <label for="userName" class="block text-sm font-medium text-gray-700">Name</label>
+      <input type="text" id="userName" class="w-full mt-1 px-2 py-1 border rounded-lg focus:ring-2 focus:ring-blue-400" placeholder="Enter your name">
+    </div>
+    <div class="mb-2">
+      <label class="block text-sm font-medium text-gray-700">Choose Avatar</label>
+      <div id="avatarOptions" class="flex space-x-2 mt-1">
+        <img src='https://img.pokemondb.net/sprites/x-y/normal/squirtle.png' class='w-12 h-12 rounded-full cursor-pointer border-2 border-transparent hover:border-blue-500' data-avatar='https://img.pokemondb.net/sprites/x-y/normal/squirtle.png'>
+        <img src='https://img.pokemondb.net/sprites/x-y/normal/charmander.png' class='w-12 h-12 rounded-full cursor-pointer border-2 border-transparent hover:border-blue-500' data-avatar='https://img.pokemondb.net/sprites/x-y/normal/charmander.png'>
+        <img src='https://img.pokemondb.net/sprites/x-y/normal/bulbasaur.png' class='w-12 h-12 rounded-full cursor-pointer border-2 border-transparent hover:border-blue-500' data-avatar='https://img.pokemondb.net/sprites/x-y/normal/bulbasaur.png'>
+        <img src='https://img.pokemondb.net/sprites/x-y/normal/pikachu-f.png' class='w-12 h-12 rounded-full cursor-pointer border-2 border-transparent hover:border-blue-500' data-avatar='https://img.pokemondb.net/sprites/x-y/normal/pikachu-f.png'>
+      </div>
+    </div>
+    <button id="saveOptionsBtn" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition">Save</button>
+  </section>
+
+  <!-- Input Section -->
+  <section class="w-full max-w-md bg-white rounded-xl shadow p-3 mb-4">
+    <div class="mb-2">
+      <label for="weight" class="block text-sm font-medium text-gray-700">Weight (kg)</label>
+      <input type="number" id="weight" class="w-full mt-1 px-2 py-1 border rounded-lg focus:ring-2 focus:ring-blue-400">
+    </div>
+    <div class="mb-2">
+      <label for="height" class="block text-sm font-medium text-gray-700">Height (cm)</label>
+      <input type="number" id="height" class="w-full mt-1 px-2 py-1 border rounded-lg focus:ring-2 focus:ring-blue-400">
+    </div>
+    <button id="calculateBtn" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition">Calculate BMI</button>
+  </section>
+
+  <!-- BMI Results Section -->
+  <section id="results" class="w-full max-w-md space-y-3">
+    <!-- Cards will appear here -->
+  </section>
+
+  <script>
+    const calculateBtn = document.getElementById("calculateBtn");
+    const results = document.getElementById("results");
+    const optionsBtn = document.getElementById("optionsBtn");
+    const optionsSection = document.getElementById("optionsSection");
+    const saveOptionsBtn = document.getElementById("saveOptionsBtn");
+    const avatarOptions = document.getElementById("avatarOptions");
+    const userAvatar = document.getElementById("userAvatar");
+    const welcomeText = document.getElementById("welcomeText");
+
+    let userName = '';
+    let avatarUrl = '';
+    let selectedAvatar = '';
+
+    // Load options and history on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedOptions = JSON.parse(localStorage.getItem('bmiOptions'));
+      if (savedOptions) {
+        userName = savedOptions.name;
+        avatarUrl = savedOptions.avatar;
+        selectedAvatar = avatarUrl;
+        document.getElementById('userName').value = userName;
+        avatarOptions.querySelectorAll('img').forEach(img => {
+          if (img.dataset.avatar === avatarUrl) img.classList.add('border-blue-500');
+        });
+        // Show avatar and welcome name
+        userAvatar.src = avatarUrl;
+        userAvatar.classList.remove('hidden');
+        welcomeText.textContent = `Welcome, ${userName}`;
+      }
+
+      const savedHistory = JSON.parse(localStorage.getItem('bmiHistory')) || [];
+      savedHistory.forEach(entry => renderCard(entry));
+    });
+
+    optionsBtn.addEventListener("click", () => {
+      optionsSection.classList.toggle('hidden');
+    });
+
+    avatarOptions.querySelectorAll('img').forEach(img => {
+      img.addEventListener('click', () => {
+        avatarOptions.querySelectorAll('img').forEach(i => i.classList.remove('border-blue-500'));
+        img.classList.add('border-blue-500');
+        selectedAvatar = img.dataset.avatar;
+      });
+    });
+
+    saveOptionsBtn.addEventListener("click", () => {
+      userName = document.getElementById('userName').value;
+      avatarUrl = selectedAvatar;
+      optionsSection.classList.add('hidden');
+
+      // Save options to localStorage
+      localStorage.setItem('bmiOptions', JSON.stringify({name: userName, avatar: avatarUrl}));
+
+      // Update header
+      userAvatar.src = avatarUrl;
+      userAvatar.classList.remove('hidden');
+      welcomeText.textContent = `Welcome, ${userName}`;
+
+      alert('Options saved!');
+    });
+
+    function getBMICategory(bmi) {
+      if (bmi < 18.5) return "Underweight";
+      if (bmi < 25) return "Normal";
+      if (bmi < 30) return "Overweight";
+      return "Obese";
+    }
+
+    function getCategoryColor(category) {
+      switch(category) {
+        case "Underweight": return "bg-blue-100 text-blue-800";
+        case "Normal": return "bg-green-100 text-green-800";
+        case "Overweight": return "bg-yellow-100 text-yellow-800";
+        default: return "bg-red-100 text-red-800";
+      }
+    }
+
+    calculateBtn.addEventListener("click", () => {
+      const weight = parseFloat(document.getElementById("weight").value);
+      const heightCm = parseFloat(document.getElementById("height").value);
+      const height = heightCm / 100;
+
+      if (!weight || !height) {
+        alert("Please enter valid weight and height");
+        return;
+      }
+
+      const bmi = (weight / (height * height)).toFixed(1);
+      const category = getBMICategory(bmi);
+      const date = new Date().toLocaleString();
+
+      const entry = { date, bmi, weight, heightCm, category };
+
+      // Save to localStorage history
+      const history = JSON.parse(localStorage.getItem('bmiHistory')) || [];
+      history.unshift(entry);
+      localStorage.setItem('bmiHistory', JSON.stringify(history));
+
+      renderCard(entry);
+    });
+
+    function renderCard(entry) {
+      const card = document.createElement("div");
+      card.className = "bg-white rounded-xl shadow p-4 flex flex-col";
+      card.innerHTML = `
+        <div class="flex justify-between items-center mb-3">
+          <div class="flex flex-col">
+            <p class="text-3xl font-extrabold text-gray-900">${entry.bmi}</p>
+            <p class="text-gray-700 text-sm">${entry.weight} kg | ${entry.heightCm} cm</p>
+          </div>
+          <span class="inline-block px-3 py-1 rounded-full text-sm font-medium ${getCategoryColor(entry.category)}">${entry.category}</span>
+        </div>
+        <span class="text-xs text-gray-500">${entry.date}</span>
+      `;
+      results.prepend(card);
+    }
+  </script>
+</body>
+</html>
