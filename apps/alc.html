@@ -112,8 +112,16 @@
                 <textarea id="notes" placeholder="What did you think of it?" class="w-full px-5 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all h-24"></textarea>
             </div>
             <div>
-                <label for="imageUrl" class="block text-sm font-semibold text-gray-700 mb-2">Image URL (Optional)</label>
-                <input type="url" id="imageUrl" placeholder="Add a picture of your drink" class="w-full px-5 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Image</label>
+                <div class="relative w-24 h-24 mb-4 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center overflow-hidden">
+                    <img id="imagePreview" src="" alt="Image Preview" class="w-full h-full object-cover hidden">
+                    <label for="imageUpload" class="absolute w-full h-full flex items-center justify-center cursor-pointer text-gray-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.842-1.263a2 2 0 011.664-.89h.93a2 2 0 012 2v.93a2 2 0 00.89 1.664l1.263.842a2 2 0 01.89 1.664v.93a2 2 0 01-2 2h-.93a2 2 0 00-1.664.89l-.842 1.263a2 2 0 01-1.664.89h-.93a2 2 0 01-2-2v-.93a2 2 0 00-.89-1.664l-1.263-.842A2 2 0 013 13.93V13a2 2 0 01-2-2v-1a2 2 0 012-2z"></path>
+                        </svg>
+                    </label>
+                    <input type="file" id="imageUpload" accept="image/*" capture="user" class="hidden">
+                </div>
             </div>
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Rating</label>
@@ -141,6 +149,9 @@
             </div>
         </div>
     </div>
+    
+    <!-- Hidden canvas for image resizing -->
+    <canvas id="imageCanvas" class="hidden"></canvas>
 
     <script>
         // UI elements
@@ -148,7 +159,9 @@
         const drinkNameInput = document.getElementById('drinkName');
         const drinkTypeInput = document.getElementById('drinkType');
         const notesInput = document.getElementById('notes');
-        const imageUrlInput = document.getElementById('imageUrl');
+        const imageUploadInput = document.getElementById('imageUpload');
+        const imagePreview = document.getElementById('imagePreview');
+        const imageCanvas = document.getElementById('imageCanvas');
         const ratingInput = document.getElementById('rating');
         const ratingsList = document.getElementById('ratingsList');
         const messageBox = document.getElementById('messageBox');
@@ -158,6 +171,7 @@
         const stars = starRatingContainer.querySelectorAll('svg');
 
         let currentRating = 0;
+        let base64Image = null;
 
         // Function to show a temporary message
         function showMessage(text, isError = false) {
@@ -277,6 +291,46 @@
             }
         });
 
+        // Image handling from camera input
+        imageUploadInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const MAX_WIDTH = 400;
+                        const MAX_HEIGHT = 400;
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > height) {
+                            if (width > MAX_WIDTH) {
+                                height *= MAX_WIDTH / width;
+                                width = MAX_WIDTH;
+                            }
+                        } else {
+                            if (height > MAX_HEIGHT) {
+                                width *= MAX_HEIGHT / height;
+                                height = MAX_HEIGHT;
+                            }
+                        }
+
+                        imageCanvas.width = width;
+                        imageCanvas.height = height;
+                        const ctx = imageCanvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        base64Image = imageCanvas.toDataURL('image/jpeg', 0.4);
+                        imagePreview.src = base64Image;
+                        imagePreview.classList.remove('hidden');
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
         // Add a new rating to localStorage
         function addRating(e) {
             e.preventDefault();
@@ -284,7 +338,6 @@
             const drinkName = drinkNameInput.value.trim();
             const drinkType = drinkTypeInput.value;
             const notes = notesInput.value.trim();
-            const imageUrl = imageUrlInput.value.trim();
             const rating = parseInt(ratingInput.value, 10);
 
             if (!drinkName || !drinkType || isNaN(rating) || rating < 1 || rating > 5) {
@@ -297,7 +350,7 @@
                 drinkName,
                 drinkType,
                 notes,
-                imageUrl: imageUrl || `https://placehold.co/100x100/E5E7EB/4B5563?text=${encodeURIComponent(drinkName.charAt(0))}`,
+                imageUrl: base64Image || `https://placehold.co/100x100/E5E7EB/4B5563?text=${encodeURIComponent(drinkName.charAt(0))}`,
                 rating,
             };
 
@@ -309,6 +362,9 @@
             showMessage("Rating saved successfully!");
             ratingForm.reset();
             updateStarRating(0); // Reset stars after submission
+            base64Image = null; // Reset base64 image
+            imagePreview.classList.add('hidden');
+            imagePreview.src = "";
         }
 
         // Event listener for the form submission
@@ -333,7 +389,6 @@
             renderRatings(initialRatings);
             updateStarRating(0);
         });
-        
     </script>
 </body>
 </html>
