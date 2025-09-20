@@ -202,6 +202,15 @@
             localStorage.setItem('drinkRatings', JSON.stringify(ratings));
         }
 
+        // Delete a rating
+        function deleteRating(id) {
+            let ratings = getRatings();
+            ratings = ratings.filter(rating => rating.id !== id);
+            saveRatings(ratings);
+            renderRatings(ratings);
+            showMessage("Rating deleted successfully!");
+        }
+
         // Render the ratings list
         function renderRatings(ratingsToRender) {
             ratingsList.innerHTML = ''; // Clear the list
@@ -210,7 +219,7 @@
             } else {
                 ratingsToRender.forEach(rating => {
                     const ratingItem = document.createElement('div');
-                    ratingItem.className = "bg-white rounded-xl shadow-lg transform transition-transform hover:scale-[1.01] duration-300 ease-in-out overflow-hidden p-4 mb-4 rating-card";
+                    ratingItem.className = "bg-white rounded-xl shadow-lg transform transition-transform hover:scale-[1.01] duration-300 ease-in-out overflow-hidden p-4 mb-4 rating-card relative";
                     
                     const starsHTML = Array.from({ length: 5 }, (_, i) => {
                         return `<svg class="w-5 h-5 ${i < rating.rating ? 'text-yellow-400' : 'text-gray-300'}" fill="currentColor" viewBox="0 0 24 24"><path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z"/></svg>`;
@@ -257,8 +266,20 @@
                             </div>
                             <p class="text-sm text-gray-500 mt-2">${rating.notes}</p>
                         </div>
+                        <button class="absolute top-2 right-2 p-1 rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors" data-id="${rating.id}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
                     `;
                     
+                    // Add event listener for the delete button
+                    ratingItem.querySelector('button').addEventListener('click', (event) => {
+                        event.stopPropagation(); // Prevents the card expansion
+                        const id = parseInt(event.currentTarget.dataset.id);
+                        deleteRating(id);
+                    });
+
                     ratingItem.addEventListener('click', () => {
                         ratingItem.classList.toggle('expanded');
                     });
