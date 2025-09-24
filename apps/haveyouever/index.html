@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Have You Ever?</title>
+    <!-- Link to Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom Keyframe for the bounce animation */
+        @keyframes bounce-custom {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+        .animate-bounce-custom {
+            animation: bounce-custom 1s infinite;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+
+    <!-- Main Container -->
+    <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6 sm:p-8">
+
+        <!-- Game Page -->
+        <div id="game-page">
+            <!-- Title -->
+            <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">...Have You Ever</h1>
+
+            <!-- List of Items -->
+            <div class="space-y-4">
+                <div class="flex items-center p-4 border rounded-lg bg-gray-50 border-gray-200 shadow-sm transition-transform transform hover:scale-105">
+                    <input type="checkbox" id="stitches" class="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500 cursor-pointer">
+                    <label for="stitches" class="ml-4 text-lg font-medium text-gray-700">Received stitches</label>
+                </div>
+                <div class="flex items-center p-4 border rounded-lg bg-gray-50 border-gray-200 shadow-sm transition-transform transform hover:scale-105">
+                    <input type="checkbox" id="covid" class="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500 cursor-pointer">
+                    <label for="covid" class="ml-4 text-lg font-medium text-gray-700">Had COVID</label>
+                </div>
+                <div class="flex items-center p-4 border rounded-lg bg-gray-50 border-gray-200 shadow-sm transition-transform transform hover:scale-105">
+                    <input type="checkbox" id="tattoo" class="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500 cursor-pointer">
+                    <label for="tattoo" class="ml-4 text-lg font-medium text-gray-700">Gotten a tattoo</label>
+                </div>
+                <div class="flex items-center p-4 border rounded-lg bg-gray-50 border-gray-200 shadow-sm transition-transform transform hover:scale-105">
+                    <input type="checkbox" id="gun" class="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500 cursor-pointer">
+                    <label for="gun" class="ml-4 text-lg font-medium text-gray-700">Shot a gun</label>
+                </div>
+                <div class="flex items-center p-4 border rounded-lg bg-gray-50 border-gray-200 shadow-sm transition-transform transform hover:scale-105">
+                    <input type="checkbox" id="bone" class="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500 cursor-pointer">
+                    <label for="bone" class="ml-4 text-lg font-medium text-gray-700">Broken a bone</label>
+                </div>
+                <div class="flex items-center p-4 border rounded-lg bg-gray-50 border-gray-200 shadow-sm transition-transform transform hover:scale-105">
+                    <input type="checkbox" id="tent" class="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500 cursor-pointer">
+                    <label for="tent" class="ml-4 text-lg font-medium text-gray-700">Slept in a tent</label>
+                </div>
+                <div class="flex items-center p-4 border rounded-lg bg-gray-50 border-gray-200 shadow-sm transition-transform transform hover:scale-105">
+                    <input type="checkbox" id="skiing" class="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500 cursor-pointer">
+                    <label for="skiing" class="ml-4 text-lg font-medium text-gray-700">Been snow skiing</label>
+                </div>
+                <div class="flex items-center p-4 border rounded-lg bg-gray-50 border-gray-200 shadow-sm transition-transform transform hover:scale-105">
+                    <input type="checkbox" id="bee" class="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500 cursor-pointer">
+                    <label for="bee" class="ml-4 text-lg font-medium text-gray-700">Been stung by a bee</label>
+                </div>
+                <div class="flex items-center p-4 border rounded-lg bg-gray-50 border-gray-200 shadow-sm transition-transform transform hover:scale-105">
+                    <input type="checkbox" id="country" class="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500 cursor-pointer">
+                    <label for="country" class="ml-4 text-lg font-medium text-gray-700">Traveled to another country</label>
+                </div>
+                <div class="flex items-center p-4 border rounded-lg bg-gray-50 border-gray-200 shadow-sm transition-transform transform hover:scale-105">
+                    <input type="checkbox" id="failed" class="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500 cursor-pointer">
+                    <label for="failed" class="ml-4 text-lg font-medium text-gray-700">Failed a class</label>
+                </div>
+            </div>
+
+            <!-- Done Button -->
+            <div class="mt-8">
+                <button id="done-button" class="w-full bg-green-500 text-white font-semibold py-3 rounded-lg shadow-md hover:bg-green-600 transition-colors">
+                    Done
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Page (hidden by default) -->
+        <div id="results-page" class="hidden text-center">
+            <h2 class="text-3xl font-bold text-gray-800 mb-2">Your Score</h2>
+            <p id="score" class="text-6xl font-extrabold text-blue-600 mb-4 animate-bounce-custom"></p>
+            <p id="score-text" class="text-xl text-gray-700 mb-8"></p>
+            <button id="share-button" class="w-full bg-blue-500 text-white font-semibold py-3 rounded-lg shadow-md hover:bg-blue-600 transition-colors mb-4">
+                Share My Score
+            </button>
+            <button id="play-again-button" class="w-full bg-purple-500 text-white font-semibold py-3 rounded-lg shadow-md hover:bg-purple-600 transition-colors">
+                Play Again
+            </button>
+            <div id="copy-message" class="mt-4 p-2 bg-green-200 text-green-800 rounded-lg hidden">
+                Copied to clipboard!
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const gamePage = document.getElementById('game-page');
+            const resultsPage = document.getElementById('results-page');
+            const doneButton = document.getElementById('done-button');
+            const shareButton = document.getElementById('share-button');
+            const playAgainButton = document.getElementById('play-again-button');
+            const scoreDisplay = document.getElementById('score');
+            const scoreText = document.getElementById('score-text');
+            const copyMessage = document.getElementById('copy-message');
+
+            doneButton.addEventListener('click', () => {
+                const checkboxes = document.querySelectorAll('#game-page input[type="checkbox"]:checked');
+                const score = checkboxes.length;
+
+                scoreDisplay.textContent = `${score} / 10`;
+
+                if (score === 10) {
+                    scoreText.textContent = "🥳 Wow, you've lived a truly adventurous life! You're a rockstar.";
+                } else if (score >= 7) {
+                    scoreText.textContent = "🎉 You're a seasoned pro! A true adventurer and an exciting person.";
+                } else if (score >= 4) {
+                    scoreText.textContent = "⭐ You're on your way! Life's a journey, and you're making memories.";
+                } else {
+                    scoreText.textContent = "🐣 You've been playing it safe! Time to explore new things and add to your list.";
+                }
+
+                gamePage.classList.add('hidden');
+                resultsPage.classList.remove('hidden');
+            });
+
+            shareButton.addEventListener('click', () => {
+                const score = scoreDisplay.textContent;
+                const textToCopy = `My score on the "Have You Ever" game is ${score}! What's yours? Play at https://kocatekin.github.io/apps/haveyouever`;
+                
+                // Use a temporary textarea to copy to the clipboard
+                const el = document.createElement('textarea');
+                el.value = textToCopy;
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+
+                copyMessage.classList.remove('hidden');
+                setTimeout(() => {
+                    copyMessage.classList.add('hidden');
+                }, 2000);
+            });
+
+            playAgainButton.addEventListener('click', () => {
+                const checkboxes = document.querySelectorAll('#game-page input[type="checkbox"]');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                resultsPage.classList.add('hidden');
+                gamePage.classList.remove('hidden');
+            });
+        });
+    </script>
+
+</body>
+</html>
