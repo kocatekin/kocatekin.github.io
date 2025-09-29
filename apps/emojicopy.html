@@ -1,0 +1,223 @@
+<!-- vibe -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emoji Quick Copy Pad</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for a clean, emoji-focused look */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Very light blue-gray background */
+        }
+        .emoji-tile {
+            /* Ensures a large, easy-to-tap touch target */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.15s ease-out, background-color 0.15s ease-out;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+        .emoji-tile:hover {
+            transform: scale(1.05);
+            background-color: #e2e8f0; /* Subtle hover effect */
+        }
+        .emoji-tile:active {
+            transform: scale(0.95);
+        }
+        
+        /* Floating notification bar style */
+        #notification-toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+        #notification-toast.show {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="max-w-xl mx-auto p-4 sm:p-6 bg-white min-h-screen">
+        
+        <!-- Header -->
+        <header class="mb-8 pt-4 text-center">
+            <h1 class="text-4xl font-extrabold text-gray-800 mb-2">Emoji Copy Pad 🤩</h1>
+            <p class="text-lg text-gray-500">Tap any emoji to copy it instantly.</p>
+        </header>
+
+        <!-- Content Area -->
+        <div id="content-container">
+            <!-- Emoji categories and grids will be injected here -->
+        </div>
+
+    </div>
+
+    <!-- Floating Notification Toast for Feedback -->
+    <div id="notification-toast" class="bg-green-500 text-white py-3 px-6 rounded-full shadow-xl">
+        Copied!
+    </div>
+
+    <script>
+        // --- Data Definitions (Most Used Emojis) ---
+        const emojiData = [
+            {
+                category: "Reactions & Status",
+                emojis: ["👍", "🙏", "❤️", "🔥", "💯", "✅", "💡", "🤔", "👀", "🥳", "✨", "🚀", "😩", "🎉", "🤣", "😭"]
+            },
+            {
+                category: "Hands & Gestures",
+                emojis: ["👋", "🙌", "👏", "🤯", "🫠", "🤷", "🤦", "🤙", "✌️", "🤟", "🫱‍🫲", "👈", "👉", "👇", "👆"]
+            },
+            {
+                category: "Communication & Sound",
+                emojis: ["💬", "📣", "📢", "🔔", "🔕", "🔇", "🎙️", "📞", "📠", "📱", "💻", "📧", "📩", "📤", "📥"]
+            },
+            {
+                category: "Common Objects & Food",
+                emojis: ["☕", "📚", "🖊️", "📎", "⚙️", "🔗", "🔑", "🛡️", "📦", "📍", "📌", "🗑️", "💡", "🍔", "🍕", "🍺"]
+            },
+            {
+                category: "Weather & Nature",
+                emojis: ["☀️", "☁️", "🌧️", "⛈️", "❄️", "🌬️", "🌊", "🌳", "🪴", "🌷", "🐛", "🐾", "🌕", "⭐", "🌈"]
+            },
+            {
+                category: "Money & Business",
+                emojis: ["💰", "💸", "💲", "🪙", "💳", "📈", "📉", "📊", "🧾", "💼", "🏢", "🏭", "🏦", "🧑‍💻", "✍️"]
+            },
+            {
+                category: "Time & Planning",
+                emojis: ["⏰", "🗓️", "📅", "⏳", "⌛", "☑️", "🟠", "🟡", "🟢", "🔵", "🟣", "🔴", "⚫", "⚪", "◻️"]
+            },
+            {
+                category: "Navigation & Arrows",
+                emojis: ["➡️", "⬅️", "⬆️", "⬇️", "↩️", "↪️", "🔜", "🔛", "🔝", "🔄", "▶️", "⏸️", "⏹️", "⏺️", "↙️"]
+            }
+        ];
+
+        const contentContainer = document.getElementById('content-container');
+        const notificationToast = document.getElementById('notification-toast');
+        
+        // --- Utility Functions ---
+        
+        /**
+         * Displays a temporary notification toast at the bottom of the screen.
+         */
+        function showNotification(message) {
+            notificationToast.textContent = message;
+            notificationToast.classList.add('show');
+            
+            setTimeout(() => {
+                notificationToast.classList.remove('show');
+            }, 1200);
+        }
+
+        /**
+         * Copies the given text to the clipboard and shows notification.
+         * @param {string} textToCopy - The string content (emoji) to be copied.
+         */
+        function copyText(textToCopy) {
+            try {
+                // Use the modern clipboard API
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    showNotification(`Copied ${textToCopy}!`);
+                }).catch(err => {
+                    console.error('Could not copy text using clipboard API:', err);
+                    fallbackCopyTextToClipboard(textToCopy);
+                });
+            } catch (err) {
+                 fallbackCopyTextToClipboard(textToCopy);
+            }
+        }
+        
+        /**
+         * Fallback mechanism for copying text (using document.execCommand).
+         */
+        function fallbackCopyTextToClipboard(textToCopy) {
+            const textArea = document.createElement("textarea");
+            textArea.value = textToCopy;
+            
+            // Avoid scrolling to bottom
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showNotification(`Copied ${textToCopy}!`);
+                } else {
+                    console.error('Fallback: Copying text command failed.');
+                }
+            } catch (err) {
+                console.error('Fallback: Oops, unable to copy', err);
+            }
+
+            document.body.removeChild(textArea);
+        }
+
+        // --- Rendering Functions ---
+
+        /**
+         * Renders the category section with a grid of emojis.
+         * @param {Object} category - The category object containing title and emojis array.
+         * @returns {string} HTML string for the category block.
+         */
+        function renderCategory(category) {
+            const tilesHtml = category.emojis.map(emoji => `
+                <div 
+                    data-emoji="${emoji}" 
+                    class="emoji-tile bg-white rounded-xl aspect-square text-4xl sm:text-5xl border border-gray-200"
+                    title="${emoji}"
+                >
+                    ${emoji}
+                </div>
+            `).join('');
+
+            return `
+                <div class="mb-10">
+                    <h2 class="text-xl font-bold text-gray-700 mb-4 px-1">${category.category}</h2>
+                    <div class="grid grid-cols-5 sm:grid-cols-6 gap-3">
+                        ${tilesHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
+         * Renders all emoji categories and attaches event listeners.
+         */
+        function renderContent() {
+            contentContainer.innerHTML = emojiData.map(renderCategory).join('');
+            
+            // Attach event listeners to all emoji tiles
+            document.querySelectorAll('.emoji-tile').forEach(tile => {
+                tile.addEventListener('click', (e) => {
+                    const emoji = e.currentTarget.getAttribute('data-emoji');
+                    copyText(emoji);
+                });
+            });
+        }
+        
+        // --- Initialization ---
+        
+        // Initial render
+        renderContent();
+
+    </script>
+</body>
+</html>
