@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coffee Menu</title>
+  <style>
+    :root {
+      --bg: #f7f3ef;
+      --card: #ffffff;
+      --text-main: #2f2f2f;
+      --text-muted: #6b6b6b;
+      --accent: #efe7df;
+      --media-bg: #f2eee9;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+    }
+
+    .container {
+      max-width: 420px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    header h1 {
+      font-size: 1.5rem;
+      margin: 0;
+      letter-spacing: -0.01em;
+    }
+
+    header p {
+      margin-top: 8px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .menu {
+      display: grid;
+      gap: 16px;
+    }
+
+    .card {
+      background-color: var(--card);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+      animation: fadeUp 0.4s ease forwards;
+      opacity: 0;
+      transform: translateY(16px);
+    }
+
+    /* Image is now "stuffed" inside a div to control padding/centering and avoid awkward cropping */
+    .card-media {
+      height: 160px;
+      background: var(--media-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+    }
+
+    .card-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain; /* important for capsule PNGs */
+      display: block;
+    }
+
+    .card-content {
+      padding: 16px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .card-header h2 {
+      font-size: 1.05rem;
+      margin: 0;
+      line-height: 1.3;
+    }
+
+    .intensity {
+      font-size: 0.7rem;
+      background-color: #f1f1f1;
+      color: var(--text-muted);
+      padding: 4px 8px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .description {
+      margin-top: 8px;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: var(--text-muted);
+    }
+
+    .notes {
+      margin-top: 16px;
+    }
+
+    .notes h3 {
+      margin: 0 0 8px;
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .note-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .note {
+      background-color: var(--accent);
+      padding: 6px 12px;
+      font-size: 0.7rem;
+      border-radius: 999px;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Kocatekin Coffee Shop</h1>
+      <p>Crafted with Nespresso capsules, served with care</p>
+    </header>
+
+    <section class="menu" id="menu"></section>
+  </div>
+
+  <script>
+    const coffees = [
+      {
+        name: "Sweet Almond and Hibiscus",
+        intensity: "Badem & Hibiskus",
+        image: "https://www.nespresso.com/ecom/medias/sys_master/public/45785090129950/C-1354-PLP-320x320.png?impolicy=small&imwidth=200&imdensity=1",
+        description:
+          "Brezilya’nın doğal tatlı çekirdekeri ve Kolombiya’nın canlı yıkanmış çekirdeklerinden oluşan, pürüzsüz, bir Arabica harmanından oluşur.",
+        notes: ["Badem"],
+      },
+      {
+        name: "Golden Caramel",
+        intensity: "Kremamsı & Bisküvimsi",
+        image: "https://www.nespresso.com/ecom/medias/sys_master/public/17452249612318/golden-caramel-2x.png?impolicy=small&imwidth=200&imdensity=1",
+        description:
+          "Bu %100 Arabika harmanı Brezilya, Etiyopya ve diğer Latin Amerika ülkelerinden temin edilmektedir.",
+        notes: ["Karamel"],
+      },
+      {
+        name: "Rich Chocolate",
+        intensity: "Kremalı & Çikolatalı",
+        image: "https://www.nespresso.com/ecom/medias/sys_master/public/17398021488670/C-1065-ResponsiveStandard.png?impolicy=medium&imwidth=200&imdensity=1",
+        description:
+          "Latin Amerika çekirdekleri tatlılık geliştirmek için orta yoğun ve hızlı bir şekilde kavrulur. Kahveye kadifemsi bir doku kazandırması için diğer çekirdekler biraz daha uzun süre kavrulur. Kavurma işleminden sonra ise çikolata aroması eklenir.",
+        notes: ["Çikolatalı"],
+      },
+      {
+        name: "Roasted Hazelnut",
+        intensity: "Zengin & Fındıklı",
+        image: "https://www.nespresso.com/ecom/medias/sys_master/public/17395697745950/C-1064-ResponsiveStandard.png?impolicy=medium&imwidth=200&imdensity=1",
+        description:
+          "Latin Amerika çekirdekleri ile kahvede tatlılık geliştirmek için çekirdekler, orta koyu ve hızlı bir şekilde kavrulur. Kahveye kadifemsi bir doku kazandırması için diğer çekirdekler biraz daha uzun süre kavrulur. Kavurma işleminden sonra ise fındık aroması eklenir.",
+        notes: ["Fındıklı", "Zengin"],
+      },
+    ];
+
+    const menuEl = document.getElementById("menu");
+
+    coffees.forEach((coffee, index) => {
+      const card = document.createElement("article");
+      card.className = "card";
+      card.style.animationDelay = `${index * 0.08}s`;
+
+      const notesHtml = coffee.notes
+        .map((note) => `<span class=\"note\">${note}</span>`)
+        .join("");
+
+      // Image is now inside a wrapper div, so it is contained/centered correctly.
+      card.innerHTML = `
+        <div class=\"card-media\">
+          <img src=\"${coffee.image}\" alt=\"${coffee.name}\" loading=\"lazy\" />
+        </div>
+        <div class=\"card-content\">
+          <div class=\"card-header\">
+            <h2>${coffee.name}</h2>
+            <span class=\"intensity\">${coffee.intensity}</span>
+          </div>
+          <p class=\"description\">${coffee.description}</p>
+          <div class=\"notes\">
+            <h3>Tasting Notes</h3>
+            <div class=\"note-list\">${notesHtml}</div>
+          </div>
+        </div>
+      `;
+
+      menuEl.appendChild(card);
+    });
+  </script>
+</body>
+</html>
