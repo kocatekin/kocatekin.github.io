@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LaTeX Header Generator</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            display: flex;
+            justify-content: center;
+            padding: 2rem 1rem;
+            margin: 0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: var(--card);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        h1 {
+            margin-top: 0;
+            font-size: 1.5rem;
+            color: #0f172a;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        @media (max-width: 480px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        @media (max-width: 480px) {
+            .form-group.full-width {
+                grid-column: span 1;
+            }
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: #475569;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.625rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            padding: 0.75rem;
+            font-size: 1rem;
+            margin-top: 1rem;
+        }
+
+        .btn-submit:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .output-container {
+            margin-top: 2rem;
+            display: none;
+        }
+
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        pre {
+            background: #1e293b;
+            color: #f8fafc;
+            padding: 1.25rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            font-size: 0.9rem;
+            margin: 0;
+            position: relative;
+        }
+
+        .btn-copy {
+            background: #475569;
+            color: white;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.75rem;
+        }
+
+        .btn-copy:hover {
+            background: #334155;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0f172a;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            display: none;
+            animation: fadeInOut 2s forwards;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translate(-50%, 10px); }
+            20% { opacity: 1; transform: translate(-50%, 0); }
+            80% { opacity: 1; transform: translate(-50%, 0); }
+            100% { opacity: 0; transform: translate(-50%, -10px); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>LaTeX Exam Header</h1>
+    <form id="examForm">
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="date">Date</label>
+                <input type="text" id="date" placeholder="e.g. 25.10.2023" required>
+            </div>
+            <div class="form-group">
+                <label for="time">Time</label>
+                <input type="text" id="time" placeholder="e.g. 10:30" required>
+            </div>
+            <div class="form-group">
+                <label for="courseCode">Course Code</label>
+                <input type="text" id="courseCode" placeholder="e.g. CS101" required>
+            </div>
+            <div class="form-group">
+                <label for="courseName">Course Name</label>
+                <input type="text" id="courseName" placeholder="e.g. Intro to CS" required>
+            </div>
+            <div class="form-group">
+                <label for="courseType">Course Type</label>
+                <select id="courseType">
+                    <option value="Midterm">Midterm</option>
+                    <option value="Final">Final</option>
+                    <option value="Makeup">Makeup</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="term">Term</label>
+                <select id="term">
+                    <option value="Spring">Spring</option>
+                    <option value="Fall">Fall</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="year">Year</label>
+                <input type="text" id="year" placeholder="e.g. 2026" required>
+            </div>
+            <div class="form-group">
+                <label for="instructor">Instructor Name</label>
+                <input type="text" id="instructor" value="Tuğberk Kocatekin" readonly>
+            </div>
+        </div>
+        <button type="submit" class="btn-submit">Generate Commands</button>
+    </form>
+
+    <div id="outputSection" class="output-container">
+        <div class="output-header">
+            <label>Generated LaTeX Output</label>
+            <button id="copyBtn" class="btn-copy">Copy to Clipboard</button>
+        </div>
+        <pre id="outputText"></pre>
+    </div>
+</div>
+
+<div id="toast" class="toast">Copied to clipboard!</div>
+
+<script>
+    const form = document.getElementById('examForm');
+    const outputSection = document.getElementById('outputSection');
+    const outputText = document.getElementById('outputText');
+    const copyBtn = document.getElementById('copyBtn');
+    const toast = document.getElementById('toast');
+
+    // Auto-fill Year and Term based on today's date
+    window.onload = () => {
+        const now = new Date();
+        const month = now.getMonth(); // 0-indexed (0 is Jan)
+        const currentYear = now.getFullYear();
+        
+        const termSelect = document.getElementById('term');
+        const yearInput = document.getElementById('year');
+
+        // Logic for Term
+        if (month >= 0 && month <= 5) {
+            termSelect.value = "Spring";
+        } else {
+            termSelect.value = "Fall";
+        }
+
+        // Logic for Year: Just today's year
+        yearInput.value = currentYear;
+    };
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const date = document.getElementById('date').value;
+        const time = document.getElementById('time').value;
+        const courseName = document.getElementById('courseName').value;
+        const courseCode = document.getElementById('courseCode').value;
+        const type = document.getElementById('courseType').value;
+        const term = document.getElementById('term').value;
+        const year = document.getElementById('year').value;
+        const instructor = document.getElementById('instructor').value;
+
+        const result = 
+`\\newcommand{\\mydate}{${date}}
+\\newcommand{\\mytime}{${time}}
+\\newcommand{\\coursename}{${courseName}}
+\\newcommand{\\coursecode}{${courseCode}}
+\\newcommand{\\coursetype}{${type}}
+\\newcommand{\\myyear}{${term} ${year}}
+\\newcommand{\\instructor}{${instructor}}`;
+
+        outputText.textContent = result;
+        outputSection.style.display = 'block';
+        
+        outputSection.scrollIntoView({ behavior: 'smooth' });
+    });
+
+    copyBtn.addEventListener('click', () => {
+        const text = outputText.textContent;
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        
+        try {
+            document.execCommand('copy');
+            showToast();
+        } catch (err) {
+            console.error('Unable to copy', err);
+        }
+        
+        document.body.removeChild(textArea);
+    });
+
+    function showToast() {
+        toast.style.display = 'block';
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 2000);
+    }
+</script>
+
+</body>
+</html>
