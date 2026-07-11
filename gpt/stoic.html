@@ -1,0 +1,681 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="A balanced 30-day Stoicism content schedule with practical lessons, philosophy, stories, exercises, and quotes." />
+  <title>30 Days of Stoicism — Content Schedule</title>
+  <style>
+    :root {
+      --bg: #f5f1e8;
+      --surface: rgba(255,255,255,.82);
+      --surface-strong: #ffffff;
+      --text: #1e2528;
+      --muted: #687174;
+      --line: rgba(30,37,40,.10);
+      --accent: #8a5a2b;
+      --accent-soft: #ead9c3;
+      --practical: #2f6f67;
+      --philosophy: #624e8b;
+      --story: #9a5b48;
+      --exercise: #3f6d9c;
+      --quote: #9a7b21;
+      --shadow: 0 18px 45px rgba(62,48,34,.10);
+      --radius: 24px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(188,145,92,.18), transparent 34%),
+        radial-gradient(circle at top right, rgba(65,111,103,.14), transparent 30%),
+        var(--bg);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+
+    .page {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 64px;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 32px;
+      padding: clamp(28px, 5vw, 60px);
+      background: linear-gradient(135deg, rgba(255,255,255,.94), rgba(248,243,233,.82));
+      box-shadow: var(--shadow);
+    }
+
+    .hero::after {
+      content: "30";
+      position: absolute;
+      right: clamp(18px, 4vw, 48px);
+      top: -34px;
+      font-family: Georgia, serif;
+      font-size: clamp(150px, 24vw, 320px);
+      line-height: 1;
+      font-weight: 700;
+      color: rgba(138,90,43,.07);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: #69451f;
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 780px;
+      margin: 18px 0 14px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.5rem, 6vw, 5.6rem);
+      line-height: .98;
+      letter-spacing: -.045em;
+    }
+
+    .lead {
+      max-width: 760px;
+      margin: 0;
+      color: var(--muted);
+      font-size: clamp(1rem, 2vw, 1.18rem);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 30px;
+      max-width: 820px;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+      background: rgba(255,255,255,.66);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.4rem;
+      line-height: 1;
+      margin-bottom: 5px;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: .82rem;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 12px;
+      z-index: 20;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: space-between;
+      align-items: center;
+      margin: 26px 0;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(245,241,232,.88);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 10px 30px rgba(62,48,34,.08);
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+      font: inherit;
+    }
+
+    .filter-btn, .print-btn {
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: white;
+      color: var(--text);
+      border: 1px solid var(--line);
+      font-weight: 750;
+      transition: .2s ease;
+    }
+
+    .filter-btn:hover, .print-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(30,37,40,.08);
+    }
+
+    .filter-btn.active {
+      background: var(--text);
+      color: white;
+    }
+
+    .schedule {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .day-card {
+      position: relative;
+      display: grid;
+      grid-template-columns: 74px 1fr;
+      gap: 18px;
+      min-height: 270px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: 0 10px 28px rgba(62,48,34,.07);
+      transition: transform .2s ease, box-shadow .2s ease, opacity .2s ease;
+    }
+
+    .day-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 18px 34px rgba(62,48,34,.12);
+    }
+
+    .day-card.hidden { display: none; }
+
+    .day-number {
+      width: 64px;
+      height: 64px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border-radius: 20px;
+      background: #efe8dc;
+      font-family: Georgia, serif;
+      font-size: 1.55rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .card-content { min-width: 0; }
+
+    .topline {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+
+    .type {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      color: white;
+      font-size: .72rem;
+      font-weight: 850;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .practical { background: var(--practical); }
+    .philosophy { background: var(--philosophy); }
+    .story { background: var(--story); }
+    .exercise { background: var(--exercise); }
+    .quote { background: var(--quote); }
+
+    .format {
+      color: var(--muted);
+      font-size: .8rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    h2 {
+      margin: 0 0 8px;
+      font-family: Georgia, serif;
+      font-size: 1.45rem;
+      line-height: 1.15;
+    }
+
+    .summary {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: .95rem;
+    }
+
+    .prompt {
+      margin: 0;
+      padding: 14px;
+      border-left: 4px solid var(--accent);
+      border-radius: 0 14px 14px 0;
+      background: rgba(138,90,43,.07);
+      font-size: .92rem;
+    }
+
+    .prompt strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .footer-note {
+      margin-top: 28px;
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: rgba(255,255,255,.72);
+      color: var(--muted);
+    }
+
+    .footer-note strong { color: var(--text); }
+
+    @media (max-width: 900px) {
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .schedule { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 620px) {
+      .page { width: min(100% - 20px, 1180px); padding-top: 10px; }
+      .hero { border-radius: 24px; padding: 26px 20px; }
+      .hero::after { display: none; }
+      .stats { grid-template-columns: 1fr 1fr; }
+      .toolbar { top: 6px; }
+      .day-card {
+        grid-template-columns: 1fr;
+        min-height: 0;
+        padding: 18px;
+      }
+      .day-number { width: 52px; height: 52px; border-radius: 16px; }
+      .topline { flex-direction: column; }
+    }
+
+    @media print {
+      body { background: white; }
+      .page { width: 100%; padding: 0; }
+      .hero, .day-card, .footer-note { box-shadow: none; background: white; }
+      .toolbar { display: none; }
+      .schedule { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .day-card { break-inside: avoid; min-height: 0; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <span class="eyebrow">Stoic Content Calendar</span>
+      <h1>30 Days of Stoicism</h1>
+      <p class="lead">
+        A balanced month of practical guidance, core philosophy, memorable stories, reflective exercises, and carefully selected quotes. Each day includes a distinct angle and a ready-to-use content prompt.
+      </p>
+      <div class="stats">
+        <div class="stat"><strong>6</strong><span>Practical posts</span></div>
+        <div class="stat"><strong>6</strong><span>Philosophy posts</span></div>
+        <div class="stat"><strong>6</strong><span>Stories</span></div>
+        <div class="stat"><strong>6</strong><span>Exercises</span></div>
+        <div class="stat"><strong>6</strong><span>Quote-led posts</span></div>
+      </div>
+    </section>
+
+    <section class="toolbar" aria-label="Schedule controls">
+      <div class="filters">
+        <button class="filter-btn active" data-filter="all">All 30 Days</button>
+        <button class="filter-btn" data-filter="practical">Practical</button>
+        <button class="filter-btn" data-filter="philosophy">Philosophy</button>
+        <button class="filter-btn" data-filter="story">Stories</button>
+        <button class="filter-btn" data-filter="exercise">Exercises</button>
+        <button class="filter-btn" data-filter="quote">Quotes</button>
+      </div>
+      <button class="print-btn" onclick="window.print()">Print / Save PDF</button>
+    </section>
+
+    <section class="schedule">
+      <article class="day-card" data-type="practical">
+        <div class="day-number">01</div>
+        <div class="card-content">
+          <div class="topline"><span class="type practical">Practical</span><span class="format">Carousel</span></div>
+          <h2>Control the Controllable</h2>
+          <p class="summary">Introduce the Stoic distinction between what belongs to us and what does not.</p>
+          <p class="prompt"><strong>Content prompt</strong>List five frustrations from an ordinary day, then separate them into “within my control” and “outside my control.” End with one concrete action.</p>
+        </div>
+      </article>
+
+      <article class="day-card" data-type="philosophy">
+        <div class="day-number">02</div>
+        <div class="card-content">
+          <div class="topline"><span class="type philosophy">Philosophy</span><span class="format">Short essay</span></div>
+          <h2>Virtue Is the Goal</h2>
+          <p class="summary">Explain why Stoicism is not primarily about feeling calm, but about living wisely and ethically.</p>
+          <p class="prompt"><strong>Content prompt</strong>Contrast “I want peace” with “I want to respond well.” Show how wisdom, courage, justice, and self-control shape decisions.</p>
+        </div>
+      </article>
+
+      <article class="day-card" data-type="story">
+        <div class="day-number">03</div>
+        <div class="card-content">
+          <div class="topline"><span class="type story">Story</span><span class="format">Narrative post</span></div>
+          <h2>Epictetus and the Lamp</h2>
+          <p class="summary">Tell the story of Epictetus replacing a stolen iron lamp with a cheaper clay one.</p>
+          <p class="prompt"><strong>Content prompt</strong>Use the story to ask: how much suffering comes from expecting possessions to remain permanently ours?</p>
+        </div>
+      </article>
+
+      <article class="day-card" data-type="exercise">
+        <div class="day-number">04</div>
+        <div class="card-content">
+          <div class="topline"><span class="type exercise">Exercise</span><span class="format">Journal prompt</span></div>
+          <h2>The Evening Review</h2>
+          <p class="summary">Adapt Seneca’s habit of reviewing his conduct at the end of each day.</p>
+          <p class="prompt"><strong>Content prompt</strong>Ask three questions: What did I do well? Where did I lose control? What will I do differently tomorrow?</p>
+        </div>
+      </article>
+
+      <article class="day-card" data-type="quote">
+        <div class="day-number">05</div>
+        <div class="card-content">
+          <div class="topline"><span class="type quote">Quote</span><span class="format">Quote card + caption</span></div>
+          <h2>“You Have Power Over Your Mind”</h2>
+          <p class="summary">Use Marcus Aurelius to distinguish inner judgment from external circumstance.</p>
+          <p class="prompt"><strong>Content prompt</strong>Explain that power over the mind is not emotional suppression; it is the ability to question the story we attach to events.</p>
+        </div>
+      </article>
+
+      <article class="day-card" data-type="practical">
+        <div class="day-number">06</div>
+        <div class="card-content">
+          <div class="topline"><span class="type practical">Practical</span><span class="format">Checklist</span></div>
+          <h2>Pause Before Replying</h2>
+          <p class="summary">Turn Stoic restraint into a simple communication habit.</p>
+          <p class="prompt"><strong>Content prompt</strong>Teach a three-step pause: notice the reaction, name the impression, choose the response. Apply it to messages, meetings, and arguments.</p>
+        </div>
+      </article>
+
+      <article class="day-card" data-type="philosophy">
+        <div class="day-number">07</div>
+        <div class="card-content">
+          <div class="topline"><span class="type philosophy">Philosophy</span><span class="format">Explainer</span></div>
+          <h2>What Stoics Mean by “Impressions”</h2>
+          <p class="summary">Explain that initial impressions arise automatically, but assent is a second step.</p>
+          <p class="prompt"><strong>Content prompt</strong>Use an example: “They ignored my message” becomes “They do not respect me.” Show where interpretation enters.</p>
+        </div>
+      </article>
+
+      <article class="day-card" data-type="story">
+        <div class="day-number">08</div>
+        <div class="card-content">
+          <div class="topline"><span class="type story">Story</span><span class="format">Reel script</span></div>
+          <h2>Marcus Aurelius in the Plague</h2>
+          <p class="summary">Describe the emperor governing amid war, disease, and political pressure.</p>
+          <p class="prompt"><strong>Content prompt</strong>Focus on duty under pressure: leadership is not waiting for ideal conditions, but acting responsibly in imperfect ones.</p>
+        </div>
+      </article>
+
+      <article class="day-card" data-type="exercise">
+        <div class="day-number">09</div>
+        <div class="card-content">
+          <div class="topline"><span class="type exercise">Exercise</span><span class="format">24-hour challenge</span></div>
+          <h2>A Day Without Complaining</h2>
+          <p class="summary">Invite followers to observe complaints without turning the exercise into forced positivity.</p>
+          <p class="prompt"><strong>Content prompt</strong>Each time you complain, restate the issue as a fact and add one useful response: “This happened; here is what I can do.”</p>
+        </div>
+      </article>
+
+      <article class="day-card" data-type="quote">
+        <div class="day-number">10</div>
+        <div class="card-content">
+          <div class="topline"><span class="type quote">Quote</span><span class="format">Minimal graphic</span></div>
+          <h2>“We Suffer More in Imagination”</h2>
+          <p class="summary">Use Seneca’s line to explore anticipatory anxiety and mental rehearsal.</p>
+          <p class="prompt"><strong>Content prompt</strong>Separate preparation from rumination. Preparation produces a plan; rumination repeats a fear without improving action.</p>
+        </div>
+      </article>
+
+      <article class="day-card" data-type="practical">
+        <div class="day-number">11</div>
+        <div class="card-content">
+          <div class="topline"><span class="type practical">Practical</span><span class="format">How-to post</span></div>
+          <h2>Turn Delay Into Training</h2>
+          <p class="summary">Use queues, traffic, and waiting as opportunities to practise patience.</p>
+          <p class="prompt"><strong>Content prompt</strong>Give three alternatives to irritation: observe breathing, review priorities, or practise attention without reaching for the phone.</p>
+        </div>
+      </article>
+
+      <article class="day-card" data-type="philosophy">
+        <div class="day-number">12</div>
+        <div class="card-content">
+          <div class="topline"><span class="type philosophy">Philosophy</span><span class="format">Myth-busting</span></div>
+          <h2>Stoicism Is Not Emotional Numbness</h2>
+          <p class="summary">Clarify the difference between emotion, judgment, and destructive passion.</p>
+          <p class="prompt"><strong>Content prompt</strong>Explain that Stoics did not aim to become cold; they aimed to avoid being ruled by distorted judgments.</p>
+        </div>
+      </article>
+
+      <article class="day-card" data-type="story">
+        <div class="day-number">13</div>
+        <div class="card-content">
+          <div class="topline"><span class="type story">Story</span><span class="format">Historical thread</span></div>
+          <h2>Cato and the Cost of Principle</h2>
+          <p class="summary">Present Cato as an example of consistency, discipline, and uncompromising public ethics.</p>
+          <p class="prompt"><strong>Content prompt</strong>Ask where firmness becomes integrity and where it becomes rigidity. Keep the story morally complex.</p>
+        </div>
+      </article>
+
+      <article class="day-card" data-type="exercise">
+        <div class="day-number">14</div>
+        <div class="card-content">
+          <div class="topline"><span class="type exercise">Exercise</span><span class="format">Reflection worksheet</span></div>
+          <h2>Negative Visualization</h2>
+          <p class="summary">Practise briefly imagining the absence of something valued to deepen gratitude.</p>
+          <p class="prompt"><strong>Content prompt</strong>Choose one ordinary good—health, a person, a home, a routine. Imagine its absence for two minutes, then return attention to its present value.</p>
+        </div>
+      </article>
+
+      <article class="day-card" data-type="quote">
+        <div class="day-number">15</div>
+        <div class="card-content">
+          <div class="topline"><span class="type quote">Quote</span><span class="format">Mid-month post</span></div>
+          <h2>“No Person Is Free Who Is Not Master of Himself”</h2>
+          <p class="summary">Use Epictetus to connect freedom with discipline rather than unrestricted choice.</p>
+          <p class="prompt"><strong>Content prompt</strong>Discuss one modern dependency—notifications, approval, anger, consumption—and ask what mastery would look like.</p>
+        </div>
+      </article>
+
+      <article class="day-card" data-type="practical">
+        <div class="day-number">16</div>
+        <div class="card-content">
+          <div class="topline"><span class="type practical">Practical</span><span class="format">Decision framework</span></div>
+          <h2>Use the Four Virtues as a Filter</h2>
+          <p class="summary">Convert Stoic ethics into a practical decision-making tool.</p>
+          <p class="prompt"><strong>Content prompt</strong>Before a difficult choice, ask: Is it wise? Is it just? Does it require courage? Does it show self-control?</p>
+        </div>
+      </article>
+
+      <article class="day-card" data-type="philosophy">
+        <div class="day-number">17</div>
+        <div class="card-content">
+          <div class="topline"><span class="type philosophy">Philosophy</span><span class="format">Concept post</span></div>
+          <h2>Amor Fati Without Passivity</h2>
+          <p class="summary">Explain loving fate as active acceptance of reality, not approval of every event.</p>
+          <p class="prompt"><strong>Content prompt</strong>Show the sequence: acknowledge what happened, refuse useless denial, then decide the most honorable next move.</p>
+        </div>
+      </article>
+
+      <article class="day-card" data-type="story">
+        <div class="day-number">18</div>
+        <div class="card-content">
+          <div class="topline"><span class="type story">Story</span><span class="format">Character study</span></div>
+          <h2>Musonius Rufus and Simple Living</h2>
+          <p class="summary">Introduce the teacher who linked philosophy to food, clothing, work, and daily discipline.</p>
+          <p class="prompt"><strong>Content prompt</strong>Show how philosophy becomes credible only when visible in ordinary habits, not just elegant language.</p>
+        </div>
+      </article>
+
+      <article class="day-card" data-type="exercise">
+        <div class="day-number">19</div>
+        <div class="card-content">
+          <div class="topline"><span class="type exercise">Exercise</span><span class="format">Behavior experiment</span></div>
+          <h2>Voluntary Discomfort</h2>
+          <p class="summary">Use mild, safe discomfort to weaken dependency on comfort.</p>
+          <p class="prompt"><strong>Content prompt</strong>Choose one modest exercise: a simple meal, a cold finish to a shower, walking instead of driving, or leaving the phone behind.</p>
+        </div>
+      </article>
+
+      <article class="day-card" data-type="quote">
+        <div class="day-number">20</div>
+        <div class="card-content">
+          <div class="topline"><span class="type quote">Quote</span><span class="format">Quote analysis</span></div>
+          <h2>“The Obstacle Becomes the Way”</h2>
+          <p class="summary">Explore Marcus Aurelius’s idea that impediments can become material for virtue.</p>
+          <p class="prompt"><strong>Content prompt</strong>Give examples: criticism becomes restraint, delay becomes patience, failure becomes clearer judgment.</p>
+        </div>
+      </article>
+
+      <article class="day-card" data-type="practical">
+        <div class="day-number">21</div>
+        <div class="card-content">
+          <div class="topline"><span class="type practical">Practical</span><span class="format">Workplace guide</span></div>
+          <h2>Handle Difficult People Stoically</h2>
+          <p class="summary">Apply Marcus Aurelius’s morning preparation to conflict and cooperation.</p>
+          <p class="prompt"><strong>Content prompt</strong>Prepare for friction without contempt. Define your boundary, your duty, and the tone you want to preserve.</p>
+        </div>
+      </article>
+
+      <article class="day-card" data-type="philosophy">
+        <div class="day-number">22</div>
+        <div class="card-content">
+          <div class="topline"><span class="type philosophy">Philosophy</span><span class="format">Deep dive</span></div>
+          <h2>The Stoic View of Time</h2>
+          <p class="summary">Explore the difference between possessing time and merely spending it unconsciously.</p>
+          <p class="prompt"><strong>Content prompt</strong>Use Seneca’s argument: life is not necessarily short, but much of it is lost to distraction, delay, and borrowed priorities.</p>
+        </div>
+      </article>
+
+      <article class="day-card" data-type="story">
+        <div class="day-number">23</div>
+        <div class="card-content">
+          <div class="topline"><span class="type story">Story</span><span class="format">Personal-style narrative</span></div>
+          <h2>The Archer and the Wind</h2>
+          <p class="summary">Use the Stoic archer analogy: we control preparation and aim, not the final flight of the arrow.</p>
+          <p class="prompt"><strong>Content prompt</strong>Apply it to publishing, interviews, exams, relationships, or business outcomes.</p>
+        </div>
+      </article>
+
+      <article class="day-card" data-type="exercise">
+        <div class="day-number">24</div>
+        <div class="card-content">
+          <div class="topline"><span class="type exercise">Exercise</span><span class="format">Morning routine</span></div>
+          <h2>Premeditatio Malorum</h2>
+          <p class="summary">Rehearse likely setbacks so they feel less shocking and more manageable.</p>
+          <p class="prompt"><strong>Content prompt</strong>Name one challenge likely to arise today, then write your preferred response before it happens.</p>
+        </div>
+      </article>
+
+      <article class="day-card" data-type="quote">
+        <div class="day-number">25</div>
+        <div class="card-content">
+          <div class="topline"><span class="type quote">Quote</span><span class="format">Reflection card</span></div>
+          <h2>“Waste No More Time Arguing What a Good Person Should Be”</h2>
+          <p class="summary">Use Marcus Aurelius to shift from identity claims to observable conduct.</p>
+          <p class="prompt"><strong>Content prompt</strong>Ask followers to choose one virtue and demonstrate it through one visible act today.</p>
+        </div>
+      </article>
+
+      <article class="day-card" data-type="practical">
+        <div class="day-number">26</div>
+        <div class="card-content">
+          <div class="topline"><span class="type practical">Practical</span><span class="format">Digital habit</span></div>
+          <h2>Practise Digital Temperance</h2>
+          <p class="summary">Apply Stoic self-command to feeds, notifications, and compulsive checking.</p>
+          <p class="prompt"><strong>Content prompt</strong>Create a simple rule: no phone for the first 30 minutes, notifications off, and deliberate check-in windows.</p>
+        </div>
+      </article>
+
+      <article class="day-card" data-type="philosophy">
+        <div class="day-number">27</div>
+        <div class="card-content">
+          <div class="topline"><span class="type philosophy">Philosophy</span><span class="format">Ethics post</span></div>
+          <h2>Justice Is Central to Stoicism</h2>
+          <p class="summary">Correct the self-help distortion that reduces Stoicism to personal resilience.</p>
+          <p class="prompt"><strong>Content prompt</strong>Explain that a Stoic life includes fairness, service, cooperation, and responsibility toward others.</p>
+        </div>
+      </article>
+
+      <article class="day-card" data-type="story">
+        <div class="day-number">28</div>
+        <div class="card-content">
+          <div class="topline"><span class="type story">Story</span><span class="format">Transformation story</span></div>
+          <h2>Zeno’s Shipwreck</h2>
+          <p class="summary">Tell how commercial loss helped redirect Zeno toward philosophy.</p>
+          <p class="prompt"><strong>Content prompt</strong>Avoid romanticizing loss. Focus instead on how an unwanted event can reveal a different path.</p>
+        </div>
+      </article>
+
+      <article class="day-card" data-type="exercise">
+        <div class="day-number">29</div>
+        <div class="card-content">
+          <div class="topline"><span class="type exercise">Exercise</span><span class="format">Monthly review</span></div>
+          <h2>Your Stoic Scorecard</h2>
+          <p class="summary">Review the month through conduct rather than mood.</p>
+          <p class="prompt"><strong>Content prompt</strong>Rate yourself from 1–5 on wisdom, courage, justice, and self-control. Add one example and one improvement for each.</p>
+        </div>
+      </article>
+
+      <article class="day-card" data-type="quote">
+        <div class="day-number">30</div>
+        <div class="card-content">
+          <div class="topline"><span class="type quote">Quote</span><span class="format">Closing post</span></div>
+          <h2>“Begin at Once to Live”</h2>
+          <p class="summary">Close the month with Seneca’s reminder that philosophy must become practice now.</p>
+          <p class="prompt"><strong>Content prompt</strong>Invite followers to choose one habit from the month and continue it for the next 30 days.</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="footer-note">
+      <strong>Suggested publishing rhythm:</strong> Use carousel posts for explanations, reels for stories, static cards for quotes, and stories or downloadable worksheets for exercises. Keep captions practical by ending each post with one question, one action, or one reflection prompt.
+    </section>
+  </main>
+
+  <script>
+    const buttons = document.querySelectorAll('.filter-btn');
+    const cards = document.querySelectorAll('.day-card');
+
+    buttons.forEach(button => {
+      button.addEventListener('click', () => {
+        const filter = button.dataset.filter;
+
+        buttons.forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+
+        cards.forEach(card => {
+          const visible = filter === 'all' || card.dataset.type === filter;
+          card.classList.toggle('hidden', !visible);
+        });
+      });
+    });
+  </script>
+</body>
+</html>
