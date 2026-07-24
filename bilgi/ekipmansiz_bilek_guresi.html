@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Ekipmansız el, bilek ve ön kol güçlendirme rehberi." />
+  <title>Ekipmansız El ve Bilek Güçlendirme Rehberi</title>
+  <style>
+    :root{
+      --bg:#f4f7fb;
+      --surface:#ffffff;
+      --surface-2:#eef3f8;
+      --text:#172033;
+      --muted:#667085;
+      --primary:#1f4f78;
+      --primary-2:#2f6f9f;
+      --accent:#d97706;
+      --success:#13795b;
+      --danger:#b42318;
+      --border:#d8e1ea;
+      --shadow:0 16px 40px rgba(31,79,120,.10);
+      --radius:20px;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top right, rgba(47,111,159,.10), transparent 30%),
+        linear-gradient(180deg,#f8fbfe 0%, var(--bg) 100%);
+      color:var(--text);
+      line-height:1.65;
+    }
+
+    a{color:inherit;text-decoration:none}
+
+    .hero{
+      background:linear-gradient(135deg,#173b59 0%,#245f8a 58%,#2f6f9f 100%);
+      color:#fff;
+      padding:72px 24px 56px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .hero::after{
+      content:"";
+      position:absolute;
+      width:320px;
+      height:320px;
+      right:-90px;
+      top:-120px;
+      border-radius:50%;
+      background:rgba(255,255,255,.08);
+    }
+
+    .hero-inner,
+    .container{
+      width:min(1120px, calc(100% - 32px));
+      margin:0 auto;
+    }
+
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:7px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.20);
+      font-size:.82rem;
+      font-weight:700;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+    }
+
+    h1{
+      font-size:clamp(2.2rem,5vw,4.4rem);
+      line-height:1.04;
+      max-width:820px;
+      margin:20px 0 18px;
+      letter-spacing:-.045em;
+    }
+
+    .hero p{
+      max-width:720px;
+      margin:0;
+      font-size:clamp(1rem,2vw,1.18rem);
+      color:rgba(255,255,255,.86);
+    }
+
+    .hero-meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:28px;
+    }
+
+    .chip{
+      padding:9px 13px;
+      border-radius:12px;
+      background:rgba(255,255,255,.11);
+      border:1px solid rgba(255,255,255,.17);
+      font-size:.92rem;
+    }
+
+    main{padding:38px 0 72px}
+
+    .notice{
+      background:#fff8eb;
+      border:1px solid #f5d79d;
+      border-left:5px solid var(--accent);
+      border-radius:16px;
+      padding:18px 20px;
+      margin-bottom:28px;
+      box-shadow:0 8px 20px rgba(217,119,6,.06);
+    }
+
+    .notice strong{color:#8a4b08}
+
+    .section{
+      margin-top:38px;
+    }
+
+    .section-head{
+      display:flex;
+      justify-content:space-between;
+      gap:18px;
+      align-items:end;
+      margin-bottom:18px;
+    }
+
+    .section h2{
+      margin:0;
+      font-size:clamp(1.55rem,3vw,2.25rem);
+      letter-spacing:-.025em;
+    }
+
+    .section-sub{
+      color:var(--muted);
+      max-width:720px;
+      margin:6px 0 0;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:18px;
+    }
+
+    .card{
+      background:rgba(255,255,255,.94);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:22px;
+      box-shadow:var(--shadow);
+      transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+
+    .card:hover{
+      transform:translateY(-3px);
+      box-shadow:0 20px 46px rgba(31,79,120,.14);
+      border-color:#b9cbd9;
+    }
+
+    .num{
+      width:38px;
+      height:38px;
+      display:grid;
+      place-items:center;
+      border-radius:12px;
+      background:#e8f1f8;
+      color:var(--primary);
+      font-weight:800;
+      margin-bottom:14px;
+    }
+
+    .card h3{
+      margin:0 0 8px;
+      font-size:1.08rem;
+    }
+
+    .card p{
+      margin:0;
+      color:var(--muted);
+      font-size:.95rem;
+    }
+
+    .dose{
+      display:inline-block;
+      margin-top:14px;
+      padding:7px 10px;
+      border-radius:10px;
+      background:var(--surface-2);
+      color:var(--primary);
+      font-size:.83rem;
+      font-weight:750;
+    }
+
+    .program{
+      display:grid;
+      grid-template-columns:1.1fr .9fr;
+      gap:20px;
+    }
+
+    .panel{
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:24px;
+      box-shadow:var(--shadow);
+    }
+
+    .program-list{
+      margin:16px 0 0;
+      padding:0;
+      list-style:none;
+    }
+
+    .program-list li{
+      display:grid;
+      grid-template-columns:72px 1fr;
+      gap:14px;
+      padding:13px 0;
+      border-bottom:1px solid #edf1f5;
+    }
+
+    .program-list li:last-child{border-bottom:none}
+
+    .time{
+      font-weight:800;
+      color:var(--primary);
+    }
+
+    .focus-box{
+      background:linear-gradient(180deg,#f7fbfe,#edf5fb);
+    }
+
+    .focus-item{
+      padding:12px 0;
+      border-bottom:1px solid #dfeaf2;
+    }
+
+    .focus-item:last-child{border-bottom:none}
+    .focus-item strong{display:block;color:var(--primary)}
+    .focus-item span{color:var(--muted);font-size:.92rem}
+
+    .warning-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+    }
+
+    .warning{
+      border-radius:16px;
+      padding:18px;
+      border:1px solid #efc4c1;
+      background:#fff5f4;
+    }
+
+    .warning strong{
+      display:block;
+      color:var(--danger);
+      margin-bottom:5px;
+    }
+
+    .warning p{
+      margin:0;
+      color:#7a3934;
+      font-size:.92rem;
+    }
+
+    footer{
+      margin-top:52px;
+      padding:26px 0 38px;
+      color:var(--muted);
+      font-size:.9rem;
+      text-align:center;
+    }
+
+    @media (max-width:900px){
+      .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .program{grid-template-columns:1fr}
+      .warning-grid{grid-template-columns:1fr}
+    }
+
+    @media (max-width:620px){
+      .hero{padding:54px 18px 42px}
+      .hero-inner,.container{width:min(100% - 22px,1120px)}
+      .grid{grid-template-columns:1fr}
+      .section-head{display:block}
+      .card,.panel{padding:19px}
+      .program-list li{grid-template-columns:58px 1fr}
+    }
+
+    @media print{
+      .hero{padding:30px;background:#fff;color:#000}
+      .hero p{color:#333}
+      .chip,.eyebrow{border-color:#aaa;background:#f3f3f3;color:#000}
+      body{background:#fff}
+      .card,.panel,.notice{box-shadow:none}
+    }
+  </style>
+</head>
+<body>
+
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="eyebrow">Ekipmansız • Evde • Bilek Güreşi Odaklı</div>
+      <h1>El, Bilek ve Ön Kol Güçlendirme Rehberi</h1>
+      <p>
+        Boş zamanlarında uygulanabilecek kısa izometrik çalışmalar, kavrama egzersizleri ve
+        bilek güreşine özgü pronasyon, cupping ve parmak kontrolü hareketleri.
+      </p>
+      <div class="hero-meta">
+        <div class="chip">Günde 8–15 dakika</div>
+        <div class="chip">Ekipman gerektirmez</div>
+        <div class="chip">Mikro setlere uygundur</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="notice">
+      <strong>Önemli:</strong> Bu hareketlerde amaç eklemi zorlamak değil, kas ve tendonlara kontrollü yük vermektir.
+      Keskin ağrı, uyuşma, dirseğin iç tarafında batma veya başparmak tabanında hassasiyet oluşursa antrenmanı bırak.
+    </div>
+
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <h2>Temel hareketler</h2>
+          <p class="section-sub">Gün içinde sık aralıklarla yapılabilecek düşük riskli el ve bilek çalışmaları.</p>
+        </div>
+      </div>
+
+      <div class="grid">
+        <article class="card"><div class="num">01</div><h3>Maksimum yumruk sıkma</h3><p>Parmaklarını avuca iyice kapat, başparmağı dışarıdan kilitle ve eli 5–10 saniye kuvvetli biçimde sık.</p><span class="dose">6–10 tekrar</span></article>
+        <article class="card"><div class="num">02</div><h3>Parmakları açma</h3><p>Parmaklarını mümkün olduğunca birbirinden uzaklaştır. Özellikle serçe ve yüzük parmağını aktif tut.</p><span class="dose">20–30 tekrar</span></article>
+        <article class="card"><div class="num">03</div><h3>Parmak uçlarını bastırma</h3><p>İki elin parmak uçlarını karşılıklı getir. Parmakları bükmeden birbirine doğru kuvvet uygula.</p><span class="dose">3 × 20 saniye</span></article>
+        <article class="card"><div class="num">04</div><h3>Başparmak-parmak sıkıştırma</h3><p>Başparmağını sırayla işaret, orta, yüzük ve serçe parmağına bastır. Her parmakta güçlü temas kur.</p><span class="dose">Her parmak 8–10 sn</span></article>
+        <article class="card"><div class="num">05</div><h3>İzometrik bilek fleksiyonu</h3><p>Bir elinle diğer elin avuç içini aşağı bastırırken çalışan elinle bileği içe kapatmaya çalış.</p><span class="dose">4 × 12–20 saniye</span></article>
+        <article class="card"><div class="num">06</div><h3>İzometrik bilek ekstansiyonu</h3><p>Çalışan elin sırtını diğer elinle bastır. Çalışan elinle bileği yukarı kaldırmaya çalış.</p><span class="dose">4 × 12–20 saniye</span></article>
+        <article class="card"><div class="num">07</div><h3>Pronasyon direnci</h3><p>Dirseği gövdeye yakın tut. Diğer elinle direnç verirken çalışan eli içe döndürmeye çalış.</p><span class="dose">5 × 10–15 saniye</span></article>
+        <article class="card"><div class="num">08</div><h3>Supinasyon direnci</h3><p>Avucu yukarı çevirmeye çalışırken diğer elinle hareketi durdur. Dirsek pozisyonunu sabit tut.</p><span class="dose">4 × 10–15 saniye</span></article>
+        <article class="card"><div class="num">09</div><h3>Havlu burma</h3><p>Bir havluyu iki elinle tutup farklı yönlere çevir. Yön değiştirerek hem pronasyon hem supinasyon çalış.</p><span class="dose">2 × 30–45 saniye</span></article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <h2>Ek hareketler</h2>
+          <p class="section-sub">Özellikle bilek güreşindeki parmak kontrolü, rising ve statik tutuş için ek seçenekler.</p>
+        </div>
+      </div>
+
+      <div class="grid">
+        <article class="card"><div class="num">10</div><h3>Parmak kancası</h3><p>Parmaklarını yarım kapalı kanca biçiminde tut. Diğer elinle parmakları açmaya çalışırken pozisyonu koru.</p><span class="dose">4 × 15 saniye</span></article>
+        <article class="card"><div class="num">11</div><h3>Rising izometriği</h3><p>Başparmak tarafını yukarı kaldırmaya çalışırken diğer elinle aşağı doğru direnç uygula. Bileği yana kırma.</p><span class="dose">4 × 12 saniye</span></article>
+        <article class="card"><div class="num">12</div><h3>Cupping kilidi</h3><p>Bileği içe kapat ve parmakları hafifçe avuca çek. Diğer elinle bileği açmaya çalışırken kilidi koru.</p><span class="dose">5 × 10 saniye</span></article>
+        <article class="card"><div class="num">13</div><h3>Masa kenarı kavrama</h3><p>Sağlam bir masa kenarını parmaklarınla kavra. Omzu yükseltmeden sadece el ve ön kolla sık.</p><span class="dose">3 × 20–40 saniye</span></article>
+        <article class="card"><div class="num">14</div><h3>Tek parmak baskısı</h3><p>İşaret ve orta parmağını sırayla masa yüzeyine bastır. Parmak eklemlerini çökertmeden kuvvet üret.</p><span class="dose">Her parmak 3 × 10 sn</span></article>
+        <article class="card"><div class="num">15</div><h3>Avuç içi sıkıştırma</h3><p>İki avucu göğüs önünde birleştir. Parmaklar yukarı bakarken avuçları birbirine kuvvetle bastır.</p><span class="dose">3 × 20 saniye</span></article>
+        <article class="card"><div class="num">16</div><h3>Yumruk üzerinde plank</h3><p>Yumuşak bir zeminde yumruklar üzerinde plank yap. Bileği nötr tut ve yükü ağrısız aralıkta artır.</p><span class="dose">3 × 20–45 saniye</span></article>
+        <article class="card"><div class="num">17</div><h3>El sırtı kontrollü yükleme</h3><p>Dizlerin yerdeyken ellerin sırtını yumuşak zemine koy. Çok hafif öne-arkaya ağırlık aktar.</p><span class="dose">2 × 20 saniye</span></article>
+        <article class="card"><div class="num">18</div><h3>Parmak yürüyüşü</h3><p>Elini masa üzerine koy. Parmakları sırayla kaldırıp indir; sonra eli parmaklarla küçük adımlarla ilerlet.</p><span class="dose">2 dakika</span></article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="program">
+        <div class="panel">
+          <h2>10 dakikalık mikro antrenman</h2>
+          <p class="section-sub">Televizyon izlerken veya kısa bir mola sırasında uygulanabilir.</p>
+          <ul class="program-list">
+            <li><span class="time">1 dk</span><span>Parmak açma ve kapama</span></li>
+            <li><span class="time">2 dk</span><span>Pronasyon ve supinasyon izometrikleri</span></li>
+            <li><span class="time">2 dk</span><span>Cupping ve rising izometrikleri</span></li>
+            <li><span class="time">2 dk</span><span>Parmak kancası ve başparmak sıkıştırma</span></li>
+            <li><span class="time">2 dk</span><span>Masa kenarı kavrama veya havlu burma</span></li>
+            <li><span class="time">1 dk</span><span>El açma, bileği gevşetme ve hafif daireler</span></li>
+          </ul>
+        </div>
+
+        <aside class="panel focus-box">
+          <h2>Bilek güreşi öncelik sırası</h2>
+          <div class="focus-item"><strong>1. Pronasyon</strong><span>Rakibin elini açmak ve el üstünlüğünü korumak.</span></div>
+          <div class="focus-item"><strong>2. Cupping</strong><span>Bileği içe kapatıp rakibin parmaklarını kontrol etmek.</span></div>
+          <div class="focus-item"><strong>3. Parmak kuvveti</strong><span>Tutuşun çözülmesini engellemek ve baskıyı aktarmak.</span></div>
+          <div class="focus-item"><strong>4. Rising</strong><span>Başparmak tarafını yukarı taşıyarak el yüksekliği kazanmak.</span></div>
+          <div class="focus-item"><strong>5. Statik dayanıklılık</strong><span>Uzayan pozisyonlarda kuvvet kaybetmemek.</span></div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <h2>Kaçınılması gerekenler</h2>
+          <p class="section-sub">Ekipmansız antrenmanda dahi tendon ve eklem yükünü kontrollü tutmak gerekir.</p>
+        </div>
+      </div>
+
+      <div class="warning-grid">
+        <div class="warning"><strong>Her seti maksimum yapma</strong><p>Gün boyu mikro set yapıyorsan çoğu seti yaklaşık %60–75 eforla uygula.</p></div>
+        <div class="warning"><strong>Dirsek ağrısını önemse</strong><p>Dirseğin iç tarafında hassasiyet başlarsa pronasyon, cupping ve sıkma hacmini azalt.</p></div>
+        <div class="warning"><strong>Soğuk ekleme ani yük verme</strong><p>Önce 1–2 dakika el açma, hafif sıkma ve bilek dairesiyle ısın.</p></div>
+      </div>
+    </section>
+
+    <footer>
+      Kişisel antrenman rehberi • Ağrısız hareket aralığı ve kontrollü yüklenme esas alınmalıdır.
+    </footer>
+  </main>
+</body>
+</html>
