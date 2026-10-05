@@ -1,0 +1,1546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Advanced OOP — Java Type Systems, Subtyping, Generics & Duck Typing</title>
+<style>
+:root{
+  --bg:#0a0f1c;--bg2:#0f172a;--panel:#111827;--panel2:#162033;--panel3:#0d1526;
+  --text:#e5e7eb;--muted:#9ca3af;--line:#263248;--accent:#60a5fa;--accent2:#a78bfa;
+  --good:#34d399;--bad:#fb7185;--warn:#fbbf24;--cyan:#22d3ee;--code:#08111f;
+  --shadow:0 18px 60px rgba(0,0,0,.24);--radius:18px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:linear-gradient(180deg,#070b14 0%,var(--bg) 20%,#101827 100%);
+  color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  line-height:1.58
+}
+button,input,select{font:inherit}
+a{color:inherit}
+kbd{border:1px solid #475569;background:#0b1220;border-radius:6px;padding:1px 6px;font-size:.82em}
+.app{display:grid;grid-template-columns:285px 1fr;min-height:100vh}
+aside{
+  position:sticky;top:0;height:100vh;overflow:auto;padding:22px 16px;border-right:1px solid var(--line);
+  background:rgba(9,14,26,.95);backdrop-filter:blur(14px)
+}
+.brand{padding:8px 10px 18px;border-bottom:1px solid var(--line);margin-bottom:14px}
+.brand .eyebrow{color:var(--accent);text-transform:uppercase;letter-spacing:.14em;font-size:.74rem;font-weight:800}
+.brand h1{font-size:1.18rem;line-height:1.2;margin:7px 0 0}
+.toc-title{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;margin:18px 10px 8px}
+.toc a{
+  display:block;text-decoration:none;color:#cbd5e1;padding:9px 10px;border-radius:10px;margin:2px 0;font-size:.91rem
+}
+.toc a:hover,.toc a.active{background:#1e293b;color:#fff}
+main{min-width:0}
+.topbar{
+  position:sticky;top:0;z-index:20;display:flex;gap:10px;align-items:center;padding:12px 22px;
+  border-bottom:1px solid var(--line);background:rgba(10,15,28,.86);backdrop-filter:blur(16px)
+}
+.search{flex:1;display:flex;align-items:center;background:#0c1424;border:1px solid #334155;border-radius:12px;padding:0 12px}
+.search input{width:100%;border:0;outline:0;background:transparent;color:var(--text);padding:11px}
+.btn,.mode-btn{
+  border:1px solid #334155;background:#111827;color:var(--text);border-radius:10px;padding:9px 12px;cursor:pointer
+}
+.btn:hover,.mode-btn:hover{border-color:#64748b}
+.mode-btn.active{background:#1d4ed8;border-color:#2563eb}
+.container{max-width:1100px;margin:0 auto;padding:42px 26px 80px}
+.hero{
+  display:grid;grid-template-columns:1.45fr .55fr;gap:22px;align-items:end;margin-bottom:28px
+}
+.hero h2{font-size:clamp(2.2rem,5vw,4.8rem);line-height:.97;letter-spacing:-.045em;margin:.25rem 0 1rem}
+.hero p{font-size:1.08rem;color:#cbd5e1;max-width:760px}
+.hero-card,.card{
+  border:1px solid var(--line);background:linear-gradient(180deg,rgba(17,24,39,.96),rgba(15,23,42,.94));
+  border-radius:var(--radius);box-shadow:var(--shadow)
+}
+.hero-card{padding:20px}
+.hero-card small{color:var(--muted)}
+.hero-card strong{display:block;font-size:1.45rem;margin:.2rem 0}
+.chapter{margin:34px 0 56px;scroll-margin-top:76px}
+.chapter-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:16px}
+.chapter-num{color:var(--accent);font-weight:800;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase}
+.chapter h2{font-size:2rem;letter-spacing:-.025em;margin:.2rem 0 .4rem}
+.lead{color:#cbd5e1;margin:0;max-width:820px}
+.card{padding:20px;margin:14px 0}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.tag{display:inline-block;border:1px solid var(--line);background:#1f2937;border-radius:999px;padding:4px 9px;font-size:.78rem;color:#cbd5e1}
+h3{font-size:1.18rem;margin:.2rem 0 .55rem}
+h4{margin:1.1rem 0 .35rem}
+p{margin:.55rem 0 1rem}
+ul{margin:.5rem 0 1rem}
+li+li{margin-top:.28rem}
+pre{
+  margin:12px 0;padding:16px;background:var(--code);border:1px solid #1f2937;border-radius:14px;overflow:auto;
+  font-size:.91rem;line-height:1.48
+}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace}
+:not(pre)>code{background:#111c2d;border:1px solid #223149;padding:1px 5px;border-radius:6px}
+.callout{border-left:4px solid var(--accent);background:rgba(96,165,250,.08);padding:13px 15px;border-radius:10px;margin:12px 0}
+.good{border-left-color:var(--good);background:rgba(52,211,153,.08)}
+.bad{border-left-color:var(--bad);background:rgba(251,113,133,.08)}
+.warn{border-left-color:var(--warn);background:rgba(251,191,36,.08)}
+.quote{
+  padding:16px 18px;border-radius:14px;background:#0c1424;border:1px solid var(--line);font-size:1.05rem;font-weight:650
+}
+.axis{min-height:185px}
+.axis .q{color:var(--muted);font-style:italic}
+table{width:100%;border-collapse:separate;border-spacing:0;margin:12px 0;overflow:hidden;border:1px solid var(--line);border-radius:14px}
+th,td{padding:11px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{background:#121d2f;color:#fff}
+tr:last-child td{border-bottom:0}
+.hierarchy{display:flex;flex-direction:column;align-items:center;gap:4px;margin:14px 0}
+.node{min-width:160px;text-align:center;padding:9px 14px;border:1px solid var(--line);background:#101827;border-radius:12px;font-weight:750}
+.arrow{color:var(--muted);font-size:1.25rem}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.controls{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0}
+.controls button,.controls select{
+  border:1px solid #334155;background:#111827;color:var(--text);padding:9px 11px;border-radius:10px;cursor:pointer
+}
+.controls button:hover{border-color:#64748b}
+.primary{background:#1d4ed8!important;border-color:#2563eb!important}
+.result{padding:13px 14px;border:1px solid var(--line);background:#09111f;border-radius:12px;min-height:50px;margin-top:10px}
+.result.ok{border-color:#166534;background:rgba(22,101,52,.15)}
+.result.no{border-color:#9f1239;background:rgba(159,18,57,.15)}
+.matrix{display:grid;grid-template-columns:repeat(3,minmax(130px,1fr));gap:10px;margin-top:12px}
+.cell{padding:13px;border:1px solid var(--line);background:#0e1727;border-radius:12px;text-align:center}
+.cell.ok{border-color:#166534}.cell.no{border-color:#9f1239}
+.reveal{display:none}
+.study-mode .reveal{display:block}
+.lesson-question{border:1px dashed #475569;border-radius:14px;padding:15px;margin:12px 0;background:#0d1525}
+.lesson-question .answer{display:none;margin-top:10px}
+.lesson-question.open .answer{display:block}
+.lesson-question .show-answer{margin-top:8px}
+.quiz .qbox{border:1px solid var(--line);background:#0d1525;border-radius:14px;padding:15px;margin:10px 0}
+.feedback{margin-top:8px}
+.pill-good{color:var(--good);font-weight:800}.pill-bad{color:var(--bad);font-weight:800}
+.search-hit{outline:2px solid var(--warn);outline-offset:3px}
+.hidden-by-search{display:none!important}
+.accordion{border:1px solid var(--line);border-radius:14px;overflow:hidden;margin:12px 0}
+.accordion button{
+  width:100%;text-align:left;background:#101827;color:var(--text);border:0;padding:14px 16px;cursor:pointer;font-weight:750
+}
+.accordion .body{display:none;padding:0 16px 16px;background:#0e1727}
+.accordion.open .body{display:block}
+.duck-card{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.duck-example{border:1px solid var(--line);border-radius:14px;padding:16px;background:#0d1525}
+.mini{font-size:.9rem;color:var(--muted)}
+footer{color:var(--muted);font-size:.9rem;text-align:center;margin-top:56px}
+@media(max-width:950px){
+  .app{grid-template-columns:1fr}
+  aside{display:none}
+  .hero,.grid-2,.grid-3,.grid-4,.duck-card{grid-template-columns:1fr}
+  .topbar{top:0}
+}
+@media print{
+  aside,.topbar,.controls,.show-answer{display:none!important}
+  body{background:white;color:black}
+  .app{display:block}.container{max-width:none;padding:0}
+  .card,.hero-card{box-shadow:none;border:1px solid #aaa;background:white}
+  pre{background:#f6f8fa;color:black;border:1px solid #ddd}
+  .reveal,.lesson-question .answer{display:block!important}
+}
+
+.detail-layer{
+  margin-top:18px;border:1px solid #30405b;border-radius:16px;overflow:hidden;
+  background:linear-gradient(180deg,#0e1728,#0b1322)
+}
+.detail-toggle{
+  width:100%;display:flex;justify-content:space-between;gap:12px;align-items:center;
+  text-align:left;border:0;background:#142038;color:var(--text);padding:15px 17px;
+  font-weight:800;cursor:pointer
+}
+.detail-toggle:hover{background:#192944}
+.detail-toggle .detail-label{display:flex;align-items:center;gap:9px}
+.detail-toggle .chev{transition:transform .18s ease;color:var(--muted)}
+.detail-layer.open .chev{transform:rotate(90deg)}
+.detail-body{display:none;padding:18px}
+.detail-layer.open .detail-body{display:block}
+.detail-body h3{margin-top:0}
+.detail-body h4{margin-top:1.25rem;color:#dbeafe}
+.detail-body .deep-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.study-mode .detail-layer{border-color:#3b82f6}
+.study-mode .detail-layer .detail-body{display:block}
+.study-mode .detail-layer .chev{transform:rotate(90deg)}
+@media(max-width:850px){.detail-body .deep-grid{grid-template-columns:1fr}}
+@media print{.detail-body{display:block!important}.detail-toggle{background:#eee;color:#111}}
+
+</style>
+</head>
+<body>
+<div class="app">
+<aside>
+  <div class="brand">
+    <div class="eyebrow">Advanced OOP · Java</div>
+    <h1>Type Systems, Subtyping, Generics & Duck Typing</h1>
+  </div>
+  <div class="toc-title">Contents</div>
+  <nav class="toc" id="toc">
+    <a href="#why-types">1. Why Types?</a>
+    <a href="#what-type">2. What Is a Type?</a>
+    <a href="#axes">3. The Four Axes</a>
+    <a href="#subtyping">4. Subtyping</a>
+    <a href="#substitutability">5. Substitutability</a>
+    <a href="#lsp">6. Behavioral Subtyping & LSP</a>
+    <a href="#interfaces">7. Interfaces & Subtyping</a>
+    <a href="#static-runtime">8. Static vs Runtime Type</a>
+    <a href="#generics">9. Generics</a>
+    <a href="#variance">10. Variance & Wildcards</a>
+    <a href="#duck">11. Duck Typing</a>
+    <a href="#practice">12. Practice</a>
+  </nav>
+</aside>
+
+<main>
+  <div class="topbar">
+    <div class="search">⌕ <input id="searchInput" placeholder="Search this lesson..."></div>
+    <button class="mode-btn active" id="lectureBtn">Lecture Mode</button>
+    <button class="mode-btn" id="studyBtn">Study Mode</button>
+    <button class="btn" onclick="window.print()">Print</button>
+  </div>
+
+  <div class="container" id="content">
+    <section class="hero">
+      <div>
+        <div class="chapter-num">Advanced Object-Oriented Programming</div>
+        <h2>Java Type Systems</h2>
+        <p>A complete interactive lesson on typing, subtyping, substitutability, polymorphism, generics, variance, and duck typing.</p>
+      </div>
+      <div class="hero-card">
+        <small>Core idea</small>
+        <strong>What can the compiler guarantee?</strong>
+        <span class="mini">Most of the rules in this unit follow from that one question.</span>
+      </div>
+    </section>
+
+    <section class="chapter" id="why-types">
+      <div class="chapter-head">
+        <div>
+          <div class="chapter-num">Chapter 1</div>
+          <h2>Why Types?</h2>
+          <p class="lead">Types are not decoration. They give the language information that can be used to reason about operations before or during execution.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <span class="tag">Python — dynamic check</span>
+          <pre><code>def print_upper(text):
+    print(text.upper())
+
+print_upper("hello")  # works
+print_upper(42)       # runtime error</code></pre>
+          <div class="callout bad"><strong>When do we discover the problem?</strong> When the failing line actually executes.</div>
+        </div>
+        <div class="card">
+          <span class="tag">Java — static check</span>
+          <pre><code>static void printUpper(String text) {
+    System.out.println(text.toUpperCase());
+}
+
+printUpper("hello");  // OK
+printUpper(42);       // compile-time error</code></pre>
+          <div class="callout good"><strong>When do we discover the problem?</strong> During compilation, before the program runs.</div>
+        </div>
+      </div>
+
+      <div class="quote">Typing is how the compiler knows what you are allowed to do with a value.</div>
+
+      <div class="lesson-question">
+        <strong>Class question:</strong> What does this example prove?
+        <div class="controls"><button class="show-answer">Reveal</button></div>
+        <div class="answer">
+          It does <strong>not</strong> prove that Java is a “better” language. It shows one benefit of static type information:
+          <ul>
+            <li>Types provide information.</li>
+            <li>The compiler can reason using that information.</li>
+            <li>Some invalid operations can be rejected before runtime.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>A useful contrast: coercion</h3>
+        <pre><code>JavaScript: "5" + 3  // "53"
+Java:       "5" + 3  // "53"
+Python:     "5" + 3  // TypeError</code></pre>
+        <p>This is useful when discussing <strong>coercion</strong> and strong/weak typing. It is not the same question as static vs dynamic typing.</p>
+      </div>
+    
+<div class="detail-layer">
+  <button class="detail-toggle"><span class="detail-label">＋ More detail / Study notes</span><span class="chev">▶</span></button>
+  <div class="detail-body">
+    <h3>Why this matters beyond toy examples</h3>
+    <p>Type information helps tools reason about code before a particular execution path happens. In a large codebase, a bad call may sit untouched for weeks. Static checking can eliminate whole classes of mistakes without relying on someone to execute every path manually.</p>
+    <div class="deep-grid">
+      <div>
+        <h4>What static typing can catch</h4>
+        <ul>
+          <li>Passing an incompatible argument to a method.</li>
+          <li>Calling a method not guaranteed by the expression's static type.</li>
+          <li>Returning the wrong type from a method.</li>
+          <li>Many generic collection mistakes.</li>
+        </ul>
+      </div>
+      <div>
+        <h4>What it cannot guarantee</h4>
+        <ul>
+          <li>That an array index is always in range.</li>
+          <li>That a file exists.</li>
+          <li>That a network service is reachable.</li>
+          <li>That business logic is correct.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout warn"><strong>Important:</strong> static typing reduces some categories of runtime failure. It does not prove that the entire program is correct.</div>
+    <h4>Compile-time vs runtime failure</h4>
+    <pre><code>// Compile-time problem
+String s = 42;
+
+// Runtime problem
+int[] a = {1, 2, 3};
+System.out.println(a[10]);</code></pre>
+  </div>
+</div>
+</section>
+
+    <section class="chapter" id="what-type">
+      <div class="chapter-num">Chapter 2</div>
+      <h2>What Is a Type?</h2>
+      <p class="lead">A practical definition for this course:</p>
+      <div class="quote">A type is a set of possible values together with the operations permitted on those values.</div>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Example</h3>
+          <pre><code>Dog dog = new Dog();
+dog.bark();</code></pre>
+          <p>The compiler allows <code>bark()</code> because the static type <code>Dog</code> guarantees that operation.</p>
+        </div>
+        <div class="card">
+          <h3>Type error</h3>
+          <p>A type error occurs when code attempts an operation that the relevant type does not support.</p>
+          <pre><code>String name = "Alice";
+name.bark(); // compile-time error</code></pre>
+        </div>
+      </div>
+    
+<div class="detail-layer">
+  <button class="detail-toggle"><span class="detail-label">＋ More detail / Study notes</span><span class="chev">▶</span></button>
+  <div class="detail-body">
+    <h3>Types as guarantees</h3>
+    <p>A useful OOP interpretation is that a type is a <strong>contract</strong>. If an expression has type <code>Animal</code>, client code may rely on the operations guaranteed by <code>Animal</code>, but not on subtype-specific operations.</p>
+    <pre><code>Animal a = ...;
+
+a.eat();   // legal if Animal guarantees eat()
+a.bark();  // not legal unless Animal guarantees bark()</code></pre>
+    <h4>Primitive and reference types</h4>
+    <p>Java has primitive types such as <code>int</code> and <code>boolean</code>, and reference types such as classes, interfaces, arrays, and enum types. Most of the OOP discussion in this unit concerns reference types.</p>
+    <h4>Expression type vs object identity</h4>
+    <p>The type of an expression is not the same idea as the identity of the runtime object. That distinction becomes crucial later when we write <code>Animal a = new Dog()</code>.</p>
+  </div>
+</div>
+</section>
+
+    <section class="chapter" id="axes">
+      <div class="chapter-num">Chapter 3</div>
+      <h2>The Four Axes</h2>
+      <p class="lead">These are separate questions. A language can be static but inferred, dynamic but strong, and so on.</p>
+
+      <div class="grid-2">
+        <div class="card axis">
+          <h3>Static vs Dynamic</h3>
+          <p class="q">When are types checked?</p>
+          <ul>
+            <li><strong>Static:</strong> primarily before execution.</li>
+            <li><strong>Dynamic:</strong> validity is checked as the program executes.</li>
+          </ul>
+          <p><strong>Java:</strong> static. <strong>Python:</strong> dynamic.</p>
+        </div>
+
+        <div class="card axis">
+          <h3>Strong vs Weak</h3>
+          <p class="q">How freely can one type be treated as another?</p>
+          <pre><code>int x = 10;
+String s = x; // not allowed</code></pre>
+          <p>Java is generally described as <strong>strongly typed</strong>. The terminology is less formally standardized than the other axes.</p>
+        </div>
+
+        <div class="card axis">
+          <h3>Explicit vs Inferred</h3>
+          <p class="q">Must the programmer write the type?</p>
+          <pre><code>String name = "Alice";
+var dog = new Dog();</code></pre>
+          <p>Java is mostly explicit, with type inference in places such as <code>var</code> and generic type arguments.</p>
+          <div class="callout warn"><strong>Type inference is not dynamic typing.</strong> <code>var x = "hello"</code> still gives <code>x</code> a fixed static type.</div>
+        </div>
+
+        <div class="card axis">
+          <h3>Nominal vs Structural</h3>
+          <p class="q">What makes two types compatible: declared identity or shape?</p>
+          <p>Java is primarily <strong>nominally typed</strong>.</p>
+          <pre><code>class Student { String name; }
+class Employee { String name; }
+
+Student s = new Employee(); // error</code></pre>
+          <p>Same shape does not imply compatibility. A declared relationship such as <code>extends</code> or <code>implements</code> matters.</p>
+        </div>
+      </div>
+
+      <table>
+        <thead><tr><th>Axis</th><th>Java</th><th>Main question</th></tr></thead>
+        <tbody>
+          <tr><td>Static vs Dynamic</td><td><strong>Static</strong></td><td>When are types checked?</td></tr>
+          <tr><td>Strong vs Weak</td><td><strong>Generally strong</strong></td><td>How much implicit coercion is allowed?</td></tr>
+          <tr><td>Explicit vs Inferred</td><td><strong>Mostly explicit + inference</strong></td><td>Must programmers write the type?</td></tr>
+          <tr><td>Nominal vs Structural</td><td><strong>Nominal</strong></td><td>Does compatibility depend on declared identity or structure?</td></tr>
+        </tbody>
+      </table>
+    
+<div class="detail-layer">
+  <button class="detail-toggle"><span class="detail-label">＋ More detail / Study notes</span><span class="chev">▶</span></button>
+  <div class="detail-body">
+    <h3>The axes are independent</h3>
+    <p>Do not treat these as one spectrum. They answer different questions. A language can be statically typed and inferred, or dynamically typed and strongly typed.</p>
+    <h4>Static vs dynamic</h4>
+    <p>This is mainly about <em>when</em> type constraints are enforced. Java performs extensive static checks. Python performs many checks as operations execute.</p>
+    <h4>Strong vs weak</h4>
+    <p>This terminology is fuzzy across books. It is safest to use it to discuss coercion discipline rather than pretend there is one universal formal definition.</p>
+    <h4>Explicit vs inferred</h4>
+    <pre><code>var x = "hello";
+x = 42; // still illegal</code></pre>
+    <p><code>var</code> asks the compiler to infer the static type. It does not make the variable dynamically typed.</p>
+    <h4>Nominal vs structural</h4>
+    <pre><code>interface Printable {
+    void print();
+}
+
+class Report {
+    public void print() { }
+}</code></pre>
+    <p>In Java, <code>Report</code> is not automatically a <code>Printable</code>; it must explicitly declare <code>implements Printable</code>. In a structurally typed system, having the required shape may be enough.</p>
+  </div>
+</div>
+</section>
+
+    <section class="chapter" id="subtyping">
+      <div class="chapter-num">Chapter 4</div>
+      <h2>Subtyping</h2>
+      <p class="lead">What if one type is a special case of another?</p>
+
+      <div class="quote">S is a subtype of T if a value of type S can be used where a value of type T is expected.</div>
+
+      <div class="grid-2">
+        <div class="card">
+          <pre><code>class Animal {
+    void eat() {
+        System.out.println("eating");
+    }
+}
+
+class Dog extends Animal {
+    void bark() {
+        System.out.println("woof");
+    }
+}
+
+class Cat extends Animal {
+    void meow() {
+        System.out.println("meow");
+    }
+}</code></pre>
+        </div>
+        <div class="card">
+          <div class="hierarchy">
+            <div class="node">Animal</div>
+            <div class="arrow">↑</div>
+            <div class="row">
+              <div class="node">Dog</div>
+              <div class="node">Cat</div>
+            </div>
+          </div>
+          <p><code>Dog &lt;: Animal</code> and <code>Cat &lt;: Animal</code>.</p>
+          <div class="callout good">Informally: <strong>Dog is-an Animal.</strong></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Subtype vs subclass</h3>
+        <pre><code>class Dog extends Animal { }</code></pre>
+        <ul>
+          <li><code>Dog</code> is a subclass of <code>Animal</code>.</li>
+          <li><code>Dog</code> is also a subtype of <code>Animal</code>.</li>
+        </ul>
+        <p>In Java, both <code>extends</code> and <code>implements</code> create subtype relationships.</p>
+      </div>
+
+      <div class="card">
+        <h3>Upcasting and downcasting</h3>
+        <pre><code>Dog dog = new Dog();
+Animal animal = dog;     // upcasting: safe, implicit
+
+Dog again = (Dog) animal; // downcasting: explicit</code></pre>
+        <p>Upcasting moves to a more general type. Downcasting asks Java to treat a general reference as a more specific type, which may fail at runtime.</p>
+      </div>
+
+      <div class="lesson-question">
+        <strong>Can this compile?</strong>
+        <pre><code>Animal animal = new Animal();
+Dog dog = animal;</code></pre>
+        <div class="controls"><button class="show-answer">Reveal</button></div>
+        <div class="answer"><span class="pill-bad">No.</span> Not every <code>Animal</code> is a <code>Dog</code>.</div>
+      </div>
+    
+<div class="detail-layer">
+  <button class="detail-toggle"><span class="detail-label">＋ More detail / Study notes</span><span class="chev">▶</span></button>
+  <div class="detail-body">
+    <h3>Direction matters</h3>
+    <p>If <code>Dog &lt;: Animal</code>, then a Dog can be used where an Animal is expected. The reverse does not follow.</p>
+    <pre><code>Animal a = new Dog(); // safe
+Dog d = new Animal(); // unsafe and illegal</code></pre>
+    <h4>Why upcasting is implicit</h4>
+    <p>A subtype promises at least the supertype's contract, so moving upward loses specificity but not required guarantees.</p>
+    <h4>Why downcasting is different</h4>
+    <pre><code>Animal a = new Dog();
+Dog d = (Dog) a; // works here
+
+Animal b = new Cat();
+Dog x = (Dog) b; // compiles, ClassCastException at runtime</code></pre>
+    <p>The explicit cast says: “I, the programmer, assert that the runtime object is compatible with Dog.” Java still checks that assertion at runtime.</p>
+    <h4><code>instanceof</code> before a cast</h4>
+    <pre><code>if (a instanceof Dog) {
+    Dog d = (Dog) a;
+    d.bark();
+}</code></pre>
+    <p>Modern Java also supports pattern matching for <code>instanceof</code>:</p>
+    <pre><code>if (a instanceof Dog d) {
+    d.bark();
+}</code></pre>
+  </div>
+</div>
+</section>
+
+    <section class="chapter" id="substitutability">
+      <div class="chapter-num">Chapter 5</div>
+      <h2>Substitutability</h2>
+      <p class="lead">Subtyping becomes useful because subtype values can substitute for supertype values.</p>
+
+      <div class="card">
+        <pre><code>void feed(Animal animal) {
+    animal.eat();
+}
+
+feed(new Animal());
+feed(new Dog());
+feed(new Cat());</code></pre>
+        <p>All three calls are valid because the method depends only on the <code>Animal</code> contract.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3>Specific parameter</h3>
+          <pre><code>void makeDogEat(Dog dog) {
+    dog.eat();
+}</code></pre>
+          <p>Works only with dogs.</p>
+        </div>
+        <div class="card">
+          <h3>General parameter</h3>
+          <pre><code>void feed(Animal animal) {
+    animal.eat();
+}</code></pre>
+          <p>Works with <code>Animal</code> and every valid subtype.</p>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>Generality vs specificity:</strong><br>
+        More specific type → more operations visible, less substitution flexibility.<br>
+        More general type → fewer operations visible, more substitution flexibility.
+      </div>
+
+      <div class="card">
+        <h3>Substitutability enables polymorphism</h3>
+        <pre><code>class Animal {
+    public void speak() {
+        System.out.println("Animal sound");
+    }
+}
+
+class Dog extends Animal {
+    @Override
+    public void speak() {
+        System.out.println("Woof");
+    }
+}
+
+class Cat extends Animal {
+    @Override
+    public void speak() {
+        System.out.println("Meow");
+    }
+}
+
+void makeSpeak(Animal animal) {
+    animal.speak();
+}
+
+makeSpeak(new Dog());
+makeSpeak(new Cat());</code></pre>
+        <p>The method sees an <code>Animal</code>. The runtime behavior depends on the actual object.</p>
+      </div>
+
+      <div class="card">
+        <h3>Polymorphic collections</h3>
+        <pre><code>Animal[] animals = {
+    new Dog(),
+    new Cat(),
+    new Dog()
+};
+
+for (Animal animal : animals) {
+    animal.speak();
+}</code></pre>
+        <p>Each element is statically treated as <code>Animal</code>, while runtime objects may be different subtypes.</p>
+      </div>
+
+      <div class="card">
+        <h3>Program to an abstraction</h3>
+        <pre><code>interface Database {
+    void save();
+}
+
+void save(Database database) {
+    database.save();
+}</code></pre>
+        <p>Now different implementations can substitute for the abstraction:</p>
+        <pre><code>save(new MySqlDatabase());
+save(new PostgreSqlDatabase());</code></pre>
+      </div>
+    
+<div class="detail-layer">
+  <button class="detail-toggle"><span class="detail-label">＋ More detail / Study notes</span><span class="chev">▶</span></button>
+  <div class="detail-body">
+    <h3>Substitutability is the practical benefit of subtyping</h3>
+    <p>The client should depend on the supertype's contract, not on assumptions about the concrete subtype.</p>
+    <h4>Vehicle example</h4>
+    <pre><code>class Vehicle {
+    public void move() { }
+}
+
+class Car extends Vehicle {
+    public void openTrunk() { }
+}
+
+class Bicycle extends Vehicle {
+    public void ringBell() { }
+}
+
+Vehicle v1 = new Car();
+Vehicle v2 = new Bicycle();
+
+v1.move();       // valid
+v2.move();       // valid
+v1.openTrunk();  // compile-time error
+v2.ringBell();   // compile-time error</code></pre>
+    <h4>General vs specific references</h4>
+    <pre><code>Car car = new Car();
+Vehicle vehicle = new Car();</code></pre>
+    <p>The <code>Car</code> reference exposes more operations. The <code>Vehicle</code> reference accepts a wider range of substitutable objects.</p>
+    <div class="callout"><strong>Design trade-off:</strong> more general types give you more flexibility; more specific types give you more directly accessible operations.</div>
+  </div>
+</div>
+</section>
+
+    <section class="chapter" id="lsp">
+      <div class="chapter-num">Chapter 6</div>
+      <h2>Behavioral Subtyping & Liskov Substitution Principle</h2>
+      <p class="lead">Compiler-valid substitution is not always behaviorally correct substitution.</p>
+
+      <div class="grid-2">
+        <div class="card">
+          <span class="tag">Type system says</span>
+          <pre><code>class Bird {
+    public void fly() {
+        System.out.println("Flying");
+    }
+}
+
+class Penguin extends Bird {
+    @Override
+    public void fly() {
+        throw new UnsupportedOperationException();
+    }
+}</code></pre>
+          <div class="callout good"><code>Penguin &lt;: Bird</code> is syntactically legal Java.</div>
+        </div>
+        <div class="card">
+          <span class="tag">Behavior says</span>
+          <pre><code>Bird bird = new Penguin();
+bird.fly();</code></pre>
+          <div class="callout bad">The code compiles, but normal <code>Bird</code> behavior is broken at runtime.</div>
+        </div>
+      </div>
+
+      <div class="quote">Objects of a subtype should be usable in place of objects of the supertype without breaking the correctness of the program.</div>
+
+      <div class="card">
+        <h3>Syntactic vs behavioral substitutability</h3>
+        <table>
+          <thead><tr><th>Kind</th><th>Question</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td>Syntactic</td><td>Does Java's type system allow it?</td><td><code>Animal a = new Dog();</code></td></tr>
+            <tr><td>Behavioral</td><td>Does the subtype preserve the supertype's expected behavior?</td><td>A subtype should not unexpectedly break normal operations.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="accordion">
+        <button>Classic Rectangle / Square example</button>
+        <div class="body">
+          <pre><code>class Rectangle {
+    protected int width;
+    protected int height;
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
+    public int area() {
+        return width * height;
+    }
+}</code></pre>
+          <pre><code>class Square extends Rectangle {
+    @Override
+    public void setWidth(int width) {
+        this.width = width;
+        this.height = width;
+    }
+
+    @Override
+    public void setHeight(int height) {
+        this.width = height;
+        this.height = height;
+    }
+}</code></pre>
+          <pre><code>void resize(Rectangle r) {
+    r.setWidth(5);
+    r.setHeight(10);
+    System.out.println(r.area());
+}</code></pre>
+          <p>A caller may reasonably expect area <code>50</code>. A <code>Square</code> subtype can produce <code>100</code>, changing the expected semantics.</p>
+        </div>
+      </div>
+    
+<div class="detail-layer">
+  <button class="detail-toggle"><span class="detail-label">＋ More detail / Study notes</span><span class="chev">▶</span></button>
+  <div class="detail-body">
+    <h3>Java checks type compatibility, not full behavioral correctness</h3>
+    <p>The compiler can verify that required methods exist with compatible signatures. It usually cannot prove that a subtype preserves every semantic expectation of the supertype.</p>
+    <h4>Think in terms of promises</h4>
+    <p>A well-designed subtype should not require callers to know “special exceptions” such as “this Bird cannot really fly” if <code>fly()</code> is part of the supertype's normal contract.</p>
+    <h4>Connection to SOLID</h4>
+    <p>LSP later appears as the <strong>L</strong> in SOLID. Here, the important point is simply that type-correct inheritance can still model the domain badly.</p>
+    <h4>Better Bird modeling</h4>
+    <pre><code>class Bird { }
+
+interface FlyingBird {
+    void fly();
+}
+
+class Eagle extends Bird implements FlyingBird {
+    public void fly() { }
+}
+
+class Penguin extends Bird {
+    // no fly() contract
+}</code></pre>
+    <p>This separates “being a bird” from “being able to fly.”</p>
+  </div>
+</div>
+</section>
+
+    <section class="chapter" id="interfaces">
+      <div class="chapter-num">Chapter 7</div>
+      <h2>Interfaces and Subtyping</h2>
+      <p class="lead">Subtyping is about contracts, not only parent classes.</p>
+
+      <div class="card">
+        <pre><code>interface Payable {
+    void pay();
+}
+
+class Employee implements Payable {
+    @Override
+    public void pay() {
+        System.out.println("Paying employee");
+    }
+}
+
+class Invoice implements Payable {
+    @Override
+    public void pay() {
+        System.out.println("Paying invoice");
+    }
+}</code></pre>
+        <p>Both relationships create subtypes:</p>
+        <pre><code>Payable p1 = new Employee();
+Payable p2 = new Invoice();</code></pre>
+      </div>
+
+      <div class="card">
+        <h3>Why interfaces are powerful</h3>
+        <pre><code>void processPayment(Payable payable) {
+    payable.pay();
+}</code></pre>
+        <p>The caller does not need to know whether the object is an <code>Employee</code>, <code>Invoice</code>, <code>Subscription</code>, or <code>Vendor</code>. It only relies on the <code>Payable</code> contract.</p>
+      </div>
+    
+<div class="detail-layer">
+  <button class="detail-toggle"><span class="detail-label">＋ More detail / Study notes</span><span class="chev">▶</span></button>
+  <div class="detail-body">
+    <h3>Interfaces are types</h3>
+    <p>An interface is not merely a list of abstract methods. It creates a type that client code can depend on.</p>
+    <pre><code>Payable p = new Employee();</code></pre>
+    <p>The important statement is not “Employee has a pay method.” It is “Employee explicitly promises to satisfy the Payable contract.”</p>
+    <h4>Why this matters for design</h4>
+    <ul>
+      <li>Callers depend on a small, stable abstraction.</li>
+      <li>Implementations can change independently.</li>
+      <li>Testing is easier because alternative implementations can be substituted.</li>
+      <li>Unrelated classes can share one behavioral contract.</li>
+    </ul>
+  </div>
+</div>
+</section>
+
+    <section class="chapter" id="static-runtime">
+      <div class="chapter-num">Chapter 8</div>
+      <h2>Static Type vs Runtime Type</h2>
+      <p class="lead">This is the bridge from subtyping to runtime polymorphism.</p>
+
+      <div class="quote"><code>Animal a = new Dog();</code><br><br>
+      Static type = <strong>Animal</strong><br>
+      Runtime type = <strong>Dog</strong></div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3>What may I call?</h3>
+          <p>Determined by the <strong>static type</strong>.</p>
+          <pre><code>Animal a = new Dog();
+
+a.speak(); // allowed if Animal has speak()
+a.bark();  // compile-time error if Animal has no bark()</code></pre>
+        </div>
+        <div class="card">
+          <h3>Which override runs?</h3>
+          <p>Determined by the <strong>runtime object</strong>.</p>
+          <pre><code>Animal a = new Dog();
+a.speak();</code></pre>
+          <p>If <code>Dog</code> overrides <code>speak()</code>, then <code>Dog.speak()</code> executes.</p>
+        </div>
+      </div>
+
+      <div class="callout good">
+        <strong>Core rule:</strong><br>
+        Static type → what operations are available.<br>
+        Runtime type → which overridden implementation executes.
+      </div>
+
+      <div class="card">
+        <h3>Dynamic method dispatch</h3>
+        <pre><code>Animal[] animals = {
+    new Dog(),
+    new Cat()
+};
+
+for (Animal a : animals) {
+    a.speak();
+}</code></pre>
+        <p>The same call expression <code>a.speak()</code> can invoke different implementations depending on the runtime object.</p>
+      </div>
+
+      <div class="lesson-question">
+        <strong>Predict the result:</strong>
+        <pre><code>Animal a = new Dog();
+a.speak();
+a.bark();</code></pre>
+        <div class="controls"><button class="show-answer">Reveal</button></div>
+        <div class="answer">
+          <code>a.speak()</code> can compile if <code>Animal</code> declares it; the <code>Dog</code> override runs. <code>a.bark()</code> does not compile if <code>bark()</code> is only declared in <code>Dog</code>.
+        </div>
+      </div>
+    
+<div class="detail-layer">
+  <button class="detail-toggle"><span class="detail-label">＋ More detail / Study notes</span><span class="chev">▶</span></button>
+  <div class="detail-body">
+    <h3>Separate two questions every time</h3>
+    <ol>
+      <li><strong>Compile time:</strong> is this method call permitted through the static type?</li>
+      <li><strong>Runtime:</strong> if the method is overridden, which object's implementation executes?</li>
+    </ol>
+    <pre><code>class Animal {
+    public void speak() {
+        System.out.println("Animal");
+    }
+}
+
+class Dog extends Animal {
+    @Override
+    public void speak() {
+        System.out.println("Woof");
+    }
+
+    public void fetch() { }
+}
+
+Animal a = new Dog();
+
+a.speak(); // legal; Dog.speak() executes
+a.fetch(); // compile-time error</code></pre>
+    <h4>Method overriding is dynamically dispatched</h4>
+    <p>For ordinary instance methods, Java selects the overridden implementation using the runtime object.</p>
+    <h4>Do not generalize this rule to fields</h4>
+    <p>Fields are not dynamically dispatched like overridden instance methods. This is one reason to teach the rule specifically as <strong>method</strong> dispatch.</p>
+  </div>
+</div>
+</section>
+
+    <section class="chapter" id="generics">
+      <div class="chapter-num">Chapter 9</div>
+      <h2>Generics</h2>
+      <p class="lead">Generics allow reusable code without throwing away compile-time type information.</p>
+
+      <div class="grid-2">
+        <div class="card">
+          <span class="tag">Without generics</span>
+          <pre><code>class Box {
+    private Object value;
+
+    public void set(Object value) {
+        this.value = value;
+    }
+
+    public Object get() {
+        return value;
+    }
+}</code></pre>
+          <pre><code>Box box = new Box();
+box.set(42);
+
+String text = (String) box.get();
+// compiles, may fail at runtime</code></pre>
+        </div>
+        <div class="card">
+          <span class="tag">With generics</span>
+          <pre><code>class Box&lt;T&gt; {
+    private T value;
+
+    public void set(T value) {
+        this.value = value;
+    }
+
+    public T get() {
+        return value;
+    }
+}</code></pre>
+          <pre><code>Box&lt;String&gt; box = new Box&lt;&gt;();
+box.set(42); // compile-time error</code></pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Type parameter vs type argument</h3>
+        <pre><code>class Box&lt;T&gt; { ... }     // T = type parameter
+
+Box&lt;String&gt; textBox;      // String = type argument</code></pre>
+      </div>
+
+      <div class="card">
+        <h3>Bounded type parameters</h3>
+        <pre><code>class Calculator&lt;T extends Number&gt; {
+    ...
+}</code></pre>
+        <p>Valid examples include <code>Integer</code>, <code>Double</code>, and <code>Float</code>.</p>
+        <p>When a generic bound is an interface, Java still uses <code>extends</code>:</p>
+        <pre><code>&lt;T extends Comparable&lt;T&gt;&gt;</code></pre>
+        <p>Multiple bounds:</p>
+        <pre><code>&lt;T extends Animal &amp; Comparable&lt;T&gt;&gt;</code></pre>
+      </div>
+    
+<div class="detail-layer">
+  <button class="detail-toggle"><span class="detail-label">＋ More detail / Study notes</span><span class="chev">▶</span></button>
+  <div class="detail-body">
+    <h3>Generics preserve relationships between types</h3>
+    <p>Using <code>Object</code> makes code general by discarding information. Generics make code general while keeping useful type information.</p>
+    <h4>Generic methods</h4>
+    <pre><code>static &lt;T&gt; T first(List&lt;T&gt; list) {
+    return list.get(0);
+}</code></pre>
+    <p>The same type parameter connects the input element type to the return type.</p>
+    <h4>Multiple type parameters</h4>
+    <pre><code>class Pair&lt;K, V&gt; {
+    private K key;
+    private V value;
+}</code></pre>
+    <h4>Common naming conventions</h4>
+    <p><code>T</code> = Type, <code>E</code> = Element, <code>K</code> = Key, <code>V</code> = Value, <code>R</code> = Result.</p>
+    <h4>Raw types</h4>
+    <pre><code>List list = new ArrayList(); // raw type: avoid in new code</code></pre>
+    <p>Raw types exist mainly for backward compatibility and weaken generic type checking.</p>
+    <h4>Type erasure</h4>
+    <p>Java generics are implemented primarily through type erasure. Generic type arguments are mainly compile-time information, which explains restrictions such as:</p>
+    <pre><code>if (x instanceof List&lt;String&gt;) { } // illegal
+
+if (x instanceof List&lt;?&gt;) { }      // legal</code></pre>
+    <h4>Primitives are not generic type arguments</h4>
+    <pre><code>List&lt;int&gt;      // illegal
+List&lt;Integer&gt;  // correct</code></pre>
+  </div>
+</div>
+</section>
+
+    <section class="chapter" id="variance">
+      <div class="chapter-num">Chapter 10</div>
+      <h2>Variance and Wildcards</h2>
+      <p class="lead">Ordinary subtyping does not automatically carry through generic containers.</p>
+
+      <div class="card">
+        <h3>Java generics are invariant by default</h3>
+        <pre><code>Dog &lt;: Animal</code></pre>
+        <p>does <strong>not</strong> imply:</p>
+        <pre><code>List&lt;Dog&gt; &lt;: List&lt;Animal&gt;</code></pre>
+      </div>
+
+      <div class="card">
+        <h3>Interactive: why not?</h3>
+        <div class="controls">
+          <button id="v1" class="primary">1. Create List&lt;Dog&gt;</button>
+          <button id="v2">2. Pretend it is List&lt;Animal&gt;</button>
+          <button id="v3">3. Add Cat</button>
+          <button id="v4">4. Read as Dog</button>
+          <button id="vReset">Reset</button>
+        </div>
+        <div class="result" id="varianceDemo">Start with step 1.</div>
+      </div>
+
+      <div class="card">
+        <h3>Wildcards</h3>
+        <p><code>?</code> means some type whose exact identity is not known here.</p>
+        <pre><code>List&lt;?&gt;</code></pre>
+        <p>This is a list of some unknown element type.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <span class="tag">Upper-bounded wildcard</span>
+          <h3><code>? extends Animal</code></h3>
+          <p>A list of some unknown type that is <code>Animal</code> or a subtype.</p>
+          <pre><code>List&lt;? extends Animal&gt; animals = dogs;</code></pre>
+          <div class="callout good">Safe to read elements as <code>Animal</code>.</div>
+          <div class="callout bad">Not safe to add <code>Dog</code>, <code>Cat</code>, or general <code>Animal</code> because the exact subtype is unknown.</div>
+        </div>
+        <div class="card">
+          <span class="tag">Lower-bounded wildcard</span>
+          <h3><code>? super Dog</code></h3>
+          <p>A list of <code>Dog</code> or some supertype of <code>Dog</code>.</p>
+          <pre><code>List&lt;? super Dog&gt; destination = animals;</code></pre>
+          <div class="callout good">Safe to add a <code>Dog</code>.</div>
+          <div class="callout warn">Reading is only guaranteed as <code>Object</code>.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Compatibility visualizer</h3>
+        <div class="controls">
+          <select id="wildSelect">
+            <option value="extends">List&lt;? extends Animal&gt;</option>
+            <option value="super">List&lt;? super Dog&gt;</option>
+            <option value="unknown">List&lt;?&gt;</option>
+          </select>
+        </div>
+        <div class="matrix">
+          <div class="cell" data-t="object">List&lt;Object&gt;</div>
+          <div class="cell" data-t="animal">List&lt;Animal&gt;</div>
+          <div class="cell" data-t="dog">List&lt;Dog&gt;</div>
+          <div class="cell" data-t="cat">List&lt;Cat&gt;</div>
+          <div class="cell" data-t="string">List&lt;String&gt;</div>
+          <div class="cell" data-t="poodle">List&lt;Poodle&gt;</div>
+        </div>
+        <div class="result" id="wildExplain"></div>
+      </div>
+
+      <div class="card">
+        <h3>PECS</h3>
+        <div class="quote">Producer Extends, Consumer Super</div>
+        <div class="grid-2">
+          <div>
+            <h4>Producer</h4>
+            <pre><code>List&lt;? extends Animal&gt;</code></pre>
+            <p>If the collection mainly <strong>produces</strong> values for you to read.</p>
+          </div>
+          <div>
+            <h4>Consumer</h4>
+            <pre><code>List&lt;? super Dog&gt;</code></pre>
+            <p>If the collection mainly <strong>consumes</strong> values that you write into it.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Read/write summary</h3>
+        <table>
+          <thead><tr><th>Type</th><th>Safe read type</th><th>What can be safely added?</th></tr></thead>
+          <tbody>
+            <tr><td><code>List&lt;Animal&gt;</code></td><td>Animal</td><td>Animal, Dog, Cat, ...</td></tr>
+            <tr><td><code>List&lt;Dog&gt;</code></td><td>Dog</td><td>Dog (and Dog subtypes)</td></tr>
+            <tr><td><code>List&lt;? extends Animal&gt;</code></td><td>Animal</td><td>Essentially nothing except <code>null</code></td></tr>
+            <tr><td><code>List&lt;? super Dog&gt;</code></td><td>Object</td><td>Dog (and Dog subtypes)</td></tr>
+            <tr><td><code>List&lt;?&gt;</code></td><td>Object</td><td>Essentially nothing except <code>null</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>Type-safety playground</h3>
+        <div class="controls">
+          <select id="declaredType">
+            <option value="animal">List&lt;Animal&gt;</option>
+            <option value="dog">List&lt;Dog&gt;</option>
+            <option value="extends">List&lt;? extends Animal&gt;</option>
+            <option value="super">List&lt;? super Dog&gt;</option>
+            <option value="unknown">List&lt;?&gt;</option>
+          </select>
+          <select id="operation">
+            <option value="readAnimal">Read as Animal</option>
+            <option value="readDog">Read as Dog</option>
+            <option value="readObject">Read as Object</option>
+            <option value="addDog">Add Dog</option>
+            <option value="addCat">Add Cat</option>
+            <option value="addAnimal">Add Animal</option>
+          </select>
+          <button class="primary" id="checkOperation">Check</button>
+        </div>
+        <div class="result" id="playResult">Choose a declared type and an operation.</div>
+      </div>
+    
+<div class="detail-layer">
+  <button class="detail-toggle"><span class="detail-label">＋ More detail / Study notes</span><span class="chev">▶</span></button>
+  <div class="detail-body">
+    <h3>Three variance ideas</h3>
+    <h4>Invariant</h4>
+    <p><code>Dog &lt;: Animal</code> gives no subtype relationship between <code>List&lt;Dog&gt;</code> and <code>List&lt;Animal&gt;</code>.</p>
+    <h4>Covariant use</h4>
+    <p><code>List&lt;? extends Animal&gt;</code> accepts lists of Animal subtypes. This is useful when values flow <strong>out</strong> of the structure.</p>
+    <h4>Contravariant use</h4>
+    <p><code>List&lt;? super Dog&gt;</code> accepts lists of Dog supertypes. This is useful when Dog values flow <strong>into</strong> the structure.</p>
+    <h4>Why <code>? extends</code> cannot accept a Dog insertion</h4>
+    <pre><code>List&lt;? extends Animal&gt; x = ...;</code></pre>
+    <p>The real object might be <code>List&lt;Cat&gt;</code>. Adding a Dog would violate that hidden exact type.</p>
+    <h4>Why <code>? super Dog</code> reads only as Object</h4>
+    <pre><code>List&lt;? super Dog&gt; x = ...;</code></pre>
+    <p>The real object might be <code>List&lt;Animal&gt;</code> or <code>List&lt;Object&gt;</code>, which may already contain non-Dog values.</p>
+    <h4>Copy pattern</h4>
+    <pre><code>static &lt;T&gt; void copy(
+        List&lt;? extends T&gt; source,
+        List&lt;? super T&gt; destination) {
+
+    for (T item : source) {
+        destination.add(item);
+    }
+}</code></pre>
+    <p>The source produces <code>T</code>; the destination consumes <code>T</code>. This is PECS in one method.</p>
+    <h4>Arrays are different</h4>
+    <pre><code>Dog[] dogs = new Dog[10];
+Animal[] animals = dogs;   // allowed
+animals[0] = new Cat();    // runtime ArrayStoreException</code></pre>
+    <p>Java arrays are covariant, so some errors move to runtime. Generics are stricter and reject the analogous assignment at compile time.</p>
+  </div>
+</div>
+</section>
+
+    <section class="chapter" id="duck">
+      <div class="chapter-num">Chapter 11</div>
+      <h2>Duck Typing</h2>
+      <p class="lead">Duck typing focuses on what an object can do at runtime, rather than requiring an explicit declared relationship.</p>
+
+      <div class="quote">“If it walks like a duck and quacks like a duck, treat it like a duck.”</div>
+
+      <div class="duck-card">
+        <div class="duck-example">
+          <span class="tag">Python</span>
+          <pre><code>class Dog:
+    def speak(self):
+        print("Woof")
+
+class Robot:
+    def speak(self):
+        print("Beep")
+
+def make_speak(x):
+    x.speak()
+
+make_speak(Dog())
+make_speak(Robot())</code></pre>
+          <p><code>Dog</code> and <code>Robot</code> need no common superclass or declared interface. The function simply assumes that the object supports <code>speak()</code>.</p>
+        </div>
+        <div class="duck-example">
+          <span class="tag">Java</span>
+          <pre><code>interface Speakable {
+    void speak();
+}
+
+class Dog implements Speakable {
+    public void speak() {
+        System.out.println("Woof");
+    }
+}
+
+class Robot implements Speakable {
+    public void speak() {
+        System.out.println("Beep");
+    }
+}</code></pre>
+          <p>Java normally asks for an explicit nominal relationship such as <code>implements Speakable</code>.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Duck typing vs structural typing</h3>
+        <p>These ideas are related but not identical.</p>
+        <ul>
+          <li><strong>Duck typing</strong> is usually a runtime style: if an object supports the needed operations, use it.</li>
+          <li><strong>Structural typing</strong> is a type-system rule: compatibility can be based on the members a type has rather than its declared name.</li>
+        </ul>
+        <p>Python is famous for duck typing. TypeScript is a common example of structural typing.</p>
+      </div>
+
+      <div class="card">
+        <h3>Why duck typing is useful</h3>
+        <ul>
+          <li>Low ceremony.</li>
+          <li>Flexible code that works with unrelated classes.</li>
+          <li>Easy adaptation to new objects that provide the expected behavior.</li>
+        </ul>
+        <h3>Trade-off</h3>
+        <p>If an object does not provide the expected operation, the problem may be discovered only when that code path runs.</p>
+        <pre><code>make_speak(42)
+# AttributeError at runtime</code></pre>
+      </div>
+
+      <div class="callout">
+        <strong>Connection to the whole lecture:</strong> Java usually wants the compiler to know the contract in advance. Duck-typed code is more willing to discover the contract through actual runtime behavior.
+      </div>
+    
+<div class="detail-layer">
+  <button class="detail-toggle"><span class="detail-label">＋ More detail / Study notes</span><span class="chev">▶</span></button>
+  <div class="detail-body">
+    <h3>Duck typing is behavior-oriented</h3>
+    <p>A duck-typed function does not require an explicit inheritance or interface declaration. It simply uses the operations it needs.</p>
+    <pre><code>def make_speak(x):
+    x.speak()</code></pre>
+    <p>Any object that successfully supports <code>speak()</code> can participate.</p>
+    <h4>Relation to nominal typing</h4>
+    <p>Java's normal style is nominal: a class explicitly declares that it implements an interface. Python commonly relies on behavior at runtime instead.</p>
+    <h4>Relation to structural typing</h4>
+    <p>Structural typing and duck typing can look similar because both focus on available members. The difference is that structural typing is usually enforced by a type checker, while duck typing is commonly a runtime programming style.</p>
+    <h4>Python can also use static typing tools</h4>
+    <p>Python type annotations and static analysis tools can add compile-time-like feedback to Python projects, but Python's runtime semantics remain dynamic.</p>
+    <h4>Design lesson</h4>
+    <p>The broader idea is to depend on the behavior you actually need. Java often expresses that need through a small interface; duck-typed languages often express it implicitly.</p>
+  </div>
+</div>
+</section>
+
+    <section class="chapter" id="practice">
+      <div class="chapter-num">Chapter 12</div>
+      <h2>Practice</h2>
+      <p class="lead">Use these in class or as self-study checks.</p>
+
+      <div class="quiz" id="quiz">
+        <div class="qbox" data-answer="static">
+          <strong>1.</strong> In <code>Animal a = new Dog();</code>, what determines whether <code>a.bark()</code> is legal?
+          <div class="controls">
+            <button data-choice="static">Static type</button>
+            <button data-choice="runtime">Runtime type</button>
+          </div>
+          <div class="feedback"></div>
+        </div>
+
+        <div class="qbox" data-answer="runtime">
+          <strong>2.</strong> What determines which overridden <code>speak()</code> implementation executes?
+          <div class="controls">
+            <button data-choice="static">Static type</button>
+            <button data-choice="runtime">Runtime type</button>
+          </div>
+          <div class="feedback"></div>
+        </div>
+
+        <div class="qbox" data-answer="no">
+          <strong>3.</strong> Does <code>List&lt;Animal&gt; animals = dogs;</code> compile if <code>dogs</code> is <code>List&lt;Dog&gt;</code>?
+          <div class="controls">
+            <button data-choice="yes">Yes</button>
+            <button data-choice="no">No</button>
+          </div>
+          <div class="feedback"></div>
+        </div>
+
+        <div class="qbox" data-answer="yes">
+          <strong>4.</strong> Can <code>List&lt;Dog&gt;</code> be passed where <code>List&lt;? extends Animal&gt;</code> is expected?
+          <div class="controls">
+            <button data-choice="yes">Yes</button>
+            <button data-choice="no">No</button>
+          </div>
+          <div class="feedback"></div>
+        </div>
+
+        <div class="qbox" data-answer="yes">
+          <strong>5.</strong> Can you safely add a <code>Dog</code> to <code>List&lt;? super Dog&gt;</code>?
+          <div class="controls">
+            <button data-choice="yes">Yes</button>
+            <button data-choice="no">No</button>
+          </div>
+          <div class="feedback"></div>
+        </div>
+
+        <div class="qbox" data-answer="duck">
+          <strong>6.</strong> Which idea says “I do not care what class you declared; I care whether you provide the operation I need”?
+          <div class="controls">
+            <button data-choice="nominal">Nominal typing</button>
+            <button data-choice="duck">Duck typing</button>
+          </div>
+          <div class="feedback"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <strong id="score">Score: 0 / 6</strong>
+        <button class="btn" id="resetQuiz" style="margin-left:10px">Reset</button>
+      </div>
+
+      <div class="card">
+        <h3>Final mental model</h3>
+        <ul>
+          <li><strong>Types</strong> describe values and allowed operations.</li>
+          <li><strong>Subtyping</strong> describes safe replacement relationships between types.</li>
+          <li><strong>Static type</strong> controls what the compiler permits you to call.</li>
+          <li><strong>Runtime type</strong> controls which overridden method implementation runs.</li>
+          <li><strong>Generics</strong> preserve type information in reusable abstractions.</li>
+          <li><strong>Variance</strong> controls how subtype relationships interact with generic types.</li>
+          <li><strong>Duck typing</strong> focuses on available behavior rather than an explicit declared relationship.</li>
+        </ul>
+      </div>
+    
+<div class="detail-layer">
+  <button class="detail-toggle"><span class="detail-label">＋ More detail / Study notes</span><span class="chev">▶</span></button>
+  <div class="detail-body">
+    <h3>How to reason through exam-style questions</h3>
+    <ol>
+      <li>Write down the <strong>static type</strong> of every reference.</li>
+      <li>Write down the <strong>runtime type</strong> of each object if known.</li>
+      <li>For a method call, first ask whether the static type exposes the method.</li>
+      <li>If it compiles and the method is overridden, determine which runtime implementation executes.</li>
+      <li>For generic types, do not assume subtype relationships are preserved.</li>
+      <li>For wildcards, ask whether the collection is primarily producing or consuming values.</li>
+    </ol>
+    <h4>Compact memory aids</h4>
+    <pre><code>Static type  -> what may I call?
+Runtime type -> which override runs?
+
+Dog <: Animal
+does NOT imply
+List&lt;Dog&gt; <: List&lt;Animal&gt;
+
+PECS:
+Producer Extends
+Consumer Super</code></pre>
+  </div>
+</div>
+</section>
+
+    <footer>Advanced OOP · Java Type Systems · Offline Interactive Study Page</footer>
+  </div>
+</main>
+</div>
+
+<script>
+(() => {
+  const body = document.body;
+  const lectureBtn = document.getElementById('lectureBtn');
+  const studyBtn = document.getElementById('studyBtn');
+  lectureBtn.onclick = () => {
+    body.classList.remove('study-mode');
+    lectureBtn.classList.add('active'); studyBtn.classList.remove('active');
+  };
+  studyBtn.onclick = () => {
+    body.classList.add('study-mode');
+    studyBtn.classList.add('active'); lectureBtn.classList.remove('active');
+    document.querySelectorAll('.lesson-question').forEach(x => x.classList.add('open'));
+  };
+
+  document.querySelectorAll('.show-answer').forEach(btn => {
+    btn.onclick = () => btn.closest('.lesson-question').classList.toggle('open');
+  });
+
+  document.querySelectorAll('.accordion > button').forEach(btn => {
+    btn.onclick = () => btn.parentElement.classList.toggle('open');
+  });
+
+
+  document.querySelectorAll('.detail-toggle').forEach(btn => {
+    btn.onclick = () => btn.closest('.detail-layer').classList.toggle('open');
+  });
+
+  // TOC active tracking
+  const tocLinks = [...document.querySelectorAll('.toc a')];
+  const sections = tocLinks.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if(e.isIntersecting){
+        tocLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id));
+      }
+    });
+  }, {rootMargin:'-25% 0px -65% 0px', threshold:0});
+  sections.forEach(s => obs.observe(s));
+
+  // Search
+  const searchInput = document.getElementById('searchInput');
+  const searchable = [...document.querySelectorAll('.chapter')];
+  searchInput.addEventListener('input', () => {
+    const q = searchInput.value.trim().toLowerCase();
+    searchable.forEach(sec => {
+      sec.classList.remove('search-hit','hidden-by-search');
+      if(!q) return;
+      if(sec.innerText.toLowerCase().includes(q)) sec.classList.add('search-hit');
+      else sec.classList.add('hidden-by-search');
+    });
+  });
+
+  // Variance demo
+  let step = 0;
+  const vd = document.getElementById('varianceDemo');
+  const setVD = (n,msg,ok=null) => {
+    step=n; vd.className='result'+(ok===true?' ok':ok===false?' no':''); vd.innerHTML=msg;
+  };
+  document.getElementById('v1').onclick=()=>setVD(1,'We have a real <code>List&lt;Dog&gt;</code>. Every element must satisfy the Dog type guarantee.',true);
+  document.getElementById('v2').onclick=()=>{
+    if(step<1) return setVD(step,'Do step 1 first.',false);
+    setVD(2,'Imagine Java lets another reference view that exact same object as <code>List&lt;Animal&gt;</code>.');
+  };
+  document.getElementById('v3').onclick=()=>{
+    if(step<2) return setVD(step,'Do steps 1–2 first.',false);
+    setVD(3,'A <code>List&lt;Animal&gt;</code> should accept <code>new Cat()</code>. Now the underlying Dog list contains a Cat.',false);
+  };
+  document.getElementById('v4').onclick=()=>{
+    if(step<3) return setVD(step,'Do steps 1–3 first.',false);
+    setVD(4,'Reading from the original <code>List&lt;Dog&gt;</code> could now return a Cat. The Dog guarantee is broken. Therefore Java forbids the assignment.',false);
+  };
+  document.getElementById('vReset').onclick=()=>setVD(0,'Start with step 1.');
+
+  // Wildcard compatibility
+  const wildSelect = document.getElementById('wildSelect');
+  const cells = [...document.querySelectorAll('.matrix .cell')];
+  const wildExplain = document.getElementById('wildExplain');
+  function updateWild(){
+    const m=wildSelect.value;
+    const ok={
+      extends:new Set(['animal','dog','cat','poodle']),
+      super:new Set(['dog','animal','object']),
+      unknown:new Set(['animal','dog','cat','poodle','object','string'])
+    }[m];
+    cells.forEach(c=>{
+      c.classList.remove('ok','no');
+      c.classList.add(ok.has(c.dataset.t)?'ok':'no');
+    });
+    wildExplain.innerHTML={
+      extends:'<strong>? extends Animal</strong> accepts Animal and any subtype. You can safely read values as Animal.',
+      super:'<strong>? super Dog</strong> accepts Dog and its supertypes. You can safely write Dog values.',
+      unknown:'<strong>?</strong> accepts any element type, but the exact type is unknown.'
+    }[m];
+  }
+  wildSelect.onchange=updateWild; updateWild();
+
+  // Type-safety playground
+  const rules={
+    animal:{
+      readAnimal:[1,'Yes. Elements are guaranteed to be Animal.'],
+      readDog:[0,'No. A List<Animal> may contain non-Dog animals.'],
+      readObject:[1,'Yes. Every Animal is an Object.'],
+      addDog:[1,'Yes. Dog is an Animal.'],
+      addCat:[1,'Yes. Cat is an Animal.'],
+      addAnimal:[1,'Yes. The exact element type is Animal.']
+    },
+    dog:{
+      readAnimal:[1,'Yes. Every Dog is an Animal.'],
+      readDog:[1,'Yes. The exact element type is Dog.'],
+      readObject:[1,'Yes. Every Dog is an Object.'],
+      addDog:[1,'Yes.'],
+      addCat:[0,'No. Cat is not a Dog.'],
+      addAnimal:[0,'No. Not every Animal is a Dog.']
+    },
+    extends:{
+      readAnimal:[1,'Yes. The hidden type is guaranteed to be Animal or a subtype.'],
+      readDog:[0,'No. The hidden type might be Cat.'],
+      readObject:[1,'Yes. Every Animal subtype is an Object.'],
+      addDog:[0,'No. The hidden element type might be Cat.'],
+      addCat:[0,'No. The hidden element type might be Dog.'],
+      addAnimal:[0,'No. The exact subtype is unknown.']
+    },
+    super:{
+      readAnimal:[0,'No. The actual list may be List<Object>.'],
+      readDog:[0,'No. Existing elements are not guaranteed to be Dog.'],
+      readObject:[1,'Yes. Object is the universal safe read type.'],
+      addDog:[1,'Yes. Dog fits into List<Dog>, List<Animal>, or List<Object>.'],
+      addCat:[0,'No. The actual type might be List<Dog>.'],
+      addAnimal:[0,'No. The actual type might be List<Dog>.']
+    },
+    unknown:{
+      readAnimal:[0,'No. The unknown element type may be String or something unrelated.'],
+      readDog:[0,'No. The element type is completely unknown.'],
+      readObject:[1,'Yes. Object is safe.'],
+      addDog:[0,'No. The actual list might be List<String>.'],
+      addCat:[0,'No. The actual list might be List<Integer>.'],
+      addAnimal:[0,'No. The element type is unknown.']
+    }
+  };
+  document.getElementById('checkOperation').onclick=()=>{
+    const t=document.getElementById('declaredType').value;
+    const op=document.getElementById('operation').value;
+    const [ok,msg]=rules[t][op];
+    const r=document.getElementById('playResult');
+    r.className='result '+(ok?'ok':'no');
+    r.innerHTML='<strong>'+(ok?'Type-safe.':'Not type-safe.')+'</strong><br>'+msg;
+  };
+
+  // Quiz
+  let score=0; const answered=new Set();
+  const scoreEl=document.getElementById('score');
+  document.querySelectorAll('.qbox').forEach((q,i)=>{
+    q.querySelectorAll('button[data-choice]').forEach(btn=>{
+      btn.onclick=()=>{
+        if(answered.has(i)) return;
+        answered.add(i);
+        const correct=btn.dataset.choice===q.dataset.answer;
+        if(correct) score++;
+        q.querySelector('.feedback').innerHTML=correct
+          ? '<span class="pill-good">Correct.</span>'
+          : '<span class="pill-bad">Not quite.</span> Review the relevant section.';
+        scoreEl.textContent=`Score: ${score} / 6`;
+      };
+    });
+  });
+  document.getElementById('resetQuiz').onclick=()=>{
+    score=0;answered.clear();scoreEl.textContent='Score: 0 / 6';
+    document.querySelectorAll('.feedback').forEach(x=>x.textContent='');
+  };
+})();
+</script>
+</body>
+</html>
