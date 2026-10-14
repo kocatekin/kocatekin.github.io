@@ -1,0 +1,745 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cryptographic Hash Functions</title>
+<style>
+:root{--bg:#f7f8fb;--card:#fff;--ink:#1b2330;--mute:#5d6878;--line:#e2e6ee;--acc:#2f5bea;--acc2:#7c3aed;--ok:#14915a;--bad:#d23b3b;--warn:#c27a00;--code:#f0f2f7;--hl:#fff2b3}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1218;--card:#171b24;--ink:#e6e9ef;--mute:#9aa4b4;--line:#2a303c;--acc:#6e8cff;--acc2:#a78bfa;--ok:#3ccf8e;--bad:#ff6b6b;--warn:#f5b84a;--code:#1f2430;--hl:#4a4215}}
+:root[data-theme="dark"]{--bg:#0f1218;--card:#171b24;--ink:#e6e9ef;--mute:#9aa4b4;--line:#2a303c;--acc:#6e8cff;--acc2:#a78bfa;--ok:#3ccf8e;--bad:#ff6b6b;--warn:#f5b84a;--code:#1f2430;--hl:#4a4215}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}
+code{background:var(--code);padding:.1em .35em;border-radius:4px}
+pre{background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto;font-size:.88em}
+#progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--acc),var(--acc2));width:0;z-index:20}
+.layout{display:grid;grid-template-columns:240px 1fr;max-width:1180px;margin:0 auto;gap:32px;padding:0 16px}
+nav.toc{position:sticky;top:0;height:100vh;overflow:auto;padding:28px 0;font-size:.9em}
+nav.toc a{display:block;color:var(--mute);text-decoration:none;padding:4px 10px;border-left:2px solid transparent}
+nav.toc a.active{color:var(--acc);border-left-color:var(--acc);font-weight:600}
+nav.toc .brand{font-weight:700;color:var(--ink);padding:0 10px 12px;font-size:1.05em}
+#themeBtn{margin:14px 10px;font-size:.85em}
+main{padding:28px 0 80px;min-width:0}
+header.hero{padding:30px 0 10px}
+header.hero h1{font-size:clamp(1.8rem,4vw,2.6rem);line-height:1.15;margin:0 0 6px}
+header.hero p{color:var(--mute);margin:0}
+section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin:22px 0;scroll-margin-top:16px}
+section h2{margin:0 0 10px;font-size:1.45rem}
+section h2 .num{color:var(--acc);margin-right:8px}
+h3{margin:18px 0 6px;font-size:1.1rem}
+.note{border-left:4px solid var(--acc);background:color-mix(in srgb,var(--acc) 8%,transparent);padding:10px 14px;border-radius:0 8px 8px 0;margin:14px 0}
+.note.warn{border-color:var(--warn);background:color-mix(in srgb,var(--warn) 10%,transparent)}
+.note.bad{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 8%,transparent)}
+.note b:first-child{display:block;margin-bottom:2px}
+.demo{border:1px dashed var(--line);border-radius:12px;padding:16px;margin:16px 0;background:color-mix(in srgb,var(--bg) 60%,var(--card))}
+.demo .label{font-size:.75em;text-transform:uppercase;letter-spacing:.08em;color:var(--acc2);font-weight:700;margin-bottom:8px}
+input[type=text],select{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);width:100%}
+button{font:inherit;padding:7px 14px;border-radius:8px;border:1px solid var(--acc);background:var(--acc);color:#fff;cursor:pointer}
+button.ghost{background:transparent;color:var(--acc)}
+button:disabled{opacity:.5;cursor:default}
+button.sel{background:var(--acc);color:#fff;box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 30%,transparent)}
+button.sel:disabled{opacity:1}
+button.sel::before{content:"✓ ";font-weight:700}
+/* birthday */
+.bchart{width:100%;height:auto;display:block;margin-top:8px}
+.bchart text{font-size:11px;fill:var(--mute)}
+.cal{display:grid;grid-template-columns:repeat(31,1fr);gap:2px;margin-top:10px}
+.cal i{aspect-ratio:1;border-radius:2px;background:var(--line);transition:background .25s,transform .25s}
+.cal i.p{background:var(--acc)}
+.cal i.c{background:var(--bad);transform:scale(1.5);z-index:1}
+.cal b{font-size:9px;color:var(--mute);font-weight:600;align-self:center}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.82em;color:var(--mute);margin-top:6px}
+.legend span::before{content:"";display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:6px;vertical-align:middle;background:var(--c)}
+.big{font-size:1.5em;font-weight:800;color:var(--acc)}
+input[type=range]{width:100%;accent-color:var(--acc)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.digest{font-family:ui-monospace,Menlo,Consolas,monospace;word-break:break-all;background:var(--code);padding:8px 10px;border-radius:8px;font-size:.88em}
+.digest span.diff{color:var(--bad);font-weight:700}
+.small{font-size:.85em;color:var(--mute)}
+table{border-collapse:collapse;width:100%;font-size:.92em}
+th,td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+th{color:var(--mute);font-weight:600}
+.tbl{overflow-x:auto}
+.tag{display:inline-block;font-size:.75em;padding:1px 8px;border-radius:99px;font-weight:600}
+.tag.ok{background:color-mix(in srgb,var(--ok) 18%,transparent);color:var(--ok)}
+.tag.bad{background:color-mix(in srgb,var(--bad) 18%,transparent);color:var(--bad)}
+.tag.warn{background:color-mix(in srgb,var(--warn) 20%,transparent);color:var(--warn)}
+/* pipeline animation */
+.pipe{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.box{border-radius:10px;padding:10px 12px;font-size:.9em}
+.box.in{background:color-mix(in srgb,#06b6d4 22%,var(--card));min-width:120px;max-width:260px;word-break:break-word}
+.box.fn{background:color-mix(in srgb,#eab308 28%,var(--card));font-weight:600;position:relative;overflow:hidden}
+.box.fn.spin::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);animation:shine .6s}
+@keyframes shine{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+.box.out{background:color-mix(in srgb,#ec4899 18%,var(--card));font-family:ui-monospace,Menlo,monospace;font-size:.8em;word-break:break-all;flex:1;min-width:200px}
+.arrow{color:var(--mute);font-size:1.3em}
+/* bit grid */
+.bits{display:grid;grid-template-columns:repeat(32,1fr);gap:2px;margin-top:10px}
+.bits i{aspect-ratio:1;border-radius:2px;background:var(--line);transition:background .3s,transform .3s}
+.bits i.on{background:var(--acc)}
+.bits i.flip{background:var(--bad);transform:scale(1.15)}
+.meter{height:10px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:6px}
+.meter div{height:100%;background:linear-gradient(90deg,var(--acc),var(--bad));width:0;transition:width .5s}
+/* one-way */
+.oneway{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;text-align:center}
+.oneway .track{position:relative;width:160px;height:70px}
+.oneway .lane{position:absolute;left:0;right:0;height:2px;background:var(--line)}
+.oneway .lane.top{top:20px}.oneway .lane.bot{top:52px}
+.dot{position:absolute;width:12px;height:12px;border-radius:50%;margin-top:-5px}
+.dot.f{top:20px;background:var(--ok);animation:fwd 2s linear infinite}
+.dot.b{top:52px;background:var(--bad);animation:back 2s ease-in infinite}
+@keyframes fwd{from{left:0}to{left:148px}}
+@keyframes back{0%{left:148px;opacity:1}55%{left:80px;opacity:1}70%{left:80px;opacity:0}100%{left:80px;opacity:0}}
+.wall{position:absolute;left:72px;top:38px;font-weight:800;color:var(--bad);font-size:1.3em}
+.lbl{position:absolute;font-size:.7em;color:var(--mute);left:0;right:0}
+/* alice bob */
+.stage{position:relative;height:150px;border-radius:10px;background:var(--code);overflow:hidden;margin:10px 0}
+.actor{position:absolute;top:14px;text-align:center;width:90px;font-size:.85em;font-weight:600}
+.actor .av{font-size:2em;line-height:1.2}
+.actor.a{left:8px}.actor.b{right:8px}.actor.m{left:50%;margin-left:-45px;opacity:.25;transition:opacity .3s}
+.actor.m.active{opacity:1}
+.pkt{position:absolute;top:92px;left:20px;max-width:calc(100% - 40px);overflow:hidden;text-overflow:ellipsis;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:4px 8px;font-size:.75em;transition:left 1.4s ease-in-out,background .3s;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.1)}
+.pkt.tampered{background:color-mix(in srgb,var(--bad) 25%,var(--card))}
+.verdict{font-weight:700;min-height:1.6em}
+.verdict.ok{color:var(--ok)}.verdict.bad{color:var(--bad)}
+/* pigeon */
+.holes{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-top:10px}
+.hole{border:2px solid var(--line);border-radius:10px;min-height:74px;padding:4px;text-align:center;font-size:.7em;transition:border-color .3s,background .3s}
+.hole .hx{color:var(--mute);font-family:ui-monospace,monospace}
+.hole.col{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,transparent)}
+.pg{display:block;margin:2px auto;font-family:ui-monospace,monospace;background:var(--card);border-radius:4px;padding:0 3px;animation:drop .5s ease-out}
+@keyframes drop{from{transform:translateY(-30px);opacity:0}to{transform:none;opacity:1}}
+/* dictionary */
+.wl{height:180px;overflow:hidden;position:relative;border-radius:8px;background:var(--code);font-family:ui-monospace,monospace;font-size:.82em}
+.wl div{padding:2px 10px;display:flex;justify-content:space-between;gap:10px}
+.wl div.cur{background:var(--hl)}
+.wl div.hit{background:color-mix(in srgb,var(--ok) 30%,transparent);font-weight:700}
+.wl div span:last-child{color:var(--mute);overflow:hidden;text-overflow:ellipsis}
+/* timeline */
+.tl{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:10px}
+.tl .ev{border:1px solid var(--line);border-radius:10px;padding:10px;opacity:0;transform:translateY(10px);transition:all .5s}
+.tl.show .ev{opacity:1;transform:none}
+.tl .yr{font-weight:800;color:var(--acc)}
+/* uses grid */
+.uses{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+.uses div{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.uses b{display:block}
+/* reveal */
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .6s,transform .6s}
+.reveal.in{opacity:1;transform:none}
+/* quiz */
+.q{border:1px solid var(--line);border-radius:10px;padding:14px;margin:12px 0}
+.q p{margin:0 0 8px;font-weight:600}
+.q label{display:block;padding:7px 10px;border-radius:8px;cursor:pointer;border:1px solid transparent}
+.q label:hover{background:var(--code)}
+.q label.right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent)}
+.q label.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 10%,transparent)}
+.q .exp{display:none;margin-top:8px;font-size:.9em;color:var(--mute)}
+.q.done .exp{display:block}
+#score{font-size:1.2em;font-weight:700}
+@media (max-width:860px){.layout{grid-template-columns:1fr}nav.toc{position:static;height:auto;display:flex;flex-wrap:wrap;gap:2px;padding:12px 0}nav.toc a{border-left:0;padding:3px 8px;background:var(--card);border-radius:6px}nav.toc .brand{width:100%}section{padding:18px 16px}.cal{gap:1px}.holes{grid-template-columns:repeat(4,1fr)}.bits{grid-template-columns:repeat(16,1fr)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<div class="layout">
+<nav class="toc" id="toc">
+  <div class="brand">CHF Lecture</div>
+  <a href="#intro">1. Introduction</a>
+  <a href="#props">2. Properties &amp; avalanche</a>
+  <a href="#oneway">3. One-way functions</a>
+  <a href="#sizes">4. Digest sizes</a>
+  <a href="#uses">5. Where do we use them?</a>
+  <a href="#integrity">6. Integrity &amp; authentication</a>
+  <a href="#secure">7. Security properties</a>
+  <a href="#pigeon">8. Pigeonhole &amp; collisions</a>
+  <a href="#birthday">9. Birthday paradox</a>
+  <a href="#commit">10. Commitment schemes</a>
+  <a href="#passwords">11. Password storage &amp; salting</a>
+  <a href="#attacks">12. Attacks &amp; rainbow tables</a>
+  <a href="#algos">13. MD5, SHA-1, SHA family</a>
+  <a href="#summary">Summary</a>
+  <a href="#quiz">Quiz</a>
+  <button class="ghost" id="themeBtn">Toggle theme</button>
+</nav>
+<main>
+<header class="hero">
+  <h1>CHF: Cryptographic Hash Functions</h1>
+  <p>Tuğberk Kocatekin · Arel University · Interactive lecture notes (works offline)</p>
+</header>
+
+<section id="intro" class="reveal">
+  <h2><span class="num">1</span>Introduction</h2>
+  <p>A hash function takes a <b>variable-sized input message</b> and produces a <b>fixed-size output</b>. The output is called the <i>hashcode</i>, <i>hash value</i> or <i>message digest</i>.</p>
+  <p>You can think of the digest as a <b>fixed-size fingerprint</b> of a message. For a good cryptographic hash, two different messages having the same fingerprint is so unlikely that, in practice, we treat it as unique.</p>
+  <div class="note warn"><b>Careful with "unique"</b>Digests are <i>not</i> mathematically unique: there are infinitely many inputs but only 2<sup>n</sup> outputs, so collisions must exist (see §8). What we rely on is that nobody can <i>find</i> one.</div>
+  <div class="demo">
+    <div class="label">Try it: type anything</div>
+    <input type="text" id="liveIn" value="Hello, Arel!" aria-label="Message to hash">
+    <div class="row" style="margin-top:8px">
+      <select id="liveAlg" style="width:auto"><option value="sha256">SHA-256</option><option value="sha1">SHA-1</option></select>
+      <span class="small" id="liveLen"></span>
+    </div>
+    <div class="pipe" style="margin-top:12px">
+      <div class="box in" id="liveBoxIn"></div><span class="arrow">→</span>
+      <div class="box fn" id="liveFn">hash function</div><span class="arrow">→</span>
+      <div class="box out" id="liveOut"></div>
+    </div>
+    <p class="small">Paste a whole paragraph or a single letter. The input length changes; the digest length never does.</p>
+  </div>
+</section>
+
+<section id="props" class="reveal">
+  <h2><span class="num">2</span>Properties &amp; the avalanche effect</h2>
+  <ul>
+    <li>The size of the output is <b>fixed</b>.</li>
+    <li>It is <b>deterministic</b>: the same input always gives the same digest.</li>
+    <li>Any change in the input results in a very different output. This is the <b>avalanche effect</b>: flipping a single input bit should flip about <b>half</b> of the output bits, unpredictably.</li>
+  </ul>
+  <div class="demo">
+    <div class="label">Avalanche visualiser (SHA-256, 256 bits)</div>
+    <div class="row">
+      <div style="flex:1;min-width:180px"><span class="small">Message A</span><input type="text" id="avA" value="barney"></div>
+      <div style="flex:1;min-width:180px"><span class="small">Message B</span><input type="text" id="avB" value="barney1"></div>
+    </div>
+    <div class="digest" id="avHA" style="margin-top:10px"></div>
+    <div class="digest" id="avHB" style="margin-top:6px"></div>
+    <div class="bits" id="avBits" aria-label="Bit difference grid"></div>
+    <div class="row" style="justify-content:space-between;margin-top:8px"><span class="small">Red squares = bits that differ between the two digests</span><b id="avPct"></b></div>
+    <div class="meter"><div id="avMeter"></div></div>
+  </div>
+  <h3>Lecture example: barney vs barney1</h3>
+  <pre>barney  : e83c136b3658bff1977fa91bf93f36ebad9efe52
+barney1 : 3856a7fed5b63e6709df223e282032b52404283a</pre>
+  <div class="note"><b>Where these values come from</b>These are <b>SHA-1</b> digests produced with <code>echo 'barney' | shasum</code>. <code>echo</code> appends a newline, so they are actually the hashes of <code>"barney\n"</code>. Use <code>echo -n</code> (or <code>printf</code>) to hash only the word; that is why the demo above shows different values.</div>
+  <p>Totally different! This is very good: an attacker cannot make a "small" change to a message and get a predictably similar hash.</p>
+</section>
+
+<section id="oneway" class="reveal">
+  <h2><span class="num">3</span>One-way functions</h2>
+  <p>Hash functions are <b>one-way functions</b>: computing the digest from the input is easy, but recovering the input from the digest is infeasible. There is no inverse function.</p>
+  <div class="demo">
+    <div class="oneway">
+      <div class="box in" style="max-width:none">message<br><span class="small">"transfer 100 TL"</span></div>
+      <div class="track">
+        <div class="lbl" style="top:0">easy: h(x)</div><div class="lane top"></div><div class="dot f"></div>
+        <div class="lane bot"></div><div class="dot b"></div><div class="wall">✕</div>
+        <div class="lbl" style="top:56px">infeasible: h⁻¹(z)</div>
+      </div>
+      <div class="box out" style="min-width:0">digest<br><span class="small">9f2c…</span></div>
+    </div>
+  </div>
+  <p>Note that "one-way" does <i>not</i> mean "impossible to guess". If the set of possible inputs is small (a PIN, a coin flip, a common password), an attacker can simply hash every candidate. We return to this in §10–§12.</p>
+</section>
+
+<section id="sizes" class="reveal">
+  <h2><span class="num">4</span>Digest sizes</h2>
+  <p>The length of the digest depends on the function. Each hex character encodes 4 bits, so <b>hex length = bits ÷ 4</b>.</p>
+  <div class="tbl"><table>
+    <tr><th>Function</th><th>Output bits</th><th>Hex characters</th><th>Status</th></tr>
+    <tr><td>MD5</td><td>128</td><td>32</td><td><span class="tag bad">broken</span></td></tr>
+    <tr><td>SHA-1</td><td>160</td><td>40</td><td><span class="tag bad">broken (collisions)</span></td></tr>
+    <tr><td>SHA-256</td><td>256</td><td><b>64</b> ← the question on the slide</td><td><span class="tag ok">secure</span></td></tr>
+    <tr><td>SHA-512</td><td>512</td><td>128</td><td><span class="tag ok">secure</span></td></tr>
+    <tr><td>SHA3-256</td><td>256</td><td>64</td><td><span class="tag ok">secure</span></td></tr>
+  </table></div>
+  <h3>Trying it yourself</h3>
+  <pre># Python 3 — hashlib needs bytes, not str
+import hashlib
+hasher = hashlib.sha1()
+hasher.update(b"my text")        # or "my text".encode()
+print(hasher.hexdigest())
+
+hashlib.md5(b"crypto").hexdigest()
+hashlib.sha256(b"crypto").hexdigest()</pre>
+  <pre># Command line
+echo -n 'hey' | sha1sum      # Linux
+echo -n 'hey' | shasum       # macOS (default SHA-1; use -a 256 for SHA-256)
+tldr shasum                  # quick usage examples</pre>
+</section>
+
+<section id="uses" class="reveal">
+  <h2><span class="num">5</span>Where do we use them?</h2>
+  <div class="uses">
+    <div><b>Data integrity &amp; file verification</b>Detect that data was altered during storage or transmission. Download pages publish a file's hash so you can check it before opening.</div>
+    <div><b>Password storage</b>Store a (salted, slow) hash instead of the plaintext password.</div>
+    <div><b>Digital signatures</b>The message is hashed first, and the digest is <b>signed</b> with the owner's private key.</div>
+    <div><b>Blockchains</b>Each block contains the hash of the previous block, creating a tamper-evident ledger.</div>
+    <div><b>MACs</b>Combine a hash with a secret key (e.g. <b>HMAC</b>) to authenticate messages.</div>
+    <div><b>Git</b>Every object (commit, tree, file) is identified by its SHA-1 hash. Newer Git also supports SHA-256.</div>
+    <div><b>Commitment schemes</b>Commit to a value now, reveal it later, and prove you did not change it.</div>
+  </div>
+</section>
+
+<section id="integrity" class="reveal">
+  <h2><span class="num">6</span>Data integrity &amp; message authentication</h2>
+  <p>Alice wants to send a message to Bob. She hashes the message and sends the hash along with it. Bob receives message + hash, hashes the message himself, and compares the two.</p>
+  <div class="demo">
+    <div class="label">Animation: Alice → Bob</div>
+    <div class="row">
+      <button data-mode="clean" class="ghost">Send normally</button>
+      <button data-mode="tamper" class="ghost">Mallory edits message</button>
+      <button data-mode="recompute" class="ghost">Mallory edits message + recomputes hash</button>
+      <button data-mode="hmac" class="ghost">Use HMAC (shared key)</button>
+    </div>
+    <div class="stage" id="stage">
+      <div class="actor a"><div class="av">👩</div>Alice</div>
+      <div class="actor m" id="mallory"><div class="av">😈</div>Mallory</div>
+      <div class="actor b"><div class="av">👨</div>Bob</div>
+      <div class="pkt" id="pkt"></div>
+    </div>
+    <div class="verdict" id="verdict"></div>
+    <div class="small" id="verdictDetail"></div>
+  </div>
+  <div class="note bad"><b>Important limitation</b>A plain hash only detects <i>accidental</i> changes (or changes when the hash travels over a separate trusted channel, like a download page over HTTPS). An active attacker who can change the message can simply <b>recompute the hash</b>. To authenticate the sender we need a secret: a <b>MAC</b> such as <code>HMAC(key, message)</code>, or a <b>digital signature</b>.</div>
+  <p>The tamper detection comes from the <b>avalanche effect</b> and <b>second-preimage resistance</b>: any change to the message changes the hash, and the attacker cannot find a different message with the same hash.</p>
+</section>
+
+<section id="secure" class="reveal">
+  <h2><span class="num">7</span>Cryptographically secure hash functions</h2>
+  <p>A hash function is called <b>cryptographically secure</b> if the following problems are computationally infeasible:</p>
+  <div class="tbl"><table>
+    <tr><th>Property</th><th>Attacker is given…</th><th>…and must find</th><th>Generic cost (n-bit hash)</th></tr>
+    <tr><td><b>Preimage resistance</b> (one-way)</td><td>a digest z</td><td>any x with h(x) = z</td><td>≈ 2<sup>n</sup></td></tr>
+    <tr><td><b>Second-preimage resistance</b> (weak collision resistance)</td><td>a message m1</td><td>m2 ≠ m1 with h(m2) = h(m1)</td><td>≈ 2<sup>n</sup></td></tr>
+    <tr><td><b>Collision resistance</b> (strong collision resistance)</td><td>nothing</td><td>any pair m1 ≠ m2 with h(m1) = h(m2)</td><td>≈ 2<sup>n/2</sup> (birthday bound, §9)</td></tr>
+  </table></div>
+  <p class="small">Collision resistance is the easiest property to attack because the attacker gets to choose <i>both</i> messages. That is why a 256-bit hash gives about 128 bits of collision security.</p>
+  <p>Still, collisions <b>definitely exist</b>, by the pigeonhole principle.</p>
+</section>
+
+<section id="pigeon" class="reveal">
+  <h2><span class="num">8</span>Pigeonhole principle &amp; collisions</h2>
+  <p>There are (practically) infinitely many inputs but only a fixed number of outputs. With n output bits there are 2<sup>n</sup> possible digests: a lot, but <b>not infinite</b>. So some different messages must share a digest.</p>
+  <div class="demo">
+    <div class="label">Toy hash: keep only the first 3 bits of SHA-256 → 8 holes</div>
+    <div class="row"><button id="pgAdd">Hash next message</button><button id="pgAuto" class="ghost">Run until collision</button><button id="pgReset" class="ghost">Reset</button><span class="small" id="pgInfo"></span></div>
+    <div class="holes" id="holes"></div>
+  </div>
+  <p>Notice that with only 8 holes you usually get a collision after about 4 or 5 messages, long before all 8 holes are full. That surprise has a name: the <b>birthday paradox</b>.</p>
+</section>
+
+<section id="birthday" class="reveal">
+  <h2><span class="num">9</span>The birthday paradox</h2>
+  <p><b>Question:</b> how many people must be in a room for there to be a better than 50% chance that <i>two of them</i> share a birthday?</p>
+  <p>Most people guess around 183 (half of 365). The real answer is just <span class="big">23</span>. It is not a true paradox, only a result that defeats our intuition.</p>
+
+  <h3>Why so few? Count the pairs</h3>
+  <p>We are not asking whether someone matches <i>one particular</i> person. <b>Any</b> pair is allowed to match, and the number of pairs grows quadratically:</p>
+  <pre>pairs among k people = k(k−1)/2
+k = 23  →  23·22/2 = 253 pairs, each matching with probability 1/365</pre>
+  <p>253 chances, each with probability 1/365, add up to a lot. Compare this with the question "does anyone share <b>my</b> birthday?". There, only k pairs involve you, so you need about <b>253</b> other people for a 50% chance.</p>
+
+  <div class="demo">
+    <div class="label">Interactive: probability vs number of people</div>
+    <div class="row" style="justify-content:space-between"><span>People in the room: <b id="bdK">23</b></span><span class="small" id="bdRead"></span></div>
+    <input type="range" id="bdSlider" min="2" max="100" value="23" aria-label="Number of people">
+    <svg class="bchart" id="bdChart" viewBox="0 0 600 250" role="img" aria-label="Probability of shared birthday curves"></svg>
+    <div class="legend"><span style="--c:var(--acc)">any two people share a birthday</span><span style="--c:var(--warn)">someone shares <i>your</i> birthday</span></div>
+  </div>
+
+  <h3>The math</h3>
+  <p>It is easier to compute the probability that there is <b>no</b> match, and subtract it from 1. With N possible values (N = 365 days) and k people, each new person must avoid all earlier ones:</p>
+  <pre>P(no match) = (N/N)·((N−1)/N)·((N−2)/N)···((N−k+1)/N)
+            = ∏ (1 − i/N)   for i = 0 … k−1
+
+using 1 − x ≈ e^(−x):
+P(no match) ≈ e^(−k(k−1)/(2N))
+P(match)    ≈ 1 − e^(−k²/(2N))</pre>
+  <p>Setting P(match) = ½ and solving for k:</p>
+  <pre>k ≈ √(2·ln2·N) ≈ 1.18·√N        (N = 365 → k ≈ 22.5 → 23 people)
+expected people until first match ≈ √(πN/2) + 1 ≈ 24.6</pre>
+  <div class="note"><b>The key takeaway</b>Collisions start to appear after about <b>√N</b> samples, not N. Square root is a huge reduction: √(2<sup>n</sup>) = 2<sup>n/2</sup>.</div>
+
+  <div class="demo">
+    <div class="label">Simulation: fill a room until two birthdays collide</div>
+    <div class="row"><button id="bdStep" class="ghost">Add one person</button><button id="bdFill" class="ghost">Fill room (animated)</button><button id="bdMany" class="ghost">Simulate 2,000 rooms</button><button id="bdReset" class="ghost">Reset</button></div>
+    <div class="cal" id="cal" aria-label="Calendar of 365 days"></div>
+    <div class="verdict" id="bdOut" style="margin-top:8px"></div>
+    <svg class="bchart" id="bdHist" viewBox="0 0 600 170" style="display:none" role="img" aria-label="Histogram of room sizes at first collision"></svg>
+    <div class="small" id="bdStats"></div>
+  </div>
+
+  <h3>From birthdays to hash functions</h3>
+  <p>Replace "365 days" with "2<sup>n</sup> possible digests". An attacker who simply hashes random messages and stores the results will find two that collide after about <b>2<sup>n/2</sup></b> hashes. This generic <b>birthday attack</b> works against <i>every</i> hash function, however well designed.</p>
+  <div class="tbl"><table>
+    <tr><th>Attacker's goal</th><th>Birthday analogy</th><th>Cost for an n-bit hash</th></tr>
+    <tr><td>Collision: any two messages, same hash</td><td>any two people share a birthday</td><td>≈ 2<sup>n/2</sup></td></tr>
+    <tr><td>Second preimage: match <i>this</i> message's hash</td><td>someone shares <i>my</i> birthday</td><td>≈ 2<sup>n</sup></td></tr>
+  </table></div>
+
+  <div class="demo">
+    <div class="label">Live birthday attack on a truncated SHA-256</div>
+    <div class="row">
+      <span>Keep the first</span><select id="baBits" style="width:auto"><option>8</option><option>12</option><option selected>16</option><option>20</option><option>24</option><option>28</option><option>32</option></select><span>bits of the hash</span>
+      <button id="baRun">Find a collision</button>
+    </div>
+    <p class="small" id="baPred"></p>
+    <div class="meter"><div id="baMeter"></div></div>
+    <div id="baOut" style="margin-top:10px"></div>
+    <div class="tbl"><table id="baTable" style="margin-top:8px;display:none"><tr><th>bits n</th><th>possible outputs 2<sup>n</sup></th><th>hashes needed</th><th>≈ 2<sup>n/2</sup></th></tr></table></div>
+  </div>
+  <p class="small">Each 8 extra bits multiplies the number of outputs by 256 but the work only by 16. That is the square root at work.</p>
+
+  <h3>What this means in practice</h3>
+  <div class="tbl"><table>
+    <tr><th>Hash</th><th>Output bits</th><th>Generic collision cost</th><th>Reality</th></tr>
+    <tr><td>MD5</td><td>128</td><td>2<sup>64</sup></td><td><span class="tag bad">collisions in seconds</span> due to structural attacks</td></tr>
+    <tr><td>SHA-1</td><td>160</td><td>2<sup>80</sup></td><td><span class="tag bad">≈ 2<sup>63</sup></span> SHAttered collision (2017)</td></tr>
+    <tr><td>SHA-256</td><td>256</td><td>2<sup>128</sup></td><td><span class="tag ok">infeasible</span></td></tr>
+    <tr><td>SHA-512</td><td>512</td><td>2<sup>256</sup></td><td><span class="tag ok">infeasible</span></td></tr>
+  </table></div>
+  <ul>
+    <li><b>Rule of thumb:</b> an n-bit hash gives only <b>n/2 bits</b> of collision security. For 128-bit security you need a digest of at least 256 bits. This is why 128-bit MD5 was too short even before it was broken.</li>
+    <li><b>Yuval's birthday attack on signatures:</b> Mallory writes many harmless variations of a fair contract (extra spaces, synonyms, commas) and many variations of a fraudulent one. With about 2<sup>n/2</sup> of each, a fair version and a fraudulent version will likely have the same hash. Alice signs the fair one, and the signature is equally valid for the fraudulent one.</li>
+    <li><b>Memory:</b> a naïve birthday attack stores every hash. Smarter variants (Pollard's rho, distinguished points) find collisions with almost no memory, so the 2<sup>n/2</sup> bound is the real limit.</li>
+  </ul>
+</section>
+
+<section id="commit" class="reveal">
+  <h2><span class="num">10</span>Commitment schemes</h2>
+  <p>A heads-or-tails game over the phone: how would you trust me? I can publish the hash of my choice <i>before</i> you guess, then reveal it afterwards. Since I cannot find another value with the same hash, I cannot change my mind.</p>
+  <div class="demo">
+    <div class="label">Game: guess the computer's coin</div>
+    <label class="small"><input type="checkbox" id="useNonce" checked> add random nonce to the commitment</label>
+    <div class="row" style="margin-top:8px"><button id="cmNew">New round</button></div>
+    <p class="small" style="margin:10px 0 4px">Commitment published by the computer:</p>
+    <div class="digest" id="cmHash">—</div>
+    <div class="row" style="margin-top:10px">
+      <button id="gH" class="ghost" disabled>Guess Heads</button><button id="gT" class="ghost" disabled>Guess Tails</button><button id="gCheat" class="ghost" disabled>Cheat: hash both options</button>
+    </div>
+    <div id="cmOut" style="margin-top:10px"></div>
+  </div>
+  <div class="note warn"><b>Hashing the choice alone is not enough</b>"heads" and "tails" are only two values; anyone can hash both and read the commitment. A secure commitment is <code>h(choice ‖ random nonce)</code>. The same applies to "guess which number I have in mind".</div>
+</section>
+
+<section id="passwords" class="reveal">
+  <h2><span class="num">11</span>Password storage &amp; salting</h2>
+  <p>Storing passwords in plaintext is <b>wrong</b> and <b>not secure</b>. We store a hash instead, so if the database is stolen, the attacker does not directly see the passwords. Is this enough? What can go wrong?</p>
+  <div class="demo">
+    <div class="label">What does the stolen database look like?</div>
+    <div class="row"><button data-pw="plain" class="ghost">Plaintext</button><button data-pw="hash" class="ghost">Hash only</button><button data-pw="salt" class="ghost">Salted hash</button></div>
+    <div class="tbl" style="margin-top:10px"><table id="pwTable"></table></div>
+    <p class="small" id="pwNote"></p>
+  </div>
+  <ul>
+    <li><b>Problem 1:</b> identical passwords produce identical hashes, so one cracked hash reveals everyone using it.</li>
+    <li><b>Problem 2:</b> attackers can precompute hashes of common passwords once and reuse them against every database (lookup / rainbow tables).</li>
+    <li><b>Salting:</b> generate a random, unique <b>salt</b> per user, store <code>salt, h(salt ‖ password)</code>. The salt is not secret; it just forces the attacker to attack each user separately and makes precomputed tables useless.</li>
+    <li><b>Slow hashing:</b> SHA-256 is designed to be <i>fast</i>, which helps attackers try billions of guesses per second. Real systems use deliberately slow, salted password-hashing functions: <b>Argon2</b>, <b>bcrypt</b>, <b>scrypt</b> or <b>PBKDF2</b>.</li>
+  </ul>
+</section>
+
+<section id="attacks" class="reveal">
+  <h2><span class="num">12</span>Attacks: brute force, dictionaries, rainbow tables</h2>
+  <p>We cannot invert a hash, so attackers <b>guess</b>: hash a candidate and compare it with the target.</p>
+  <ul>
+    <li><b>Brute force:</b> try every possible string (a, b, …, aa, ab, …). Guaranteed but exponentially slow.</li>
+    <li><b>Dictionary attack:</b> try only likely passwords from a wordlist such as <code>rockyou.txt</code>. Tools like <b>John the Ripper</b> and <b>hashcat</b> also apply rules (capitalise, append digits, l33t-speak…).</li>
+    <li><b>Precomputed tables:</b> hash a huge wordlist once, store hash → password, and look targets up instantly. A <b>rainbow table</b> is a space-efficient version: it stores chains built from alternating hash and "reduction" functions, trading lookup time for much less storage.</li>
+  </ul>
+  <div class="demo">
+    <div class="label">Animation: dictionary attack on a leaked SHA-256 hash</div>
+    <div class="row"><select id="daTarget" style="width:auto;max-width:100%"></select><button id="daRun">Start attack</button><label class="small"><input type="checkbox" id="daSalt"> target is salted (salt = "x9Q2")</label></div>
+    <p class="small" style="margin:8px 0 4px">Target hash:</p><div class="digest" id="daHash"></div>
+    <div class="wl" id="wl" style="margin-top:10px"></div>
+    <div class="verdict" id="daOut" style="margin-top:8px"></div>
+  </div>
+  <div class="note"><b>Why rainbow tables are "not that useful" today</b>Salting means the attacker would need a separate table for every salt value, which defeats precomputation. They still need to run a dictionary attack per user, and slow hash functions make each guess expensive.</div>
+  <p class="small">Relevant video: <a href="https://www.youtube.com/watch?v=7U-RbOKanYs">youtube.com/watch?v=7U-RbOKanYs</a> (needs internet)</p>
+</section>
+
+<section id="algos" class="reveal">
+  <h2><span class="num">13</span>MD5, SHA-1 and the SHA family</h2>
+  <div class="tl" id="tl">
+    <div class="ev"><div class="yr">1990</div><b>MD4</b><div class="small">Rivest. Ancestor of MD5 and SHA-1.</div></div>
+    <div class="ev"><div class="yr">1991–92</div><b>MD5</b> <span class="tag bad">broken</span><div class="small">Rivest, 128-bit. Practical collisions since 2004. Do not use for security.</div></div>
+    <div class="ev"><div class="yr">1993</div><b>SHA-0</b> <span class="tag bad">withdrawn</span><div class="small">NIST/NSA. A significant flaw led to quick replacement.</div></div>
+    <div class="ev"><div class="yr">1995</div><b>SHA-1</b> <span class="tag bad">broken</span><div class="small">160-bit, MD4-style design. First public collision in 2017 (SHAttered). Still used in legacy, non-security roles like Git IDs.</div></div>
+    <div class="ev"><div class="yr">2001</div><b>SHA-2</b> <span class="tag ok">secure</span><div class="small">SHA-256 (32-bit words) and SHA-512 (64-bit words); SHA-224/384/512-256 are truncated variants with different initial values.</div></div>
+    <div class="ev"><div class="yr">2012 / 2015</div><b>SHA-3 (Keccak)</b> <span class="tag ok">secure</span><div class="small">Won a public NIST competition in 2012, standardised in 2015 (FIPS 202). Different "sponge" internal structure.</div></div>
+  </div>
+  <h3>Notes</h3>
+  <ul>
+    <li><b>MD5:</b> 128-bit digests, broken multiple times. <code>hashlib.md5(b"crypto").hexdigest()</code></li>
+    <li><b>SHA-1:</b> 160-bit digests, <b>not secure</b> anymore (collisions found). <code>hashlib.sha1(b"crypto").hexdigest()</code></li>
+    <li><b>SHA-2:</b> SHA-256 and SHA-512 are the two core functions; they differ in word size (32 vs 64-bit), so SHA-512 is often faster on 64-bit processors.</li>
+    <li><b>SHA-3:</b> supports the same output lengths as SHA-2 but uses the sponge construction, which makes it immune to <i>length-extension attacks</i> (a weakness of MD5/SHA-1/SHA-2 when misused as <code>h(key ‖ message)</code>). It is very efficient in hardware and somewhat slower in software. That slowness is a side effect, not a security feature.</li>
+  </ul>
+</section>
+
+<section id="summary" class="reveal">
+  <h2>Summary</h2>
+  <ul>
+    <li>A CHF maps any input to a fixed-size digest, deterministically and fast.</li>
+    <li>Security = preimage, second-preimage and collision resistance (collisions exist, but can't be found).</li>
+    <li>Birthday paradox: collisions appear after about √N tries, so an n-bit hash gives only n/2 bits of collision security.</li>
+    <li>Avalanche effect: a tiny input change flips ~50% of the output bits.</li>
+    <li>A plain hash gives integrity against accidents; authentication needs a key (HMAC) or a signature.</li>
+    <li>Low-entropy inputs (passwords, coin flips) need salts/nonces; passwords also need slow hashing.</li>
+    <li>Use SHA-256/SHA-512/SHA-3 for security; avoid MD5 and SHA-1.</li>
+  </ul>
+</section>
+
+<section id="quiz" class="reveal">
+  <h2>Quiz</h2>
+  <p class="small">Choose an answer to see the explanation. Your score updates as you go.</p>
+  <div id="quizBox"></div>
+  <div class="row" style="justify-content:space-between;margin-top:10px"><span id="score"></span><button id="qReset" class="ghost">Reset quiz</button></div>
+</section>
+</main>
+</div>
+<script>
+// Pure-JS SHA-1 and SHA-256 (works offline, file://)
+const Hash=(()=>{
+  const enc=s=>new TextEncoder().encode(s);
+  const primes=[];for(let n=2;primes.length<64;n++){if(primes.every(p=>n%p))primes.push(n);}
+  const frac=x=>((x-Math.floor(x))*4294967296)>>>0;
+  const K=primes.map(p=>frac(Math.cbrt(p)));
+  const H0=primes.slice(0,8).map(p=>frac(Math.sqrt(p)));
+  function pad(b){const l=b.length,n=((l+9+63)>>6)<<6,m=new Uint8Array(n);m.set(b);m[l]=0x80;const bits=l*8;const dv=new DataView(m.buffer);dv.setUint32(n-4,bits>>>0);dv.setUint32(n-8,Math.floor(bits/4294967296));return dv;}
+  const hex=a=>a.map(x=>(x>>>0).toString(16).padStart(8,'0')).join('');
+  function sha256(s){const dv=pad(typeof s==='string'?enc(s):s);const H=H0.slice();const W=new Uint32Array(64);const r=(x,n)=>(x>>>n)|(x<<(32-n));
+    for(let o=0;o<dv.byteLength;o+=64){for(let i=0;i<16;i++)W[i]=dv.getUint32(o+i*4);
+      for(let i=16;i<64;i++){const a=W[i-15],b=W[i-2];W[i]=(W[i-16]+(r(a,7)^r(a,18)^(a>>>3))+W[i-7]+(r(b,17)^r(b,19)^(b>>>10)))>>>0;}
+      let[a,b,c,d,e,f,g,h]=H;
+      for(let i=0;i<64;i++){const t1=(h+(r(e,6)^r(e,11)^r(e,25))+((e&f)^(~e&g))+K[i]+W[i])>>>0;const t2=((r(a,2)^r(a,13)^r(a,22))+((a&b)^(a&c)^(b&c)))>>>0;h=g;g=f;f=e;e=(d+t1)>>>0;d=c;c=b;b=a;a=(t1+t2)>>>0;}
+      [a,b,c,d,e,f,g,h].forEach((v,i)=>H[i]=(H[i]+v)>>>0);}
+    return hex(H);}
+  function sha1(s){const dv=pad(typeof s==='string'?enc(s):s);const H=[0x67452301,0xEFCDAB89,0x98BADCFE,0x10325476,0xC3D2E1F0];const W=new Uint32Array(80);const l=(x,n)=>(x<<n)|(x>>>(32-n));
+    for(let o=0;o<dv.byteLength;o+=64){for(let i=0;i<16;i++)W[i]=dv.getUint32(o+i*4);for(let i=16;i<80;i++)W[i]=l(W[i-3]^W[i-8]^W[i-14]^W[i-16],1);
+      let[a,b,c,d,e]=H;
+      for(let i=0;i<80;i++){let f,k;if(i<20){f=(b&c)|(~b&d);k=0x5A827999}else if(i<40){f=b^c^d;k=0x6ED9EBA1}else if(i<60){f=(b&c)|(b&d)|(c&d);k=0x8F1BBCDC}else{f=b^c^d;k=0xCA62C1D6}
+        const t=(l(a,5)+f+e+k+W[i])>>>0;e=d;d=c;c=l(b,30)>>>0;b=a;a=t;}
+      [a,b,c,d,e].forEach((v,i)=>H[i]=(H[i]+v)>>>0);}
+    return hex(H);}
+  return{sha1,sha256};
+})();
+if(typeof module!=='undefined')module.exports=Hash;
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+// theme
+$('#themeBtn').onclick=()=>{const r=document.documentElement;const dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme:dark)').matches;r.dataset.theme=dark?'light':'dark';};
+// progress + toc + reveal
+const secs=$$('main section');const links=$$('#toc a');
+function onScroll(){const h=document.documentElement;$('#progress').style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';
+  let cur=secs[0].id;secs.forEach(s=>{if(s.getBoundingClientRect().top<140)cur=s.id});links.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+cur));}
+addEventListener('scroll',onScroll,{passive:true});onScroll();
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');if(e.target.id==='algos')$('#tl').classList.add('show');}}),{threshold:.08});
+secs.forEach(s=>io.observe(s));
+$$('#tl .ev').forEach((e,i)=>e.style.transitionDelay=(i*.15)+'s');
+
+// 1. live hash
+function live(){const v=$('#liveIn').value,alg=$('#liveAlg').value,d=Hash[alg](v);
+  $('#liveBoxIn').textContent=v||'(empty string)';$('#liveOut').textContent=d;
+  const bytes=new TextEncoder().encode(v).length;
+  $('#liveLen').textContent=`input: ${bytes} bytes → output: ${d.length*4} bits (${d.length} hex chars)`;
+  const f=$('#liveFn');f.classList.remove('spin');void f.offsetWidth;f.classList.add('spin');}
+$('#liveIn').oninput=live;$('#liveAlg').onchange=live;live();
+
+// 2. avalanche
+const bitsEl=$('#avBits');for(let i=0;i<256;i++)bitsEl.appendChild(document.createElement('i'));
+const toBits=h=>[...h].flatMap(c=>parseInt(c,16).toString(2).padStart(4,'0').split('').map(Number));
+function aval(){const a=Hash.sha256($('#avA').value),b=Hash.sha256($('#avB').value);
+  const ba=toBits(a),bb=toBits(b);let diff=0;
+  [...bitsEl.children].forEach((el,i)=>{const d=ba[i]!==bb[i];diff+=d;el.className=d?'flip':(ba[i]?'on':'');});
+  $('#avHA').innerHTML='A: '+a;$('#avHB').innerHTML='B: '+[...b].map((c,i)=>c!==a[i]?`<span class="diff">${c}</span>`:c).join('');
+  const p=(diff/256*100).toFixed(1);$('#avPct').textContent=`${diff}/256 bits differ (${p}%)`;$('#avMeter').style.width=p+'%';}
+$('#avA').oninput=aval;$('#avB').oninput=aval;aval();
+
+// 6. Alice -> Bob
+const KEY='shared-secret-key';
+function hmac(k,m){// HMAC-SHA256
+  const enc=new TextEncoder();let kb=enc.encode(k);if(kb.length>64)kb=hexToBytes(Hash.sha256(kb));
+  const K=new Uint8Array(64);K.set(kb);const ip=K.map(x=>x^0x36),op=K.map(x=>x^0x5c);
+  const inner=hexToBytes(Hash.sha256(concat(ip,enc.encode(m))));return Hash.sha256(concat(op,inner));}
+function hexToBytes(h){return new Uint8Array(h.match(/../g).map(x=>parseInt(x,16)));}
+function concat(a,b){const c=new Uint8Array(a.length+b.length);c.set(a);c.set(b,a.length);return c;}
+let busy=false;
+$$('[data-mode]').forEach(b=>b.onclick=()=>{if(busy)return;busy=true;$$('[data-mode]').forEach(x=>{const on=x===b;x.classList.toggle('sel',on);x.setAttribute('aria-pressed',on);});run(b.dataset.mode);});
+function run(mode){const pkt=$('#pkt'),mal=$('#mallory'),stage=$('#stage');
+  const msg='Pay Bob 100 TL',evil='Pay Mallory 9000 TL';
+  const tag=mode==='hmac'?hmac(KEY,msg):Hash.sha256(msg);
+  const short=h=>h.slice(0,10)+'…';
+  pkt.style.transition='none';pkt.style.left='20px';pkt.classList.remove('tampered');
+  pkt.innerHTML=`📨 "${msg}" | ${mode==='hmac'?'HMAC':'hash'}: ${short(tag)}`;
+  mal.classList.toggle('active',mode!=='clean');$('#verdict').textContent='';$('#verdict').className='verdict';$('#verdictDetail').textContent='';
+  void pkt.offsetWidth;pkt.style.transition='';
+  const W=stage.clientWidth,mid=W/2-pkt.offsetWidth/2,end=W-pkt.offsetWidth-20;
+  let recvMsg=msg,recvTag=tag;
+  const finish=()=>{pkt.style.left=end+'px';setTimeout(()=>{
+      const check=mode==='hmac'?hmac(KEY,recvMsg):Hash.sha256(recvMsg);const ok=check===recvTag;
+      const v=$('#verdict');
+      if(mode==='hmac'&&recvMsg!==msg){v.textContent='✗ Bob rejects: HMAC mismatch. Mallory could not forge the tag without the key.';v.className='verdict ok';}
+      else if(ok&&recvMsg!==msg){v.textContent='✓ Bob accepts… but the message is FORGED!';v.className='verdict bad';}
+      else if(ok){v.textContent='✓ Hashes match: message accepted.';v.className='verdict ok';}
+      else{v.textContent='✗ Hash mismatch: Bob detects tampering.';v.className='verdict ok';}
+      $('#verdictDetail').textContent=`Bob computes ${mode==='hmac'?'HMAC(key, msg)':'SHA-256(msg)'} = ${short(check)} and compares with received ${short(recvTag)}.`;
+      busy=false;},1450);};
+  if(mode==='clean'){setTimeout(finish,50);return;}
+  setTimeout(()=>{pkt.style.left=mid+'px';},50);
+  setTimeout(()=>{recvMsg=evil;
+      if(mode==='recompute')recvTag=Hash.sha256(evil);
+      if(mode==='hmac')recvTag=Hash.sha256(evil); // Mallory has no key; best she can do
+      pkt.classList.add('tampered');
+      pkt.innerHTML=`📨 "${evil}" | ${mode==='hmac'?'HMAC':'hash'}: ${short(recvTag)}`;
+      setTimeout(finish,500);},1500);
+}
+
+// 8. pigeonhole
+const holes=$('#holes');let pgN=0,pgCol=false,pgTimer=null;
+function pgInit(){holes.innerHTML='';for(let i=0;i<8;i++){const d=document.createElement('div');d.className='hole';d.innerHTML=`<div class="hx">${i.toString(2).padStart(3,'0')}</div>`;holes.appendChild(d);}pgN=0;pgCol=false;$('#pgInfo').textContent='';clearInterval(pgTimer);}
+function pgAdd(){if(pgCol)return true;pgN++;const m='msg'+pgN;const h=parseInt(Hash.sha256(m)[0],16)>>1;
+  const hole=holes.children[h];const s=document.createElement('span');s.className='pg';s.textContent='🐦 '+m;hole.appendChild(s);
+  if(hole.querySelectorAll('.pg').length>1){hole.classList.add('col');pgCol=true;const names=[...hole.querySelectorAll('.pg')].map(x=>x.textContent.slice(3));
+    $('#pgInfo').innerHTML=`<b style="color:var(--bad)">Collision after ${pgN} messages:</b> ${names.join(' & ')} → ${h.toString(2).padStart(3,'0')}`;return true;}
+  $('#pgInfo').textContent=`${pgN} message(s) hashed`;return false;}
+$('#pgAdd').onclick=pgAdd;$('#pgReset').onclick=()=>{pgInit();$('#pgAuto').classList.remove('sel');};
+$('#pgAuto').onclick=()=>{clearInterval(pgTimer);$('#pgAuto').classList.add('sel');pgTimer=setInterval(()=>{if(pgAdd()){clearInterval(pgTimer);$('#pgAuto').classList.remove('sel');}},600);};
+pgInit();
+
+// 9. commitment
+let cm=null;
+const rndHex=n=>[...crypto.getRandomValues(new Uint8Array(n))].map(b=>b.toString(16).padStart(2,'0')).join('');
+$('#cmNew').onclick=()=>{const choice=Math.random()<.5?'heads':'tails';const nonce=$('#useNonce').checked?rndHex(8):'';
+  cm={choice,nonce,h:Hash.sha256(choice+nonce)};$('#cmHash').textContent=cm.h;$('#cmOut').innerHTML='';['#gH','#gT','#gCheat'].forEach(s=>{$(s).disabled=false;$(s).classList.remove('sel');});};
+function guess(g){if(!cm)return;const win=g===cm.choice;const ok=Hash.sha256(cm.choice+cm.nonce)===cm.h;
+  $('#cmOut').innerHTML=`Computer reveals: <b>${cm.choice}</b>${cm.nonce?` with nonce <code>${cm.nonce}</code>`:''}.<br>You check: SHA-256("${cm.choice}${cm.nonce}") ${ok?'<b style="color:var(--ok)">matches</b>':'does not match'} the commitment, so it did not change its mind. ${win?'🎉 You win!':'You lose this round.'}`;
+  ['#gH','#gT','#gCheat'].forEach(s=>$(s).disabled=true);}
+$('#gH').onclick=()=>{$('#gH').classList.add('sel');guess('heads');};$('#gT').onclick=()=>{$('#gT').classList.add('sel');guess('tails');};
+$('#gCheat').onclick=()=>{if(!cm)return;const hh=Hash.sha256('heads'),ht=Hash.sha256('tails');
+  let r=`SHA-256("heads") = ${hh.slice(0,16)}…<br>SHA-256("tails") = ${ht.slice(0,16)}…<br>`;
+  if(hh===cm.h||ht===cm.h)r+=`<b style="color:var(--bad)">Match! The commitment leaks the answer: it is "${hh===cm.h?'heads':'tails'}". Without a nonce the scheme is useless.</b>`;
+  else r+=`<b style="color:var(--ok)">No match.</b> The random nonce hides the choice, so the cheat fails. Now make a fair guess.`;
+  $('#cmOut').innerHTML=r;$('#gCheat').classList.add('sel');$('#gCheat').disabled=true;};
+
+// 10. passwords
+const users=[['alice','123456','a1f9'],['bob','sunshine','7c02'],['carol','123456','e93b'],['dave','Tr0ub4dor&3','05d7']];
+function pw(mode){$$('[data-pw]').forEach(b=>{b.classList.toggle('sel',b.dataset.pw===mode);b.setAttribute('aria-pressed',b.dataset.pw===mode);});
+  let head='<tr><th>user</th>'+(mode==='salt'?'<th>salt</th>':'')+`<th>${mode==='plain'?'password':'stored value'}</th></tr>`;
+  const vals=users.map(([u,p,s])=>mode==='plain'?p:mode==='hash'?Hash.sha256(p):Hash.sha256(s+p));
+  const dup=v=>vals.filter(x=>x===v).length>1;
+  $('#pwTable').innerHTML=head+users.map(([u,p,s],i)=>`<tr><td>${u}</td>${mode==='salt'?`<td class="mono">${s}</td>`:''}<td class="mono" style="word-break:break-all;${dup(vals[i])?'background:var(--hl)':''}">${mode==='plain'?esc(vals[i]):vals[i].slice(0,32)+'…'}</td></tr>`).join('');
+  $('#pwNote').textContent={plain:'Anyone who steals this table knows every password immediately.',
+    hash:'Better, but alice and carol have the SAME hash (highlighted): they share a password. And 8d969eef… is the well-known SHA-256 of "123456"; a simple lookup reveals it.',
+    salt:'Each user has a random salt, so identical passwords now produce different hashes and precomputed tables no longer work.'}[mode];}
+$$('[data-pw]').forEach(b=>b.onclick=()=>pw(b.dataset.pw));pw('hash');
+
+// 11. dictionary attack
+const words=['password','123456','qwerty','letmein','iloveyou','admin','welcome','monkey','dragon','football','sunshine','princess','abc123','shadow','master','arel2026','hunter2','trustno1','superman','batman','starwars','freedom','whatever','computer'];
+const targets=['sunshine','hunter2','arel2026','Tr0ub4dor&3'];
+targets.forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent='leaked hash of: '+(t==='Tr0ub4dor&3'?'(a password not in the list)':'user #'+(targets.indexOf(t)+1));$('#daTarget').appendChild(o);});
+const salted=()=>$('#daSalt').checked?'x9Q2':'';
+function daShow(){const t=$('#daTarget').value;$('#daHash').textContent=Hash.sha256(salted()+t);
+  $('#wl').innerHTML=words.map(w=>`<div><span>${w}</span><span></span></div>`).join('');$('#daOut').textContent='';$('#wl').scrollTop=0;}
+$('#daTarget').onchange=daShow;$('#daSalt').onchange=daShow;daShow();
+let daT=null;
+$('#daRun').onclick=()=>{clearInterval(daT);daShow();const target=$('#daHash').textContent;const rows=[...$('#wl').children];let i=0;$('#daRun').disabled=true;$('#daRun').classList.add('sel');
+  const useSalt=$('#daSalt').checked;
+  daT=setInterval(()=>{rows.forEach(r=>r.classList.remove('cur'));
+    if(i>=rows.length){clearInterval(daT);$('#daRun').disabled=false;$('#daRun').classList.remove('sel');$('#daOut').className='verdict ok';
+      $('#daOut').textContent='✗ Wordlist exhausted: password not found. Strong, uncommon passwords survive dictionary attacks.';return;}
+    const r=rows[i],w=words[i],h=Hash.sha256((useSalt?'x9Q2':'')+w);r.lastChild.textContent=h.slice(0,18)+'…';
+    r.classList.add('cur');$('#wl').scrollTop=Math.max(0,r.offsetTop-70);
+    if(h===target){clearInterval(daT);r.classList.remove('cur');r.classList.add('hit');$('#daRun').disabled=false;$('#daRun').classList.remove('sel');$('#daOut').className='verdict bad';
+      $('#daOut').textContent=`✓ Cracked after ${i+1} guesses: the password is "${w}".`+(useSalt?' (The salt is stored with the hash, so the attacker just includes it. Salting stops precomputation, not per-user guessing.)':'');}
+    i++;},260);};
+
+// 9. birthday paradox
+(()=>{const N=365,W=600,H=250,L=40,R=12,T=12,B=30,MAXK=100;
+const X=k=>L+(k-0)/(MAXK)*(W-L-R),Y=p=>T+(1-p)*(H-T-B);
+const pAny=k=>{let q=1;for(let i=0;i<k;i++)q*=(1-i/N);return 1-q;};
+const pMe=k=>1-Math.pow((N-1)/N,k);
+const svg=$('#bdChart');
+let g='';
+for(let p=0;p<=1.001;p+=.25)g+=`<line x1="${L}" x2="${W-R}" y1="${Y(p)}" y2="${Y(p)}" style="stroke:var(--line)"/><text x="${L-6}" y="${Y(p)+4}" text-anchor="end">${Math.round(p*100)}%</text>`;
+for(let k=0;k<=MAXK;k+=10)g+=`<text x="${X(k)}" y="${H-10}" text-anchor="middle">${k}</text>`;
+const path=f=>{let d='';for(let k=1;k<=MAXK;k++)d+=(k===1?'M':'L')+X(k).toFixed(1)+','+Y(f(k)).toFixed(1);return d;};
+g+=`<path d="${path(pAny)}" fill="none" style="stroke:var(--acc)" stroke-width="2.5"/>`;
+g+=`<path d="${path(pMe)}" fill="none" style="stroke:var(--warn)" stroke-width="2.5" stroke-dasharray="6 4"/>`;
+g+=`<line id="bdV" y1="${T}" y2="${H-B}" style="stroke:var(--mute)" stroke-dasharray="3 3"/><circle id="bdA" r="5" style="fill:var(--acc)"/><circle id="bdM" r="5" style="fill:var(--warn)"/>`;
+svg.innerHTML=g;
+function upd(){const k=+$('#bdSlider').value;$('#bdK').textContent=k;
+  const a=pAny(k),m=pMe(k-1);
+  $('#bdV').setAttribute('x1',X(k));$('#bdV').setAttribute('x2',X(k));
+  $('#bdA').setAttribute('cx',X(k));$('#bdA').setAttribute('cy',Y(a));
+  $('#bdM').setAttribute('cx',X(k));$('#bdM').setAttribute('cy',Y(m));
+  $('#bdRead').innerHTML=`any pair: <b style="color:var(--acc)">${(a*100).toFixed(1)}%</b> · matches you: <b style="color:var(--warn)">${(m*100).toFixed(1)}%</b> · pairs: ${k*(k-1)/2}`;}
+$('#bdSlider').oninput=upd;upd();
+
+// calendar simulation
+const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],mlen=[31,28,31,30,31,30,31,31,30,31,30,31];
+const cal=$('#cal');const cells=[];
+mlen.forEach((n,mi)=>{for(let d=0;d<31;d++){const i=document.createElement('i');if(d>=n)i.style.visibility='hidden';else{i.title=`${months[mi]} ${d+1}`;cells.push(i);}cal.appendChild(i);}});
+const dname=x=>cells[x].title;
+let seen=new Map(),count=0,done=false,timer=null;
+function reset(){clearInterval(timer);seen=new Map();count=0;done=false;cells.forEach(c=>c.className='');$('#bdOut').textContent='';$('#bdOut').className='verdict';$('#bdFill').classList.remove('sel');$('#bdStep').disabled=$('#bdFill').disabled=false;}
+function step(){if(done)return true;count++;const d=Math.floor(Math.random()*N);
+  if(seen.has(d)){cells[d].className='c';done=true;clearInterval(timer);$('#bdFill').classList.remove('sel');
+    $('#bdOut').className='verdict bad';$('#bdOut').textContent=`Collision! Person ${count} has the same birthday as person ${seen.get(d)} (${dname(d)}). Room size: ${count}.`;
+    $('#bdStep').disabled=$('#bdFill').disabled=true;return true;}
+  seen.set(d,count);cells[d].className='p';$('#bdOut').className='verdict';$('#bdOut').textContent=`${count} people, all birthdays different so far (P = ${((1-pAny(count))*100).toFixed(1)}%)`;return false;}
+$('#bdStep').onclick=()=>step();
+$('#bdFill').onclick=()=>{if(done)reset();clearInterval(timer);$('#bdFill').classList.add('sel');timer=setInterval(()=>{if(step())clearInterval(timer);},220);};
+$('#bdReset').onclick=reset;
+$('#bdMany').onclick=()=>{const runs=2000,hist=new Array(MAXK+1).fill(0);let sum=0,le23=0;const all=[];
+  for(let r=0;r<runs;r++){const s=new Set();let k=0;while(true){k++;const d=Math.floor(Math.random()*N);if(s.has(d))break;s.add(d);}hist[Math.min(k,MAXK)]++;sum+=k;all.push(k);if(k<=23)le23++;}
+  all.sort((a,b)=>a-b);
+  const hs=$('#bdHist');hs.style.display='block';const mx=Math.max(...hist),HW=600,HH=170,bw=(HW-50)/90;
+  let o='';for(let k=1;k<=90;k++){const h=hist[k]/mx*(HH-35);o+=`<rect x="${40+(k-1)*bw}" y="${HH-22-h}" width="${bw-1}" height="${h}" style="fill:${k<=23?'var(--acc)':'var(--line)'}"><title>${k} people: ${hist[k]} rooms</title></rect>`;}
+  for(let k=0;k<=90;k+=10)o+=`<text x="${40+(k-.5)*bw}" y="${HH-6}" text-anchor="middle">${k}</text>`;
+  o+=`<text x="40" y="12">rooms where the first collision happened at size k (blue: k ≤ 23)</text>`;
+  hs.innerHTML=o;
+  $('#bdStats').innerHTML=`Average room size at first collision: <b>${(sum/runs).toFixed(1)}</b> (theory ≈ 24.6) · median: <b>${all[runs>>1]}</b> · collision with ≤ 23 people: <b>${(le23/runs*100).toFixed(1)}%</b> (theory 50.7%)`;
+  $$('#bdStep,#bdFill,#bdReset').forEach(b=>b.classList.remove('sel'));$('#bdMany').classList.add('sel');setTimeout(()=>$('#bdMany').classList.remove('sel'),600);};
+reset();
+
+// truncated hash birthday attack
+const pred=()=>{const n=+$('#baBits').value;$('#baPred').innerHTML=`2<sup>${n}</sup> = ${(2**n).toLocaleString()} possible outputs. Birthday estimate: ≈ 1.25·2<sup>${n/2}</sup> ≈ <b>${Math.round(1.2533*2**(n/2)).toLocaleString()}</b> hashes. A second preimage would need ≈ ${(2**n).toLocaleString()}.`;};
+$('#baBits').onchange=pred;pred();
+let baRun=0;
+$('#baRun').onclick=()=>{const n=+$('#baBits').value,hc=n/4,exp=1.2533*2**(n/2);const tag=Math.random().toString(36).slice(2,6);baRun++;
+  const seen=new Map();let i=0;$('#baRun').disabled=true;$('#baRun').classList.add('sel');$('#baBits').disabled=true;$('#baOut').innerHTML='';
+  const chunk=()=>{const end=i+1500;while(i<end){const m=`contract-${tag}-${i}`;const h=Hash.sha256(m);const k=h.slice(0,hc);
+      if(seen.has(k)){const m1=seen.get(k);
+        $('#baMeter').style.width='100%';
+        $('#baOut').innerHTML=`<b style="color:var(--bad)">Collision after ${(i+1).toLocaleString()} hashes</b> (prediction ≈ ${Math.round(exp).toLocaleString()})<div class="digest" style="margin-top:6px">"${m1}" → <span class="diff">${k}</span>${Hash.sha256(m1).slice(hc,hc+12)}…<br>"${m}" → <span class="diff">${k}</span>${h.slice(hc,hc+12)}…</div>`;
+        const t=$('#baTable');t.style.display='';t.insertAdjacentHTML('beforeend',`<tr><td>${n}</td><td>${(2**n).toLocaleString()}</td><td><b>${(i+1).toLocaleString()}</b></td><td>${(2**(n/2)).toLocaleString()}</td></tr>`);
+        $('#baRun').disabled=false;$('#baRun').classList.remove('sel');$('#baBits').disabled=false;return;}
+      seen.set(k,m);i++;}
+    $('#baMeter').style.width=Math.min(95,i/(exp*2)*100)+'%';$('#baOut').textContent=`hashed ${i.toLocaleString()} messages, no collision yet…`;setTimeout(chunk,0);};
+  $('#baMeter').style.width='0';chunk();};
+})();
+
+// Quiz
+const Q=[
+ ['What is the defining size property of a hash function\'s output?',['It grows with the input','It is fixed regardless of input length','It is always 128 bits','It is half the input length'],1,'A hash maps variable-size input to a fixed-size digest (e.g. 256 bits for SHA-256).'],
+ ['How many hexadecimal characters are needed to display a SHA-256 digest?',['32','40','64','256'],2,'Each hex character encodes 4 bits: 256 / 4 = 64.'],
+ ['Changing one character of the input changes about half of the output bits. This is called…',['the pigeonhole principle','the avalanche effect','salting','length extension'],1,'The avalanche effect makes outputs of similar inputs look unrelated.'],
+ ['Given only a digest z, finding any x with h(x) = z should be infeasible. Which property is this?',['Preimage resistance','Second-preimage resistance','Collision resistance','Determinism'],0,'Preimage resistance is the "one-way" property.'],
+ ['Given a message m1, finding a different m2 with h(m1) = h(m2) should be hard. This is…',['Preimage resistance','Second-preimage resistance','Collision resistance','The birthday bound'],1,'Second-preimage resistance fixes the first message; collision resistance lets the attacker choose both.'],
+ ['Why must collisions exist for every hash function?',['Because hash functions are reversible','Because of the avalanche effect','Because infinitely many inputs map to only 2ⁿ outputs (pigeonhole)','Because of weak implementations'],2,'More pigeons than holes means some hole holds two pigeons.'],
+ ['Roughly how many hashes must an attacker compute to find a collision in an ideal n-bit hash?',['2ⁿ','2ⁿ⁄²','n²','n'],1,'The birthday paradox gives about 2^(n/2), e.g. 2^128 for SHA-256.'],
+ ['Alice sends a message with its plain SHA-256 hash. Mallory changes the message and recomputes the hash. What happens?',['Bob detects the change','Bob accepts the forged message','The hash cannot be recomputed','SHA-256 refuses to run'],1,'A plain hash has no secret. To authenticate, use a MAC (e.g. HMAC with a shared key) or a digital signature.'],
+ ['What is the main purpose of a per-user random salt in password storage?',['To encrypt the password','To keep the password secret from the server','To make identical passwords hash differently and defeat precomputed tables','To make the hash shorter'],2,'Salts are not secret; they force attackers to work on each user separately.'],
+ ['Which is the most appropriate choice for hashing passwords today?',['MD5','Plain SHA-1','Argon2 / bcrypt / scrypt','CRC32'],2,'Password hashing should be salted and deliberately slow; Argon2, bcrypt, scrypt and PBKDF2 are designed for this.'],
+ ['In a coin-flip commitment, why is publishing SHA-256("heads") insecure?',['SHA-256 is broken','The other player can hash both options and compare','Hashes are too long to share','It reveals the private key'],1,'With only two possible inputs, preimage resistance doesn\'t help. Add a random nonce: h(choice ‖ nonce).'],
+ ['Which statement about SHA-1 is correct?',['It produces 256-bit digests','Practical collisions have been found, so it is not secure','It was selected by the SHA-3 competition','It uses a sponge construction'],1,'SHA-1 (160-bit) has known practical collisions (SHAttered, 2017). Git still uses it for object IDs.'],
+ ['How many people are needed in a room for a better than 50% chance that two share a birthday?',['183','23','365','253'],1,'With 23 people there are 253 pairs. Collisions appear after about 1.18·√365 ≈ 23 samples.'],
+ ['A system needs 128 bits of security against collisions. What is the minimum digest length?',['64 bits','128 bits','256 bits','512 bits'],2,'Because of the birthday bound, an n-bit hash gives only n/2 bits of collision resistance: 256 / 2 = 128.'],
+ ['What does a dictionary attack do?',['Inverts the hash function mathematically','Hashes likely candidate passwords and compares with the target','Finds collisions using the birthday paradox','Decrypts the database'],1,'There is no inverse, so attackers guess: hash each word from a list such as rockyou.txt and compare.'],
+ ['What is a key structural difference of SHA-3 compared to SHA-2?',['It outputs only 128 bits','It uses the sponge construction (Keccak)','It was designed by Ron Rivest','It has no fixed output size'],1,'SHA-3 is based on Keccak\'s sponge construction, which also makes it resistant to length-extension attacks.']
+];
+let answered={};
+function shuffleQ(){Q.forEach(q=>{const c=q[1][q[2]];const o=q[1].slice();for(let i=o.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[o[i],o[j]]=[o[j],o[i]];}q[1]=o;q[2]=o.indexOf(c);});}
+function quiz(){shuffleQ();answered={};$('#quizBox').innerHTML=Q.map((q,i)=>`<div class="q" id="q${i}"><p>${i+1}. ${q[0]}</p>${q[1].map((o,j)=>`<label><input type="radio" name="q${i}" value="${j}"> ${o}</label>`).join('')}<div class="exp">${q[3]}</div></div>`).join('');
+  $$('#quizBox input').forEach(inp=>inp.onchange=()=>{const i=+inp.name.slice(1);if(i in answered)return;const j=+inp.value;answered[i]=j===Q[i][2];
+    const box=$('#q'+i);box.classList.add('done');const ls=box.querySelectorAll('label');ls[Q[i][2]].classList.add('right');if(j!==Q[i][2])ls[j].classList.add('wrong');
+    box.querySelectorAll('input').forEach(x=>x.disabled=true);score();});score();}
+function score(){const n=Object.keys(answered).length,c=Object.values(answered).filter(Boolean).length;
+  $('#score').textContent=n===Q.length?`Final score: ${c} / ${Q.length} ${c>=Q.length*.8?'🎉':''}`:`Score: ${c} / ${n} answered (of ${Q.length})`;}
+$('#qReset').onclick=quiz;quiz();
+</script></body></html>
