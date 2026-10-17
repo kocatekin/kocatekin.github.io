@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Felsefenin konuşulduğu odalar</title>
+<style>
+:root {
+  --paper: #ECEFEA;
+  --surface: #F7F8F5;
+  --ink: #1B2430;
+  --muted: #56616C;
+  --green: #2D5B4E;
+  --ochre: #9A6A1A;
+  --rule: #C9D0C9;
+  --serif: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, "Noto Serif", Georgia, serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #121816;
+    --surface: #19211E;
+    --ink: #E3E8E3;
+    --muted: #9AA59F;
+    --green: #8CC1AD;
+    --ochre: #D9AA58;
+    --rule: #2E3934;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #121816; --surface: #19211E; --ink: #E3E8E3; --muted: #9AA59F;
+  --green: #8CC1AD; --ochre: #D9AA58; --rule: #2E3934; color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: inherit; }
+html { scroll-behavior: smooth; scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 1.5rem); }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 1.125rem;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--green); text-underline-offset: 3px; }
+a:focus-visible { outline: 2px solid var(--ochre); outline-offset: 3px; border-radius: 2px; }
+
+/* Başlık */
+.hero {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: clamp(3rem, 9vw, 6.5rem) 1.5rem 2rem;
+}
+.hero h1 {
+  font-size: clamp(2.6rem, 7vw, 5rem);
+  line-height: 1.02;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0 0 1.5rem;
+  max-width: 14ch;
+}
+.hero p {
+  font-size: clamp(1.15rem, 2vw, 1.35rem);
+  color: var(--muted);
+  max-width: 44rem;
+  margin: 0;
+}
+
+/* Kronoloji şeridi */
+.timeline-wrap {
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  background: var(--surface);
+}
+.timeline {
+  list-style: none;
+  margin: 0 auto;
+  padding: 1.75rem 1.5rem 1.5rem;
+  max-width: 1120px;
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  position: relative;
+}
+.timeline li { flex: 0 0 auto; scroll-snap-align: start; }
+.timeline a {
+  display: block;
+  width: 9.5rem;
+  padding: 0 1.25rem 0 0;
+  text-decoration: none;
+  color: var(--ink);
+  position: relative;
+}
+.timeline a::before {
+  content: "";
+  display: block;
+  height: 1px;
+  background: var(--rule);
+  margin: 0 0 0.9rem;
+  position: relative;
+}
+.timeline a::after {
+  content: "";
+  position: absolute;
+  top: -4px;
+  left: 0;
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: var(--ochre);
+}
+.timeline .yr {
+  display: block;
+  font-size: 1.9rem;
+  font-weight: 600;
+  color: var(--ochre);
+  line-height: 1;
+  margin-bottom: 0.4rem;
+  font-variant-numeric: oldstyle-nums;
+}
+.timeline .ev {
+  display: block;
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: var(--muted);
+}
+.timeline a:hover .ev, .timeline a:focus-visible .ev { color: var(--ink); }
+.timeline-note {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 1.5rem 1rem;
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* Düzen */
+.layout {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 5rem;
+  display: grid;
+  grid-template-columns: 13rem minmax(0, 1fr);
+  gap: 4rem;
+}
+nav.toc {
+  position: sticky;
+  top: calc(env(safe-area-inset-top, 0px) + 2rem);
+  align-self: start;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+}
+nav.toc ol { list-style: none; margin: 0; padding: 0; }
+nav.toc li { margin: 0 0 0.55rem; }
+nav.toc a { color: var(--muted); text-decoration: none; }
+nav.toc a:hover { color: var(--green); }
+main { max-width: 42rem; }
+
+section { margin-bottom: 4.5rem; }
+section > h2 {
+  font-size: clamp(1.8rem, 3.5vw, 2.4rem);
+  line-height: 1.15;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.75rem;
+}
+section > .intro {
+  color: var(--muted);
+  font-size: 1.15rem;
+  margin: 0 0 2.25rem;
+}
+article {
+  padding-top: 1.75rem;
+  margin-top: 1.75rem;
+  border-top: 1px solid var(--rule);
+}
+section > article:first-of-type { margin-top: 0; }
+article h3 {
+  font-size: 1.45rem;
+  line-height: 1.25;
+  font-weight: 600;
+  margin: 0 0 0.3rem;
+}
+.meta {
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 0 0 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+}
+.meta .when { color: var(--ochre); font-weight: 600; }
+p { margin: 0 0 1.1rem; hyphens: auto; }
+em { font-style: italic; }
+
+.moment {
+  margin: 1.5rem 0 0.5rem;
+  padding: 1rem 1.25rem 0.25rem;
+  border-left: 3px solid var(--green);
+  background: var(--surface);
+}
+.moment h4 {
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--green);
+  margin: 0 0 0.4rem;
+}
+.moment p { font-size: 1.05rem; }
+
+.opening p:first-child::first-letter {
+  float: left;
+  font-size: 4.2rem;
+  line-height: 0.85;
+  padding: 0.35rem 0.6rem 0 0;
+  color: var(--green);
+  font-weight: 600;
+}
+
+ul.reading { padding-left: 1.2rem; margin: 0; }
+ul.reading li { margin-bottom: 0.8rem; }
+ul.reading .why { display: block; color: var(--muted); font-size: 1rem; }
+
+footer {
+  border-top: 1px solid var(--rule);
+  padding: 2rem 1.5rem 3rem;
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+@media (max-width: 860px) {
+  .layout { grid-template-columns: minmax(0, 1fr); gap: 2rem; padding-top: 2rem; }
+  nav.toc { position: static; }
+  nav.toc ol { display: flex; flex-wrap: wrap; gap: 0.4rem 1.1rem; }
+  nav.toc li { margin: 0; }
+  body { font-size: 1.06rem; }
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <h1>Felsefenin konuşulduğu odalar</h1>
+  <p>Pierre Hadot “Wittgenstein üzerine bir konferans verdim” dediğinde neyi kastediyordu? Avrupa’da fikirlerin yüz yüze sınandığı dernekler, kulüpler, kolejler, seminerler ve uzun yaz buluşmaları üzerine bir rehber.</p>
+</header>
+
+<div class="timeline-wrap">
+  <ol class="timeline" aria-label="Kronoloji">
+    <li><a href="#college-de-france"><span class="yr">1530</span><span class="ev">Collège de France kuruluyor</span></a></li>
+    <li><a href="#ephe"><span class="yr">1868</span><span class="ev">EPHE ve seminer modeli</span></a></li>
+    <li><a href="#moral-sciences"><span class="yr">1878</span><span class="ev">Cambridge Moral Sciences Club</span></a></li>
+    <li><a href="#aristotelian"><span class="yr">1880</span><span class="ev">Aristotelian Society, Londra</span></a></li>
+    <li><a href="#sfp"><span class="yr">1901</span><span class="ev">Fransız Felsefe Derneği</span></a></li>
+    <li><a href="#pontigny"><span class="yr">1910</span><span class="ev">Pontigny’de ilk on günlükler</span></a></li>
+    <li><a href="#viyana"><span class="yr">1924</span><span class="ev">Schlick’in perşembe akşamları</span></a></li>
+    <li><a href="#davos"><span class="yr">1929</span><span class="ev">Davos: Heidegger ve Cassirer</span></a></li>
+    <li><a href="#ephe"><span class="yr">1933</span><span class="ev">Kojève’in Hegel semineri başlıyor</span></a></li>
+    <li><a href="#istanbul"><span class="yr">1933</span><span class="ev">Reichenbach İstanbul’da</span></a></li>
+    <li><a href="#college-sociologie"><span class="yr">1937</span><span class="ev">Collège de sociologie</span></a></li>
+    <li><a href="#moral-sciences"><span class="yr">1946</span><span class="ev">Popper, Wittgenstein ve maşa</span></a></li>
+    <li><a href="#cerisy"><span class="yr">1955</span><span class="ev">Heidegger Cerisy’de</span></a></li>
+    <li><a href="#royaumont"><span class="yr">1958</span><span class="ev">Royaumont’ta analitik felsefe</span></a></li>
+    <li><a href="#college-philosophique"><span class="yr">1963</span><span class="ev">Derrida, Foucault’yu eleştiriyor</span></a></li>
+    <li><a href="#sfp"><span class="yr">1969</span><span class="ev">Foucault: “Yazar nedir?”</span></a></li>
+    <li><a href="#college-de-france"><span class="yr">1982</span><span class="ev">Hadot, Collège de France’ta</span></a></li>
+  </ol>
+  <p class="timeline-note">Şeridi yana kaydırabilirsiniz; her tarih ilgili bölüme götürür.</p>
+</div>
+
+<div class="layout">
+  <nav class="toc" aria-label="İçindekiler">
+    <ol>
+      <li><a href="#kelime">Önce bir kelime</a></li>
+      <li><a href="#dernekler">Dernekler</a></li>
+      <li><a href="#kulupler">Kulüpler ve çevreler</a></li>
+      <li><a href="#kolejler">Açık kolejler</a></li>
+      <li><a href="#seminerler">Dersler ve seminerler</a></li>
+      <li><a href="#bulusmalar">Uzun buluşmalar</a></li>
+      <li><a href="#istanbul">Bir dipnot: İstanbul</a></li>
+      <li><a href="#ortak">Ortak noktalar</a></li>
+      <li><a href="#bugun">Bugün nerede?</a></li>
+      <li><a href="#okuma">Okuma önerileri</a></li>
+    </ol>
+  </nav>
+
+  <main>
+
+    <section id="kelime" class="opening">
+      <h2>Önce bir kelime</h2>
+      <p>Fransızcada <em>conférence</em>, bizim “konferans” dediğimiz yüzlerce kişilik, çok günlük, paralel oturumlu etkinlik değildir. Kelime düpedüz bir konuşmayı, bir dersi, tek kişinin bir salonda bir saat kadar bir konuyu anlatıp ardından dinleyicilerle tartışmasını anlatır. İngilizcede buna <em>lecture</em> ya da <em>talk</em>, Almancada <em>Vortrag</em> denir.</p>
+      <p>Hadot örneğinde ufak bir düzeltme de gerekiyor: Hadot, Wittgenstein’la bizzat çalışmadı. Wittgenstein 1951’de öldü. Hadot onun metinlerini 1950’lerin sonunda kendi başına okudu, çok etkilendi ve Fransa’da Wittgenstein üzerine yazan ilk kişilerden biri oldu. Bu dönemde yazdığı makaleler yıllar sonra <em>Wittgenstein et les limites du langage</em> adıyla bir araya getirildi. Yani “Wittgenstein’la çalıştım” burada “Wittgenstein üzerinde çalıştım” anlamına geliyor.</p>
+      <p>Bu sayfadaki kurumlar, Hadot gibi birinin yeni bir okumayla heyecanlandığında onu anlatabileceği yerlerdi.</p>
+    </section>
+
+    <section id="dernekler">
+      <h2>Dernekler</h2>
+      <p class="intro">Tezini sun, itirazları göğüsle, her şey kayda geçsin.</p>
+
+      <article id="sfp">
+        <h3>Société française de philosophie</h3>
+        <div class="meta"><span class="when">1901’den bugüne</span><span>Paris</span></div>
+        <p>Fransız Felsefe Derneği, <em>Revue de métaphysique et de morale</em> dergisinin de kurucusu olan Xavier Léon ile Léon Brunschvicg’in öncülüğünde kuruldu. İşleyişi bir asırdır pek değişmedi: konuşmacı, savunacağı fikri birkaç maddelik bir tez özeti halinde önceden üyelere gönderir. Toplantı günü bu tezleri açar, ardından salondaki filozoflar söz alır, itiraz eder, soru sorar.</p>
+        <p>Asıl değerli olan, bütün tartışmanın tutanağa geçmesi ve derneğin <em>Bulletin</em>’inde yayımlanmasıdır. Böylece bir fikrin ilk halini ve ona yöneltilen ilk itirazları, konuşanların kendi sözleriyle okuyabiliyorsunuz. André Lalande’ın bugün hâlâ başvurulan felsefe sözlüğü <em>Vocabulaire technique et critique de la philosophie</em> da bu çatı altında, maddeleri tek tek tartışılarak yirmi yılı aşkın bir sürede hazırlandı.</p>
+        <p>Felsefe tarihinin bazı ünlü metinleri aslında burada yapılmış konuşmalardır: Merleau-Ponty’nin “Algının önceliği” (1946), Deleuze’ün “Dramatizasyon yöntemi” (1967), Foucault’nun “Yazar nedir?” (1969).</p>
+        <div class="moment">
+          <h4>Şubat 1969</h4>
+          <p>Foucault “Yazar nedir?” konuşmasını yaptığında tartışmaya Lucien Goldmann ve Jacques Lacan da katıldı. Goldmann yapısalcılığı eleştirdi, Lacan ise kısa bir müdahaleyle Freud’a dönüşün de bir “yazara dönüş” sorunu olduğunu hatırlattı. Bu alışveriş bugün de tutanaklarda okunabiliyor.</p>
+        </div>
+      </article>
+
+      <article id="aristotelian">
+        <h3>Aristotelian Society</h3>
+        <div class="meta"><span class="when">1880’den bugüne</span><span>Londra</span></div>
+        <p>İngiltere’deki karşılık. Londra’da düzenli akşam toplantıları yapılır: biri makalesini okur, ardından tartışılır, makaleler derneğin <em>Proceedings</em> dergisinde yayımlanır. Bir de her yaz Mind Association ile birlikte düzenlenen “Joint Session” vardır; her yıl farklı bir İngiliz üniversitesinde toplanan bu buluşma, yüzyılı aşkın süredir İngiliz felsefesinin yıllık randevusu sayılır.</p>
+      </article>
+    </section>
+
+    <section id="kulupler">
+      <h2>Kulüpler ve çevreler</h2>
+      <p class="intro">Daha küçük, daha samimi, çoğu zaman daha sert.</p>
+
+      <article id="moral-sciences">
+        <h3>Cambridge Moral Sciences Club</h3>
+        <div class="meta"><span class="when">1878’den bugüne</span><span>Cambridge</span></div>
+        <p>Cambridge’de felsefe öğrencileri ve hocalarının haftalık tartışma kulübü. Biri bir makale okur, sonra herkes söz alır. Russell, Moore ve Wittgenstein buranın müdavimleriydi; 1940’larda kulübün başında Wittgenstein vardı ve tartışmalara hâkim olmasıyla biliniyordu.</p>
+        <div class="moment">
+          <h4>25 Ekim 1946</h4>
+          <p>Karl Popper “Felsefi problemler var mı?” başlıklı bir konuşma yapmaya davet edildi. Wittgenstein felsefede gerçek problemler olmadığını, yalnızca dilsel bulmacalar olduğunu savunuyordu; Popper tam tersini. Tartışma kızıştı, Wittgenstein’ın elinde şöminenin maşasıyla konuştuğu ve sonunda odayı terk ettiği anlatılır. Salonda Russell da vardı. On dakika süren bu karşılaşmayı tanıklar birbirinden çok farklı aktardı ve tek bir akşam üzerine koca bir kitap yazıldı.</p>
+        </div>
+      </article>
+
+      <article id="viyana">
+        <h3>Viyana Çevresi</h3>
+        <div class="meta"><span class="when">1924–1936</span><span>Viyana</span></div>
+        <p>Moritz Schlick 1924’ten itibaren perşembe akşamları üniversitedeki küçük bir odada bir grup insanı topluyordu: filozoflar, matematikçiler, fizikçiler, sosyologlar. Carnap, Neurath, Waismann düzenli katılanlardandı; genç Kurt Gödel de oradaydı. Wittgenstein’ın <em>Tractatus</em>’u bu toplantılarda cümle cümle okunup tartışıldı.</p>
+        <p>Wittgenstein’ın kendisi grubun toplantılarına katılmadı, ama Schlick ve Waismann’la ayrıca görüştü. Anlatılan bir karşılaşmada felsefe konuşmak yerine sırtını dinleyicilere dönüp Tagore’dan şiir okumuştu.</p>
+        <p>Resmi bir statüsü olmayan bu toplantılar 1929’da bir manifesto yayımladı ve yirminci yüzyılın en etkili felsefe akımlarından birini, mantıkçı pozitivizmi doğurdu. Son, sert oldu: Schlick 1936’da üniversitenin merdivenlerinde eski bir öğrencisi tarafından öldürüldü, 1938’de Avusturya’nın ilhakıyla üyelerin çoğu ülkeyi terk etti.</p>
+      </article>
+
+      <article id="austin">
+        <h3>Austin’in cumartesi sabahları</h3>
+        <div class="meta"><span class="when">1940’ların sonu–1960</span><span>Oxford</span></div>
+        <p>J. L. Austin, savaştan sonra her cumartesi sabahı genç Oxford hocalarından oluşan küçük bir grubu toplardı. Konuyu o seçerdi: bazen Aristoteles’ten ya da Frege’den bir metin, bazen gündelik bir kelimenin, mesela “mazeret”in ya da “kazara” ile “yanlışlıkla” arasındaki farkın bütün kullanımları. Saatler süren bu titiz didikleme, “gündelik dil felsefesi” denen yaklaşımın atölyesiydi. Toplantılar Austin’in 1960’taki ölümüyle sona erdi.</p>
+      </article>
+    </section>
+
+    <section id="kolejler">
+      <h2>Açık kolejler</h2>
+      <p class="intro">Üniversitenin dışında, diploması olmayan kürsüler.</p>
+
+      <article id="college-philosophique">
+        <h3>Collège philosophique</h3>
+        <div class="meta"><span class="when">Savaş sonrası</span><span>Paris</span><span>Kurucusu Jean Wahl</span></div>
+        <p>Jean Wahl’ın savaştan hemen sonra kurduğu bu yapının kaydı, sınavı, diploması yoktu; bir salon ve davet edilen konuşmacılar vardı. Sorbonne’un ağır ve tutucu yapısında yer bulamayan yeni düşünceler burada konuşuluyordu. Levinas’ın bugün <em>Zaman ve Öteki</em> adıyla okunan metni, aslında burada verdiği derslerdir.</p>
+        <div class="moment">
+          <h4>Mart 1963</h4>
+          <p>Genç Derrida, hocası Foucault’nun <em>Delilik Tarihi</em>’ni, özellikle de Descartes yorumunu eleştiren “Cogito ve Delilik Tarihi” konuşmasını burada yaptı. Foucault salondaydı. O akşam nazik geçti, ama metin yayımlandıktan sonra Foucault’nun sert bir yanıt vermesiyle ikisi arasında yıllarca sürecek bir kırgınlık başladı.</p>
+        </div>
+      </article>
+
+      <article id="college-sociologie">
+        <h3>Collège de sociologie</h3>
+        <div class="meta"><span class="when">1937–1939</span><span>Paris</span></div>
+        <p>Georges Bataille, Roger Caillois ve Michel Leiris’in kurduğu, adı “kolej” ama kendisi bir kurumdan çok bir deney olan topluluk. Latin Mahallesi’nde bir kitapçının arka salonunda toplanıp kutsal, iktidar, ritüel, bayram, gizli topluluklar gibi konularda konuşmalar yaptılar. Konuşmacılar arasında Kojève ve Walter Benjamin’in adı da geçer. Savaşın başlamasıyla dağıldı ama izi Fransız düşüncesinde uzun süre kaldı.</p>
+      </article>
+    </section>
+
+    <section id="seminerler">
+      <h2>Dersler ve seminerler</h2>
+      <p class="intro">Bir hocanın etrafında yıllarca süren yavaş okuma.</p>
+
+      <article id="college-de-france">
+        <h3>Collège de France</h3>
+        <div class="meta"><span class="when">1530’dan bugüne</span><span>Paris</span></div>
+        <p>Kral I. François’nın kurduğu kurumun felsefesi şaşırtıcı derecede basit: hocalar her yıl <em>yeni</em> araştırmalarını anlatmak zorundadır, dersler herkese açıktır, öğrencisi, kaydı ve diploması yoktur. Sokaktan içeri giren herkes dinleyebilir.</p>
+        <p>Bergson’un cuma derslerine o kadar kalabalık gelirdi ki, yer tutmak için saatler önceden salona girilirdi; ders, bir önceki dersin dinleyicileriyle dolardı. Merleau-Ponty, Lévi-Strauss, Barthes ve Foucault burada ders verdi. Foucault’nun dersleri teyp kayıtlarından yıllar sonra kitaplaştırıldı.</p>
+        <p>Hikâye burada kendi başlangıcına dönüyor: Pierre Hadot 1982’de Collège de France’a seçildi ve “Helenistik ve Roma düşüncesi tarihi” kürsüsünde ders verdi. Felsefeyi bir yaşam biçimi olarak ele alan meşhur düşüncelerini geniş bir dinleyiciye burada anlattı.</p>
+      </article>
+
+      <article id="ephe">
+        <h3>École pratique des hautes études</h3>
+        <div class="meta"><span class="when">1868’den bugüne</span><span>Paris</span></div>
+        <p>EPHE, Alman üniversitelerindeki seminer modelini Fransa’ya getirmek için kuruldu: büyük amfi dersleri yerine, bir hocanın etrafında küçük bir grubun birlikte metin okuduğu, araştırmanın canlı olarak yapıldığı bir ortam.</p>
+        <div class="moment">
+          <h4>1933–1939: Kojève’in Hegel semineri</h4>
+          <p>Alexandre Koyré’nin başlattığı seminerin devamını üstlenen Alexandre Kojève, altı yıl boyunca Hegel’in <em>Tinin Fenomenolojisi</em>’ni satır satır okudu ve yorumladı. Dinleyiciler arasında Lacan, Bataille, Merleau-Ponty, Raymond Aron ve Raymond Queneau vardı. Bütün bir kuşağın Hegel’i, efendi-köle diyalektiğini ve “tarihin sonu” fikrini okuma biçimi bu küçük odada şekillendi. Kojève’in ünlü kitabı aslında Queneau’nun tuttuğu ders notlarından derlendi.</p>
+        </div>
+        <p>Hadot da 1964’ten itibaren bu kurumda hoca olarak ders verdi; Plotinos ve geç antik düşünce üzerine çalışmalarının çoğu bu seminerlerde olgunlaştı.</p>
+      </article>
+
+      <article id="lacan">
+        <h3>Lacan’ın semineri</h3>
+        <div class="meta"><span class="when">1953–1980</span><span>Paris</span></div>
+        <p>Bir seminerin ne kadar büyüyebileceğinin örneği. Lacan önce Sainte-Anne hastanesinde psikanalistlere yönelik başlattığı semineri, 1964’te Althusser’in davetiyle École normale supérieure’e taşıdı; dinleyici sayısı yüzleri buldu. Filozoflar, yazarlar, öğrenciler her hafta onun doğaçlamaya yakın, zor konuşmalarını dinlemeye geliyordu. Bu dersler sonradan ciltler halinde <em>Le Séminaire</em> adıyla yayımlandı.</p>
+      </article>
+
+      <article id="wittgenstein-dersleri">
+        <h3>Wittgenstein’ın Cambridge dersleri</h3>
+        <div class="meta"><span class="when">1930–1947</span><span>Cambridge</span></div>
+        <p>Wittgenstein klasik ders anlamında hiç ders vermedi. Trinity College’daki çıplak odasında, şezlonglara ve tahta sandalyelere oturmuş küçük bir öğrenci grubunun önünde yüksek sesle düşünürdü. Uzun sessizlikler olur, bazen kendine kızar, bazen öğrencilere döner, örnek üstüne örnek kurardı. 1930’ların ortasında öğrencilerine dikte ettirdiği notlar, kapaklarının rengine göre <em>Mavi Kitap</em> ve <em>Kahverengi Kitap</em> diye anılır ve elden ele dolaştı. Bu, yayımlanmamış bir felsefenin seminerler yoluyla nasıl yayılabildiğinin çarpıcı bir örneğidir.</p>
+      </article>
+    </section>
+
+    <section id="bulusmalar">
+      <h2>Uzun buluşmalar</h2>
+      <p class="intro">Bir tema, bir mekân, günlerce birlikte yaşamak.</p>
+
+      <article id="pontigny">
+        <h3>Pontigny’nin on günlükleri</h3>
+        <div class="meta"><span class="when">1910–1939</span><span>Pontigny, Burgonya</span></div>
+        <p>Paul Desjardins, Burgonya’da satın aldığı eski bir Sistersiyen manastırında her yaz belli bir tema etrafında on gün süren buluşmalar düzenlemeye başladı: <em>Décades de Pontigny</em>. Gide, Thomas Mann, Malraux gibi yazarlar ve dönemin filozofları aynı çatı altında yaşıyor, sabahları konuşmalar, öğleden sonraları yürüyüşler, akşamları tartışmalar yapıyordu. Amaç bildiri toplamak değil, insanların gerçekten birlikte düşünmesiydi. Savaş araya girince sona erdi.</p>
+      </article>
+
+      <article id="cerisy">
+        <h3>Cerisy-la-Salle</h3>
+        <div class="meta"><span class="when">1952’den bugüne</span><span>Normandiya</span></div>
+        <p>Desjardins’in kızı Anne Heurgon-Desjardins, savaştan sonra babasının geleneğini Normandiya’daki aile şatosuna taşıdı. Cerisy kolokyumları bugün hâlâ her yaz düzenleniyor: birkaç gün ile bir hafta arası, ortak yemekler, aynı mekânda konaklama, sabah ve öğleden sonra oturumlar.</p>
+        <div class="moment">
+          <h4>Ağustos 1955</h4>
+          <p>Heidegger, Jean Beaufret ve Kostas Axelos’un düzenlediği buluşmayla Cerisy’ye geldi ve “Felsefe nedir?” konuşmasını yaptı. Bu, savaş sonrası Fransa’ya ilk önemli çıkışıydı ve Fransız felsefesindeki Heidegger etkisinin dönüm noktalarından biri sayılır. Derrida da 1959’da Cerisy’de konuştu, sonraki yıllarda kendisi üzerine kolokyumlar düzenlendi.</p>
+        </div>
+      </article>
+
+      <article id="davos">
+        <h3>Davos</h3>
+        <div class="meta"><span class="when">Mart–Nisan 1929</span><span>Davos, İsviçre</span></div>
+        <p>Fransız ve Alman akademisyenleri buluşturmak için düzenlenen uluslararası yüksek öğretim kurslarının bir parçası olarak, Heidegger ile Cassirer Kant üzerine kamuya açık bir tartışma yaptı. Cassirer aydınlanmacı, rasyonel, kültüre güvenen bir Kant okuyordu; Heidegger ise insanın sonluluğunu ve kaygısını öne çıkaran radikal bir okuma. Dinleyiciler arasında genç Levinas ve Carnap vardı. Bu tek tartışma, sonradan yirminci yüzyıl felsefesinin “kıta” ve “analitik” diye ayrışmasının sembollerinden biri olarak görüldü.</p>
+      </article>
+
+      <article id="eranos">
+        <h3>Eranos</h3>
+        <div class="meta"><span class="when">1933’ten bugüne</span><span>Ascona, İsviçre</span></div>
+        <p>Olga Fröbe-Kapteyn’in Lago Maggiore kıyısındaki evinde başlattığı yıllık buluşmalar. Adı, Antik Yunanca’da herkesin bir şey getirdiği ortak yemek anlamına gelen kelimeden geliyor. Carl Gustav Jung, Mircea Eliade, Henry Corbin, Gershom Scholem gibi isimler her yaz din, mit ve semboller üzerine konuştu. Konuşmalar yıllıklar halinde yayımlandı.</p>
+      </article>
+
+      <article id="royaumont">
+        <h3>Royaumont</h3>
+        <div class="meta"><span class="when">1958</span><span>Royaumont manastırı, Paris yakınları</span></div>
+        <p>Royaumont manastırında düzenlenen bir dizi kolokyumdan en ünlüsü, analitik felsefeyi Fransız filozoflarına tanıtmayı amaçlayan 1958 buluşmasıdır. Ryle, Austin, Quine, Strawson gibi İngiliz ve Amerikalı filozoflar Merleau-Ponty gibi Fransızlarla yüz yüze geldi. Karşılıklı anlaşamamaları ayrı bir efsane oldu: Ryle’ın Fransız fenomenolojisine yönelik alaycı çıkışı, iki geleneğin ne kadar uzaklaştığının göstergesi olarak sık sık anılır.</p>
+      </article>
+    </section>
+
+    <section id="istanbul">
+      <h2>Bir dipnot: İstanbul</h2>
+      <p>Bu kültürün Türkiye’ye de bir dönem doğrudan dokunduğunu hatırlamakta fayda var. 1933 üniversite reformuyla İstanbul Üniversitesi, Nazi Almanyası’ndan kaçan çok sayıda akademisyene kapılarını açtı. Viyana Çevresi’nin Berlin’deki kardeş grubunun önde gelen ismi Hans Reichenbach, 1933–1938 arasında İstanbul’da felsefe dersleri verdi; Ernst von Aster da uzun yıllar burada felsefe tarihi okuttu.</p>
+      <p>Bu hocalar, yanlarında Alman seminer geleneğini de getirdi: küçük gruplarla metin okumaları, öğrencilerin hazırlayıp sunduğu çalışmalar, hocayla yüz yüze tartışma. Bir kuşak Türk felsefeci bu ortamda yetişti.</p>
+    </section>
+
+    <section id="ortak">
+      <h2>Ortak noktalar</h2>
+      <p>Bütün bu yerlerin ortak paydası, konuşmanın bitmiş bir ürünün vitrini değil, düşünmenin kendisi olmasıydı. Az sayıda insan, bol zaman, yüz yüze itiraz ve çoğu zaman tartışmanın kayda geçirilmesi.</p>
+      <p>Konuşma genellikle makaleden <em>önce</em> geliyordu. Biri bir okumayla heyecanlanıyor, bunu anlatacak bir yer buluyor, gelen itirazlarla fikri olgunlaştırıyor, ancak sonra yazıya döküyordu. Dinleyiciler de “yayımlanmış, bitmiş” bir çalışma değil, “kafada şekillenen” bir fikir dinlemeye geliyordu.</p>
+      <p>Bir de dikkat çekici bir nokta: bu yerlerin büyük kısmı resmi akademik hiyerarşinin dışında ya da kenarında duruyordu. Bir manastır, bir kitapçının arka odası, bir şato, bir hocanın odası. Yeni fikirlerin nefes alabildiği yerler genellikle buralardı.</p>
+    </section>
+
+    <section id="bugun">
+      <h2>Bugün nerede?</h2>
+      <p>Bu geleneklerin bir kısmı hâlâ yaşıyor. Fransız Felsefe Derneği toplantılarını sürdürüyor, Cerisy her yaz program açıklıyor, Aristotelian Society’nin akşam toplantıları devam ediyor. Collège de France derslerinin büyük kısmı ücretsiz olarak çevrimiçi izlenebiliyor ve dinlenebiliyor.</p>
+      <p>Batı’daki felsefe bölümlerinin çoğunda haftalık “colloquium” serileri var: dışarıdan biri davet edilir, bir saat konuşur, bir saat soru-cevap olur. Bunların önemli bir kısmının kayıtları artık internette.</p>
+      <p>Türkiye’de de benzer işlevi gören yerler var: bazı üniversitelerin açık seminer dizileri, Bilim ve Sanat Vakfı gibi kurumların açık dersleri, felsefe dernekleri ve gönüllü okuma grupları. Belki de Pontigny’nin ruhunu canlandırmanın en kolay yolu hâlâ en eskisidir: birkaç kişiyi bir araya getirip tek bir metni aylarca birlikte, yavaşça okumak.</p>
+    </section>
+
+    <section id="okuma">
+      <h2>Okuma önerileri</h2>
+      <ul class="reading">
+        <li><em>La philosophie comme manière de vivre</em>, Pierre Hadot
+          <span class="why">Hadot’nun kendi entelektüel yolculuğunu, Wittgenstein’ı keşfedişini ve kurumlarla ilişkisini anlattığı uzun söyleşi kitabı.</span></li>
+        <li><em>Wittgenstein’s Poker</em>, David Edmonds ve John Eidinow
+          <span class="why">1946’daki o on dakikalık karşılaşmayı ve arka planındaki Viyana ile Cambridge dünyalarını anlatıyor.</span></li>
+        <li><em>Continental Divide</em>, Peter E. Gordon
+          <span class="why">Davos tartışmasını ve Heidegger ile Cassirer’in felsefi ayrılığını ayrıntılı olarak inceliyor.</span></li>
+        <li><em>Le Même et l’autre</em>, Vincent Descombes
+          <span class="why">Fransız felsefesinin 1933–1978 dönemini, Kojève seminerinden başlayarak anlatıyor.</span></li>
+        <li><em>Wittgenstein: Dehanın Görevi</em>, Ray Monk
+          <span class="why">Cambridge derslerinin, Moral Sciences Club’ın ve Viyana Çevresi’yle ilişkilerin canlı bir anlatımı için en iyi biyografi.</span></li>
+      </ul>
+    </section>
+
+  </main>
+</div>
+
+<footer>
+  Felsefenin konuşulduğu odalar. Çevrimdışı okunmak üzere hazırlanmış tek dosyalık bir sayfa.
+</footer>
+
+</body>
+</html>
