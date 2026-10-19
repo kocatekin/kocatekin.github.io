@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Stack and Heap in Java</title>
+<style>
+:root{
+  --bg:#EDF1EE; --paper:#F9FBFA; --ink:#1B2A31; --muted:#55666B; --line:#C8D2CE; --soft:#E1E8E4;
+  --pass:#1C754D; --pass-bg:#D9EEE1; --fail:#B02E38; --fail-bg:#F6DCDE;
+  --accent:#2A4ABD; --accent-bg:#DFE5F8; --mark:#F3D35A;
+  --arrange:#2A4ABD; --arrange-bg:#DFE5F8; --act:#9A600C; --act-bg:#F6E8CF; --assert:#1C754D; --assert-bg:#D9EEE1;
+  --code-bg:#16232A; --code-ink:#D9E3E0; --code-gutter:#5F7379; --code-hl:#24382E; --code-bad:#43262A;
+  --tk-key:#F2A7CB; --tk-str:#B6E08D; --tk-num:#F6C177; --tk-ann:#F3D35A; --tk-type:#90C8FF; --tk-fn:#A6E3DA; --tk-com:#7F939A;
+  --fs:17px;
+  --serif:"Iowan Old Style","Charter","Bitstream Charter","Sitka Text",Cambria,Georgia,serif;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"Cascadia Code","JetBrains Mono",Consolas,Menlo,monospace;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#101A1E; --paper:#16232A; --ink:#E1EAE6; --muted:#97A8A7; --line:#2C3C42; --soft:#1C2B31;
+    --pass:#4DC48B; --pass-bg:#16392A; --fail:#F2737B; --fail-bg:#3F1D22;
+    --accent:#90A8FF; --accent-bg:#1E2A4C; --mark:#E2C24A;
+    --arrange:#90A8FF; --arrange-bg:#1E2A4C; --act:#F0B65A; --act-bg:#3A2C14; --assert:#4DC48B; --assert-bg:#16392A;
+    --code-bg:#0B1418; --code-hl:#1C3326; --code-bad:#3A1D22;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#101A1E; --paper:#16232A; --ink:#E1EAE6; --muted:#97A8A7; --line:#2C3C42; --soft:#1C2B31;
+  --pass:#4DC48B; --pass-bg:#16392A; --fail:#F2737B; --fail-bg:#3F1D22;
+  --accent:#90A8FF; --accent-bg:#1E2A4C; --mark:#E2C24A;
+  --arrange:#90A8FF; --arrange-bg:#1E2A4C; --act:#F0B65A; --act-bg:#3A2C14; --assert:#4DC48B; --assert-bg:#16392A;
+  --code-bg:#0B1418; --code-hl:#1C3326; --code-bad:#3A1D22;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 24px);scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 var(--fs)/1.62 var(--sans);-webkit-text-size-adjust:100%}
+img,svg{max-width:100%}
+a{color:var(--accent)}
+code{font-family:var(--mono);font-size:.88em;background:var(--soft);padding:.08em .35em;border-radius:4px}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+button{font:inherit;color:inherit}
+
+/* ---------- layout ---------- */
+.shell{display:grid;grid-template-columns:272px minmax(0,1fr);max-width:1200px;margin:0 auto}
+.side{position:sticky;top:0;height:100vh;overflow-y:auto;padding:30px 20px 24px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:18px}
+main{padding:44px clamp(18px,5vw,68px) 140px;min-width:0}
+.topbar{display:none}
+
+.suite{border:1px solid var(--line);background:var(--paper);border-radius:10px;padding:14px 14px 12px}
+.suite-name{font-family:var(--mono);font-size:.82rem;color:var(--muted)}
+.runbar{height:10px;border-radius:5px;background:var(--soft);overflow:hidden;margin:9px 0 7px}
+.runbar span{display:block;height:100%;width:0;background:var(--pass);transition:width .5s ease}
+.suite-count{font-size:.86rem;color:var(--muted)}
+.suite-count b{color:var(--pass)}
+
+.toc{list-style:none;margin:0;padding:0;font-size:.93rem}
+.toc li a{display:flex;gap:10px;align-items:flex-start;padding:7px 8px;border-radius:7px;text-decoration:none;color:var(--ink);line-height:1.35}
+.toc li a:hover{background:var(--soft)}
+.toc li a.current{background:var(--accent-bg)}
+.toc .st{flex:0 0 18px;height:18px;margin-top:1px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:11px;font-weight:700;color:#fff}
+.toc li.passed .st{background:var(--pass);border-color:var(--pass)}
+.toc li.passed .st::after{content:"✓"}
+.toc li.extra .st{border-style:dashed}
+.side-tools{margin-top:auto;display:flex;flex-wrap:wrap;gap:6px}
+.side-tools button{border:1px solid var(--line);background:var(--paper);border-radius:7px;padding:5px 10px;font-size:.85rem;cursor:pointer}
+.side-tools button:hover{border-color:var(--accent)}
+
+@media (max-width:920px){
+  .shell{grid-template-columns:1fr}
+  .side{position:fixed;inset:0 auto 0 0;width:290px;max-width:85vw;height:100%;z-index:40;background:var(--bg);transform:translateX(-102%);transition:transform .25s ease;padding-top:calc(env(safe-area-inset-top,0px) + 24px)}
+  .side.open{transform:none;box-shadow:0 0 0 100vmax rgba(0,0,0,.35)}
+  .topbar{display:flex;position:sticky;top:0;z-index:30;align-items:center;gap:12px;padding:10px 16px;padding-top:calc(env(safe-area-inset-top,0px) + 10px);background:var(--bg);border-bottom:1px solid var(--line)}
+  .topbar button{border:1px solid var(--line);background:var(--paper);border-radius:7px;padding:5px 11px;cursor:pointer}
+  .topbar .runbar{flex:1;margin:0}
+  main{padding-top:28px}
+}
+
+/* ---------- hero ---------- */
+.hero{max-width:780px;margin-bottom:64px}
+.course{color:var(--muted);margin:0 0 6px;font-size:.95rem}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(2.4rem,6vw,3.6rem);line-height:1.04;margin:0 0 18px;letter-spacing:-.01em}
+.lead{font-size:1.14em;line-height:1.55;max-width:62ch;margin:0 0 26px}
+.console{background:var(--code-bg);color:var(--code-ink);font-family:var(--mono);font-size:.86rem;line-height:1.75;border-radius:12px;padding:18px 20px;min-height:208px;overflow-x:auto}
+.console .ln{white-space:pre;opacity:0;transform:translateY(4px);transition:opacity .3s,transform .3s}
+.console .ln.on{opacity:1;transform:none}
+.console .ok{color:#6FD69F}.console .bad{color:#FF8A92}.console .dim{color:var(--code-gutter)}
+.console .bar{display:inline-block;height:9px;width:0;border-radius:5px;vertical-align:middle;transition:width .8s ease}
+.hero-foot{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-top:14px;color:var(--muted);font-size:.95rem}
+.goals{margin:36px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+.goals li{padding-left:28px;position:relative}
+.goals li::before{content:"";position:absolute;left:4px;top:.55em;width:12px;height:12px;border:2px solid var(--pass);border-radius:3px}
+
+/* ---------- lessons ---------- */
+.lesson{max-width:780px;margin:0 0 96px;scroll-margin-top:24px}
+.lesson > h2{font-family:var(--serif);font-weight:600;font-size:clamp(1.7rem,3.6vw,2.2rem);line-height:1.15;margin:0 0 18px;display:flex;gap:14px;align-items:baseline}
+.lesson > h2 .num{font-family:var(--mono);font-size:.5em;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:2px 7px;transform:translateY(-4px)}
+.lesson h3{font-family:var(--serif);font-weight:600;font-size:1.32rem;margin:40px 0 10px}
+.lesson p,.lesson li{max-width:68ch}
+.lesson ul,.lesson ol{padding-left:1.3em}
+.lesson li{margin:.3em 0}
+.mark{background:linear-gradient(transparent 58%,color-mix(in srgb,var(--mark) 65%,transparent) 58%);padding:0 .1em}
+
+.callout{border-left:4px solid var(--accent);background:var(--paper);padding:12px 16px;border-radius:0 8px 8px 0;margin:20px 0}
+.callout.warn{border-color:var(--fail)}
+.callout.good{border-color:var(--pass)}
+.callout p{margin:.3em 0}
+.callout strong:first-child{display:block;margin-bottom:2px}
+
+/* ---------- code ---------- */
+.code-wrap{position:relative;margin:18px 0}
+pre.code{background:var(--code-bg);color:var(--code-ink);font-family:var(--mono);font-size:.84rem;line-height:1.65;padding:14px 0;border-radius:10px;overflow-x:auto;margin:0;tab-size:4}
+pre.code code{background:none;padding:0;font-size:inherit;display:block;min-width:max-content}
+pre.code .line{display:block;padding:0 20px 0 14px;border-left:3px solid transparent}
+pre.code .line.hl{background:var(--code-hl);border-left-color:#6FD69F}
+pre.code .line.bad{background:var(--code-bad);border-left-color:#FF8A92}
+pre.code .gut{display:inline-block;width:2.2em;color:var(--code-gutter);user-select:none;text-align:right;margin-right:14px}
+.tk-key{color:var(--tk-key)}.tk-str{color:var(--tk-str)}.tk-num{color:var(--tk-num)}.tk-ann{color:var(--tk-ann)}.tk-type{color:var(--tk-type)}.tk-fn{color:var(--tk-fn)}.tk-com{color:var(--tk-com);font-style:italic}
+.copy{position:absolute;top:8px;right:8px;border:1px solid #3A4E56;background:#1F3038;color:#C9D6D2;border-radius:6px;font-size:.75rem;padding:3px 9px;cursor:pointer;opacity:.75}
+.copy:hover{opacity:1}
+.code-cap{font-size:.86rem;color:var(--muted);margin:-10px 0 18px}
+
+/* ---------- interactive panel ---------- */
+.demo{border:1.5px solid var(--line);background:var(--paper);border-radius:12px;padding:18px 18px 16px;margin:26px 0}
+.demo-title{font-weight:650;margin:0 0 4px;display:flex;align-items:center;gap:8px}
+.demo-title::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--accent)}
+.demo-sub{color:var(--muted);font-size:.93rem;margin:0 0 14px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{border:1.5px solid var(--line);background:var(--bg);border-radius:8px;padding:7px 14px;cursor:pointer;font-size:.93rem;line-height:1.3}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+[data-theme="dark"] .btn.primary{color:#0D1530}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn.primary{color:#0D1530}}
+.btn.code-btn{font-family:var(--mono);font-size:.85rem}
+.btn[aria-pressed="true"]{background:var(--accent-bg);border-color:var(--accent)}
+.btn:disabled{opacity:.5;cursor:default}
+.seg{display:inline-flex;border:1.5px solid var(--line);border-radius:9px;overflow:hidden;flex-wrap:wrap}
+.seg button{border:0;background:var(--bg);padding:7px 13px;cursor:pointer;font-size:.9rem;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--accent);color:#fff}
+[data-theme="dark"] .seg button[aria-pressed="true"]{color:#0D1530}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .seg button[aria-pressed="true"]{color:#0D1530}}
+
+.out{margin-top:14px;border-radius:9px;padding:12px 14px;background:var(--soft);font-size:.95rem;min-height:1em}
+.out:empty{display:none}
+.out.pass{background:var(--pass-bg)}
+.out.fail{background:var(--fail-bg)}
+.badge{display:inline-block;font-weight:700;font-size:.8rem;border-radius:5px;padding:1px 8px;margin-right:6px;color:#fff;vertical-align:1px}
+.badge.p{background:var(--pass)}.badge.f{background:var(--fail)}.badge.n{background:var(--muted)}
+.mono{font-family:var(--mono);font-size:.88em}
+
+/* test runner tree */
+.runner{margin-top:14px;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--bg)}
+.runner-head{padding:9px 12px;display:flex;align-items:center;gap:10px;font-size:.9rem;border-bottom:1px solid var(--line)}
+.runner-head .runbar{flex:1;margin:0}
+.runner-head .runbar span{transition:width .25s}
+.runner-head .runbar.red span{background:var(--fail)}
+.runner ul{list-style:none;margin:0;padding:6px 0}
+.runner li{padding:5px 12px 5px 14px;font-family:var(--mono);font-size:.84rem;display:grid;grid-template-columns:20px 1fr;gap:6px;max-width:none}
+.runner li .ic{font-weight:700}
+.runner li.p .ic{color:var(--pass)}
+.runner li.f .ic{color:var(--fail)}
+.runner li.w .ic{color:var(--muted)}
+.runner .msg{grid-column:2;color:var(--fail);font-size:.8rem;white-space:pre-wrap}
+
+/* hero-style mini table of expected/actual */
+.cases{width:100%;border-collapse:collapse;margin-top:14px;font-size:.92rem}
+.cases th,.cases td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line)}
+.cases th{font-weight:600;color:var(--muted);font-size:.85rem}
+.cases td.r-p{color:var(--pass);font-weight:700}
+.cases td.r-f{color:var(--fail);font-weight:700}
+.tbl-wrap{overflow-x:auto}
+
+/* ---------- memory diagram ---------- */
+.mem svg{display:block;width:100%;height:auto;max-width:560px;margin:0 auto}
+.mem .box{fill:var(--bg);stroke:var(--line);stroke-width:1.5}
+.mem .obj{fill:var(--paper);stroke:var(--ink);stroke-width:1.5;transition:stroke .3s,fill .3s}
+.mem .obj.lit{stroke:var(--accent);fill:var(--accent-bg);stroke-width:2.5}
+.mem text{fill:var(--ink);font-family:var(--mono);font-size:14px}
+.mem .lbl{fill:var(--muted);font-family:var(--sans);font-size:13px}
+.mem .arr{stroke:var(--muted);stroke-width:2;fill:none;transition:stroke .3s,stroke-width .3s}
+.mem .arr.lit{stroke:var(--accent);stroke-width:3.5}
+.mem .var.lit{stroke:var(--accent);stroke-width:2.5}
+.mem marker path{fill:var(--muted)}
+
+/* ---------- buckets ---------- */
+.buckets{display:grid;grid-template-columns:repeat(8,minmax(56px,1fr));gap:6px;margin-top:16px;overflow-x:auto}
+.bucket{border:1.5px dashed var(--line);border-radius:8px;min-height:74px;padding:4px;display:flex;flex-direction:column;align-items:center;gap:4px;transition:border-color .3s,background .3s}
+.bucket .bi{font-family:var(--mono);font-size:.72rem;color:var(--muted)}
+.bucket.look{border-color:var(--accent);border-style:solid;background:var(--accent-bg)}
+.chipobj{font-family:var(--mono);font-size:.72rem;background:var(--ink);color:var(--bg);border-radius:5px;padding:2px 5px;white-space:nowrap;animation:pop .3s ease}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+.steps{margin:14px 0 0;padding:0;list-style:none;font-size:.92rem}
+.steps li{padding:5px 0 5px 26px;position:relative;opacity:.35;transition:opacity .3s}
+.steps li.on{opacity:1}
+.steps li::before{content:attr(data-n);position:absolute;left:0;top:5px;width:19px;height:19px;border-radius:50%;background:var(--soft);font-size:.72rem;display:grid;place-items:center;font-weight:700}
+.steps li.on::before{background:var(--accent);color:#fff}
+
+/* ---------- anatomy ---------- */
+.anat pre.code .part{all:unset;cursor:pointer;border-radius:4px;outline:1.5px dashed #5C7880;outline-offset:1px}
+.anat pre.code .part:hover,.anat pre.code .part.sel{outline:2px solid var(--tk-ann);background:#2D3F2F}
+.anat pre.code .part:focus-visible{outline:2px solid var(--tk-ann)}
+.anat-info{margin-top:12px;border-radius:9px;padding:12px 14px;background:var(--accent-bg);min-height:3.2em}
+
+/* ---------- AAA ---------- */
+.aaa-line{display:grid;grid-template-columns:118px 1fr;gap:10px;align-items:center;margin:6px 0}
+.aaa-line .tag{border:1.5px dashed var(--line);background:var(--bg);border-radius:7px;padding:6px 8px;cursor:pointer;font-size:.85rem;font-weight:600;text-align:center}
+.aaa-line .tag.arrange{background:var(--arrange-bg);border:1.5px solid var(--arrange);color:var(--arrange)}
+.aaa-line .tag.act{background:var(--act-bg);border:1.5px solid var(--act);color:var(--act)}
+.aaa-line .tag.assert{background:var(--assert-bg);border:1.5px solid var(--assert);color:var(--assert)}
+.aaa-line .tag.wrong{box-shadow:0 0 0 3px var(--fail)}
+.aaa-line pre{margin:0;background:var(--code-bg);color:var(--code-ink);font-family:var(--mono);font-size:.84rem;padding:7px 12px;border-radius:7px;overflow-x:auto}
+.aaa-band{display:flex;border-radius:9px;overflow:hidden;margin:16px 0;font-size:.9rem;font-weight:600}
+.aaa-band div{flex:1;padding:10px 12px}
+.aaa-band .a1{background:var(--arrange-bg);color:var(--arrange)}
+.aaa-band .a2{background:var(--act-bg);color:var(--act)}
+.aaa-band .a3{background:var(--assert-bg);color:var(--assert)}
+.aaa-band span{display:block;font-weight:400;color:var(--ink);font-size:.85rem}
+
+/* ---------- MCQ ---------- */
+.mcq-item{padding:14px 0;border-top:1px solid var(--line)}
+.mcq-item:first-child{border-top:0;padding-top:4px}
+.mcq-q{font-weight:600;margin:0 0 10px}
+.mcq-q pre{font-weight:400}
+.mcq-opts{display:grid;gap:7px}
+.mcq-opts button{text-align:left;border:1.5px solid var(--line);background:var(--bg);border-radius:8px;padding:8px 12px;cursor:pointer;font-size:.93rem}
+.mcq-opts button:hover:not(:disabled){border-color:var(--accent)}
+.mcq-opts button:disabled{cursor:default}
+.mcq-opts button.right{border-color:var(--pass);background:var(--pass-bg)}
+.mcq-opts button.wrong{border-color:var(--fail);background:var(--fail-bg)}
+.mcq-why{margin-top:10px;font-size:.92rem;padding:10px 12px;border-radius:8px;background:var(--soft)}
+.score{font-family:var(--serif);font-size:1.5rem;margin:14px 0 0}
+
+/* ---------- number line ---------- */
+.nl svg{display:block;width:100%;height:auto}
+.nl .seg-r{stroke:var(--bg);stroke-width:2}
+.nl text{font-family:var(--sans);font-size:12px;fill:var(--ink)}
+.nl .tick{fill:var(--muted);font-family:var(--mono);font-size:10.5px}
+.nl .pt{fill:var(--accent);stroke:var(--paper);stroke-width:2}
+.nl .pt.f{fill:var(--fail)}.nl .pt.p{fill:var(--pass)}
+.meter{display:grid;grid-template-columns:auto 1fr auto;gap:6px 10px;align-items:center;font-size:.9rem;margin-top:12px}
+.meter .runbar{margin:0}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{font-family:var(--mono);font-size:.82rem;border:1px solid var(--line);background:var(--bg);border-radius:20px;padding:2px 4px 2px 10px;display:inline-flex;align-items:center;gap:4px}
+.chip button{border:0;background:none;cursor:pointer;color:var(--muted);padding:0 5px;font-size:1rem;line-height:1}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=number]{font:inherit;width:84px;padding:6px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+
+/* ---------- sort game ---------- */
+.sort-item{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.sort-item:first-child{border-top:0}
+.sort-item .fb{grid-column:1/-1;font-size:.88rem;color:var(--muted)}
+.sort-item.ok .fb{color:var(--pass)}
+.sort-item.no .fb{color:var(--fail)}
+
+/* pyramid */
+.pyr{display:grid;grid-template-columns:minmax(220px,340px) 1fr;gap:22px;align-items:center;margin:22px 0}
+.pyr svg text{font-family:var(--sans);font-size:13px;fill:var(--ink)}
+@media (max-width:620px){.pyr{grid-template-columns:1fr}}
+
+details.prob{border:1px solid var(--line);border-radius:9px;padding:10px 14px;margin:8px 0;background:var(--paper)}
+details.prob summary{cursor:pointer;font-weight:600}
+details.prob[open]{border-color:var(--fail)}
+
+.dates{display:flex;flex-wrap:wrap;gap:6px}
+.tm-grid{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;margin-top:14px;font-size:.93rem;align-items:center}
+
+/* cheat sheet */
+.ref{width:100%;border-collapse:collapse;font-size:.92rem;margin:14px 0}
+.ref td,.ref th{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+.ref th{color:var(--muted);font-weight:600;font-size:.85rem}
+.ref td:first-child{font-family:var(--mono);font-size:.84rem;white-space:nowrap}
+
+.done-note{display:none;margin-top:12px;color:var(--pass);font-weight:600;font-size:.93rem}
+.done-note.on{display:block}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}
+}
+@media print{
+  .side,.topbar,.copy,.side-tools{display:none!important}
+  .shell{display:block}
+  .lesson{break-inside:auto}
+}
+
+/* ================= stack & heap additions ================= */
+:root{--stack:var(--accent);--stack-bg:var(--accent-bg);--heap:var(--act);--heap-bg:var(--act-bg)}
+
+/* hero */
+.split{font-family:var(--mono);font-size:clamp(.95rem,2.4vw,1.3rem);background:var(--code-bg);color:var(--code-ink);border-radius:12px 12px 0 0;padding:22px 22px 18px;overflow-x:auto;white-space:nowrap}
+.split .sp{padding-bottom:3px;border-bottom:3px solid}
+.split .sp.s{border-color:#90A8FF}
+.split .sp.h{border-color:#F0B65A}
+.split-key{display:flex;flex-wrap:wrap;gap:6px 22px;background:var(--code-bg);color:var(--code-ink);padding:0 22px 16px;font-size:.88rem;border-radius:0 0 12px 12px}
+.split-key i{display:inline-block;width:22px;height:3px;vertical-align:middle;margin-right:7px}
+.hero-diag{margin-top:18px}
+.hero-diag svg{display:block;width:100%;height:auto;max-width:660px}
+.hero-diag text{font-family:var(--mono);font-size:14px;fill:var(--ink)}
+.hero-diag .ttl{font-family:var(--sans);font-weight:700;font-size:15px}
+.hero-diag .draw{stroke-dasharray:320;stroke-dashoffset:320;animation:draw 1.1s .5s ease forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+@media (prefers-reduced-motion:reduce){.hero-diag .draw{stroke-dashoffset:0}}
+
+/* visualizer */
+.viz{border:1.5px solid var(--line);background:var(--paper);border-radius:12px;padding:16px;margin:24px 0}
+.viz-top{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:14px;align-items:start}
+@media (max-width:1100px){.viz-top{grid-template-columns:1fr}}
+.viz-code pre.code{font-size:.8rem}
+.viz-note{background:var(--soft);border-radius:9px;padding:12px 14px;font-size:.95rem;line-height:1.55;min-height:6.5em}
+.viz-out{margin-top:8px;background:var(--code-bg);color:#6FD69F;font-family:var(--mono);font-size:.82rem;border-radius:8px;padding:8px 12px;white-space:pre}
+.viz-out::before{content:"Output";display:block;color:var(--code-gutter);font-size:.72rem}
+.viz-mem{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:clamp(40px,9vw,96px);margin-top:16px}
+.mem-col{border-radius:10px;padding:10px;min-height:170px}
+.mem-col.stk{background:var(--stack-bg)}
+.mem-col.hp{background:var(--heap-bg)}
+.mem-h{font-weight:700;font-size:.9rem;margin-bottom:8px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:2px 8px}
+.mem-h span{font-weight:400;color:var(--muted);font-size:.78rem}
+.stk .mem-h{color:var(--stack)}
+.hp .mem-h{color:var(--heap)}
+.frames,.objs{display:flex;flex-direction:column;gap:10px}
+.objs{align-items:flex-start}
+.frame{background:var(--paper);border:1.5px solid var(--stack);border-radius:8px;overflow:hidden;animation:fadein .35s}
+.frame.paused{opacity:.6;border-style:dashed}
+.fh,.oh{font-family:var(--mono);font-size:.78rem;font-weight:700;padding:4px 10px;color:var(--bg);display:flex;justify-content:space-between;gap:10px}
+.fh{background:var(--stack)}
+.oh{background:var(--heap)}
+.oh .oid{font-weight:400;opacity:.85}
+.var,.fld{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;padding:5px 10px;font-family:var(--mono);font-size:.85rem;border-top:1px solid var(--line)}
+.var:first-of-type,.fld:first-of-type{border-top:0}
+.vv{justify-self:end;text-align:right;min-height:1.3em;display:flex;align-items:center}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--ink)}
+.null{color:var(--muted);font-style:italic}
+.chg{animation:flash 1.6s ease}
+@keyframes flash{0%,45%{background:color-mix(in srgb,var(--mark) 70%,transparent)}100%{background:transparent}}
+.obj{background:var(--paper);border:1.5px solid var(--heap);border-radius:8px;min-width:140px;max-width:100%;overflow:hidden;animation:fadein .35s;transition:opacity .3s,box-shadow .3s}
+.obj.garbage{opacity:.45;border-style:dashed}
+.obj.garbage .oh{background:var(--muted)}
+.obj.marked{box-shadow:0 0 0 3px var(--pass)}
+.empty{color:var(--muted);font-size:.85rem;font-style:italic}
+.wires{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.wires path{fill:none;stroke:var(--ink);stroke-width:2}
+.wires path.new{stroke:var(--accent);stroke-width:3}
+.wires path.dead{opacity:.28}
+.wires marker path{stroke:none}
+.viz-ctrl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px}
+.viz-ctrl .count{color:var(--muted);font-size:.9rem;margin-left:auto}
+.pips{display:flex;gap:5px;flex-wrap:wrap}
+.pips span{width:9px;height:9px;border-radius:50%;background:var(--line)}
+.pips span.on{background:var(--accent)}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+@media (max-width:560px){.fh span:last-child{display:none}.viz{padding:12px}.viz-mem{gap:34px}.var,.fld{font-size:.78rem;padding:4px 7px;gap:6px}.obj{min-width:0}}
+
+/* where-does-it-live chips */
+.where{display:inline-flex;gap:6px}
+
+/* stack overflow */
+.ovf{display:grid;grid-template-columns:230px minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:640px){.ovf{grid-template-columns:1fr}}
+.ovf-stack{height:320px;overflow:hidden;display:flex;flex-direction:column-reverse;gap:5px;padding:10px;border-radius:10px;background:var(--stack-bg);border-top:3px dashed var(--fail);position:relative;transition:background .3s}
+.ovf-lim{font-size:.78rem;color:var(--fail);font-weight:600;text-align:right;margin-bottom:3px}
+.ovf-stack.boom{background:var(--fail-bg)}
+.mini{flex:0 0 auto;font-family:var(--mono);font-size:.8rem;background:var(--paper);border:1.5px solid var(--stack);border-radius:6px;padding:4px 9px;animation:fadein .2s}
+.mini.main{border-style:dashed}
+.ovf-err{background:var(--code-bg);color:#FF8A92;font-family:var(--mono);font-size:.8rem;border-radius:8px;padding:10px 12px;white-space:pre;overflow-x:auto;margin-top:12px}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <button type="button" id="menu-btn" aria-controls="side" aria-expanded="false">Contents</button>
+  <div class="runbar" aria-hidden="true"><span id="mini-fill"></span></div>
+</div>
+
+<div class="shell">
+<aside class="side" id="side" aria-label="Lesson contents">
+  <div class="suite">
+    <div class="suite-name">StackAndHeapTest</div>
+    <div class="runbar" role="progressbar" aria-label="Lesson progress" aria-valuemin="0" aria-valuemax="7" aria-valuenow="0" id="runbar"><span id="runbar-fill"></span></div>
+    <div class="suite-count" id="suite-count">0 of 7 sections passed</div>
+  </div>
+  <ol class="toc" id="toc"></ol>
+  <div class="side-tools">
+    <button type="button" id="font-down" aria-label="Smaller text">A−</button>
+    <button type="button" id="font-up" aria-label="Larger text">A+</button>
+    <button type="button" id="theme-btn">Dark mode</button>
+    <button type="button" id="reset-btn">Reset progress</button>
+  </div>
+</aside>
+
+<main>
+
+<header class="hero">
+  <p class="course">Object-Oriented Programming in Java, extra notes</p>
+  <h1>Stack and Heap</h1>
+  <p class="lead">Where do your variables actually live? Java keeps them in two different places. Once you can picture both, a lot of “weird” Java behaviour stops being weird.</p>
+
+  <div class="split" aria-label="One line of Java split into its stack part and its heap part">
+    <span class="sp s"><span class="tk-type">Student</span> s</span> = <span class="sp h"><span class="tk-key">new</span> <span class="tk-type">Student</span>(<span class="tk-str">"Ayşe"</span>, <span class="tk-num">20</span>)</span>;
+  </div>
+  <div class="split-key">
+    <span><i style="background:#90A8FF"></i>the variable: lives on the <b>stack</b></span>
+    <span><i style="background:#F0B65A"></i>the object: lives on the <b>heap</b></span>
+  </div>
+
+  <div class="hero-diag">
+    <svg viewBox="0 0 660 180" role="img" aria-label="The variable s on the stack holds an arrow pointing to a Student object on the heap">
+      <defs><marker id="hero-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="11" markerHeight="11" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--ink)"/></marker></defs>
+      <text class="ttl" x="14" y="20" style="fill:var(--stack)">Stack</text>
+      <rect x="10" y="30" width="230" height="140" rx="10" style="fill:var(--stack-bg)"/>
+      <rect x="26" y="46" width="198" height="78" rx="7" style="fill:var(--paper);stroke:var(--stack);stroke-width:1.5"/>
+      <rect x="26" y="46" width="198" height="24" rx="6" style="fill:var(--stack)"/>
+      <text x="38" y="63" style="fill:var(--bg);font-weight:700;font-size:13px">main()</text>
+      <text x="40" y="104">s</text>
+      <circle cx="204" cy="99" r="6" style="fill:var(--ink)"/>
+      <text class="ttl" x="414" y="20" style="fill:var(--heap)">Heap</text>
+      <rect x="410" y="30" width="240" height="140" rx="10" style="fill:var(--heap-bg)"/>
+      <rect x="426" y="46" width="208" height="104" rx="7" style="fill:var(--paper);stroke:var(--heap);stroke-width:1.5"/>
+      <rect x="426" y="46" width="208" height="24" rx="6" style="fill:var(--heap)"/>
+      <text x="438" y="63" style="fill:var(--bg);font-weight:700;font-size:13px">Student</text>
+      <text x="440" y="100">name</text><text x="620" y="100" text-anchor="end">"Ayşe"</text>
+      <text x="440" y="132">age</text><text x="620" y="132" text-anchor="end">20</text>
+      <path class="draw" d="M204,99 C300,99 330,58 422,58" style="fill:none;stroke:var(--ink);stroke-width:2.5" marker-end="url(#hero-ah)"/>
+    </svg>
+  </div>
+
+  <ul class="goals">
+    <li>Say what goes on the stack and what goes on the heap.</li>
+    <li>Explain why two variables can change “the same” object.</li>
+    <li>Follow method calls as frames being pushed and popped.</li>
+    <li>Predict what happens when you pass an object to a method.</li>
+    <li>Explain what makes an object garbage, and what a StackOverflowError is.</li>
+  </ul>
+</header>
+
+<!-- ============ 1 ============ -->
+<section class="lesson" id="two" data-title="Two places in memory">
+  <h2><span class="num">1</span>Two places in memory</h2>
+  <p>When your program runs, Java uses two areas of memory for your data.</p>
+  <p><strong>The stack</strong> is like a pile of notepads. Every time a method is called, Java puts a fresh page on top of the pile. That page is called a <strong>frame</strong>, and it holds the method’s local variables and parameters. When the method finishes, its page is torn off and thrown away. Automatic, fast, and small.</p>
+  <p><strong>The heap</strong> is like a big storage room. Every time you write <code>new</code>, Java puts an object somewhere in that room. Objects don’t belong to any method. They stay as long as somebody can still reach them, even after the method that created them has ended.</p>
+
+  <div class="callout">
+    <strong>The most important sentence today</strong>
+    <p>A variable whose type is a class (like <code>Student s</code>) never holds the object itself. It holds an <strong>arrow</strong> to the object, called a <strong>reference</strong>. A primitive variable (like <code>int age</code>) holds the value directly.</p>
+  </div>
+
+  <div class="tbl-wrap"><table class="ref">
+    <thead><tr><th></th><th>Stack</th><th>Heap</th></tr></thead>
+    <tbody>
+      <tr><th>What lives there</th><td style="font-family:var(--sans)">Local variables and parameters, one frame per method call</td><td>Every object and array made with <code>new</code>, including its fields</td></tr>
+      <tr><th>Cleaned up when</th><td style="font-family:var(--sans)">The method returns (instantly)</td><td>Nothing points to the object anymore (garbage collector)</td></tr>
+      <tr><th>Size</th><td style="font-family:var(--sans)">Small</td><td>Large</td></tr>
+      <tr><th>When it’s full</th><td style="font-family:var(--sans)"><code>StackOverflowError</code></td><td><code>OutOfMemoryError</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="demo">
+    <p class="demo-title">Try it: where does it live?</p>
+    <p class="demo-sub">For each thing, choose Stack or Heap.</p>
+    <div id="where-list"></div>
+    <div class="out" id="where-out"></div>
+  </div>
+</section>
+
+<!-- ============ 2 ============ -->
+<section class="lesson" id="refs" data-title="Objects and references">
+  <h2><span class="num">2</span>Objects and references</h2>
+  <p>Let’s watch a small program run, one line at a time. The highlighted line is the one Java is running. Arrows show which object each reference points to, and anything that just changed flashes yellow.</p>
+  <div class="viz" data-viz="refs"></div>
+  <div class="callout good">
+    <strong>Takeaway</strong>
+    <p><code>t = s</code> copies the arrow, not the object. After that, changing the object through <code>t</code> is visible through <code>s</code>, because there is only one object. This is also why <code>==</code> on objects asks “same arrow target?”, which you saw with <code>equals()</code>.</p>
+  </div>
+</section>
+
+<!-- ============ 3 ============ -->
+<section class="lesson" id="frames" data-title="Method calls and frames">
+  <h2><span class="num">3</span>Method calls and frames</h2>
+  <p>Now watch the stack itself. Each method call gets its own frame. The newest frame sits on top and is the only one running; the frames below it are paused, waiting for it to return.</p>
+  <div class="viz" data-viz="frames"></div>
+  <ul>
+    <li><strong>Every call gets a brand-new frame</strong>, with its own variables. <code>n</code> in <code>square</code> and <code>x</code> in <code>main</code> are different boxes.</li>
+    <li><strong>Parameters are copies.</strong> <code>n</code> got a copy of the value of <code>x</code>.</li>
+    <li><strong>Returning removes the frame</strong> (“pops” it). Its local variables are gone for good. That’s why a local variable can’t be used outside its method.</li>
+  </ul>
+</section>
+
+<!-- ============ 4 ============ -->
+<section class="lesson" id="pass" data-title="Passing objects to methods">
+  <h2><span class="num">4</span>Passing objects to methods</h2>
+  <p>This is the part that confuses almost everyone, and the stack and heap picture makes it simple. Java always passes a <strong>copy of the variable</strong> into a method. For an <code>int</code>, that’s a copy of the number. For an object variable, that’s a copy of the <em>arrow</em>.</p>
+  <div class="viz" data-viz="pass"></div>
+  <div class="callout warn">
+    <strong>Two rules</strong>
+    <p><strong>Changing the object</strong> through a parameter (<code>q.x = ...</code>) <strong>is</strong> visible to the caller. Both arrows point to the same object.</p>
+    <p><strong>Reassigning the parameter</strong> (<code>q = new ...</code>) <strong>is not</strong> visible to the caller. You only moved your own copy of the arrow.</p>
+  </div>
+  <div class="demo">
+    <p class="demo-title">Check yourself: what gets printed?</p>
+    <div id="pass-quiz"></div>
+  </div>
+</section>
+
+<!-- ============ 5 ============ -->
+<section class="lesson" id="overflow" data-title="When the stack runs out">
+  <h2><span class="num">5</span>When the stack runs out</h2>
+  <p>The stack is small. Usually that doesn’t matter, because frames are removed as soon as methods return. But a method that calls <em>itself</em> (recursion) adds a new frame on every call. If it never stops, the frames pile up until there is no room left.</p>
+
+  <div class="demo">
+    <p class="demo-title">Try it: call countdown(4)</p>
+    <p class="demo-sub">Run it with the base case first. Then remove the base case and run again.</p>
+    <div class="ovf">
+      <div><div class="ovf-lim">stack limit</div><div class="ovf-stack" id="ovf-stack" aria-label="Stack frames"></div></div>
+      <div>
+        <div class="seg" id="ovf-switch">
+          <button type="button" aria-pressed="true" data-v="0">With base case</button>
+          <button type="button" aria-pressed="false" data-v="1">Without base case (bug)</button>
+        </div>
+        <div class="code-wrap"><pre class="code" id="ovf-code"><code>static void countdown(int n) {
+    if (n == 0) return;          // base case: stop here
+    countdown(n - 1);
+}</code></pre></div>
+        <button class="btn primary" type="button" id="ovf-run">Call countdown(4)</button>
+        <div id="ovf-msg"></div>
+      </div>
+    </div>
+  </div>
+
+  <p><code>StackOverflowError</code> is an <strong>Error</strong>, not an Exception. Remember the hierarchy from the exceptions week: <code>Throwable</code> splits into <code>Exception</code> and <code>Error</code>, and Errors are problems you don’t catch, you fix. Here the fix is a base case that stops the recursion.</p>
+</section>
+
+<!-- ============ 6 ============ -->
+<section class="lesson" id="garbage" data-title="Garbage">
+  <h2><span class="num">6</span>Garbage</h2>
+  <p>Stack frames clean themselves up. Heap objects don’t; nobody “deletes” an object in Java. Instead, the <strong>garbage collector</strong> (GC) runs every now and then and frees objects that can no longer be reached. An object is <strong>reachable</strong> if you can get to it by starting at a variable on the stack and following arrows.</p>
+  <div class="viz" data-viz="garbage"></div>
+  <h3>Memory leaks in Java</h3>
+  <p>If garbage is collected automatically, can Java still run out of memory? Yes: when you <em>keep</em> arrows to objects you no longer need. A classic example is a list that only ever grows:</p>
+  <div class="code-wrap"><pre class="code" data-bad="2,5"><code>public class Logger {
+    private static List&lt;String&gt; history = new ArrayList&lt;&gt;();
+
+    public static void log(String message) {
+        history.add(message);    // added forever, never removed
+    }
+}</code></pre></div>
+  <p>A <code>static</code> field lives as long as the program, and it points to the list, which points to every message ever logged. All of them stay reachable, so the GC is not allowed to free any of them. Run this for days and you get <code>OutOfMemoryError</code>. The GC only removes what is truly unreachable; it can’t know you stopped caring.</p>
+</section>
+
+<!-- ============ 7 ============ -->
+<section class="lesson" id="quiz" data-title="Exit quiz">
+  <h2><span class="num">7</span>Exit quiz</h2>
+  <p>Answer all seven to pass this section.</p>
+  <div class="demo">
+    <div id="exit-quiz"></div>
+    <div id="exit-score"></div>
+  </div>
+</section>
+
+<!-- ============ SHEET ============ -->
+<section class="lesson" id="sheet" data-title="Cheat sheet" data-extra="1">
+  <h2><span class="num">+</span>Cheat sheet</h2>
+  <ul>
+    <li><strong>Stack:</strong> one frame per method call; holds local variables and parameters. A frame disappears when its method returns.</li>
+    <li><strong>Heap:</strong> every object and array made with <code>new</code>, with all its fields. Stays while reachable.</li>
+    <li>A primitive variable holds a <strong>value</strong>. An object variable holds an <strong>arrow</strong> (reference), or <code>null</code>.</li>
+    <li><code>b = a</code> copies the arrow. Two variables, one object.</li>
+    <li>Java passes a <strong>copy</strong> of each argument. Changing the object through a parameter is visible to the caller; reassigning the parameter is not.</li>
+    <li>An object is <strong>garbage</strong> when no chain of arrows from the stack reaches it. The GC uses <strong>mark and sweep</strong>: mark everything reachable, delete the rest.</li>
+    <li>Too many frames (usually recursion without a base case) → <code>StackOverflowError</code>. Too many reachable objects → <code>OutOfMemoryError</code>.</li>
+  </ul>
+</section>
+
+</main>
+</div>
+<script>
+(function () {
+'use strict';
+var $ = function (s, r) { return (r || document).querySelector(s); };
+var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+var reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+function wait(ms) { return new Promise(function (r) { setTimeout(r, reduceMotion ? 0 : ms); }); }
+function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+/* ---------- storage (works offline; silently ignored if blocked) ---------- */
+var store = {
+  get: function (k, d) { try { var v = localStorage.getItem('oop-sh:' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set: function (k, v) { try { localStorage.setItem('oop-sh:' + k, JSON.stringify(v)); } catch (e) {} },
+  clear: function () { try { Object.keys(localStorage).forEach(function (k) { if (k.indexOf('oop-sh:') === 0) localStorage.removeItem(k); }); } catch (e) {} }
+};
+
+/* ---------- Java syntax highlighting ---------- */
+var KW = new Set(('abstract assert boolean break byte case catch char class const continue default do double else enum extends final finally float for if implements import instanceof int interface long native new package private protected public return short static super switch synchronized this throw throws transient try void volatile while var true false null record').split(' '));
+var TOK = /(\/\/.*$)|("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])')|(@\w+)|(\b\d+(?:\.\d+)?[dDfFL]?\b)|(\b[A-Za-z_]\w*\b)/g;
+function hlLine(line) {
+  var out = '', last = 0, m;
+  TOK.lastIndex = 0;
+  while ((m = TOK.exec(line))) {
+    out += esc(line.slice(last, m.index));
+    var t = m[0], cls = null;
+    if (m[1]) cls = 'tk-com';
+    else if (m[2]) cls = 'tk-str';
+    else if (m[3]) cls = 'tk-ann';
+    else if (m[4]) cls = 'tk-num';
+    else if (m[5]) {
+      if (KW.has(t)) cls = 'tk-key';
+      else if (/^[A-Z]/.test(t)) cls = 'tk-type';
+      else if (/^\s*\(/.test(line.slice(m.index + t.length))) cls = 'tk-fn';
+    }
+    out += cls ? '<span class="' + cls + '">' + esc(t) + '</span>' : esc(t);
+    last = m.index + t.length;
+  }
+  return out + esc(line.slice(last));
+}
+function ranges(str) {
+  var set = new Set();
+  if (!str) return set;
+  str.split(',').forEach(function (p) {
+    var ab = p.split('-').map(Number);
+    if (ab.length === 1) set.add(ab[0]);
+    else for (var i = ab[0]; i <= ab[1]; i++) set.add(i);
+  });
+  return set;
+}
+var rawCode = new WeakMap();
+function renderCode(pre) {
+  var code = pre.querySelector('code');
+  if (!code || code.querySelector('.line')) return;
+  var raw = code.textContent.replace(/\n$/, '');
+  rawCode.set(pre, raw);
+  var hl = ranges(pre.dataset.hl), bad = ranges(pre.dataset.bad), plain = pre.dataset.lang === 'plain';
+  code.innerHTML = raw.split('\n').map(function (ln, i) {
+    var n = i + 1, c = hl.has(n) ? ' hl' : (bad.has(n) ? ' bad' : '');
+    return '<span class="line' + c + '"><span class="gut">' + n + '</span>' + ((plain ? esc(ln) : hlLine(ln)) || ' ') + '</span>';
+  }).join('');
+}
+function setCode(pre, text, hl, bad) {
+  pre.dataset.hl = hl || ''; pre.dataset.bad = bad || '';
+  pre.querySelector('code').textContent = text;
+  renderCode(pre);
+}
+function copyText(text, btn) {
+  function done() { btn.textContent = 'Copied'; setTimeout(function () { btn.textContent = 'Copy'; }, 1400); }
+  function fallback() {
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (e) { btn.textContent = 'Select and copy'; }
+    document.body.removeChild(ta);
+  }
+  if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(done, fallback);
+  else fallback();
+}
+$$('pre.code').forEach(function (pre) {
+  renderCode(pre);
+  if (pre.parentElement.classList.contains('code-wrap')) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'copy'; b.textContent = 'Copy';
+    b.addEventListener('click', function () { copyText(rawCode.get(pre) || pre.textContent, b); });
+    pre.parentElement.appendChild(b);
+  }
+});
+
+/* ---------- theme + font size ---------- */
+var root = document.documentElement;
+function isDark() {
+  if (root.dataset.theme) return root.dataset.theme === 'dark';
+  return window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches;
+}
+function applyTheme(t) {
+  if (t) root.dataset.theme = t; else delete root.dataset.theme;
+  $('#theme-btn').textContent = isDark() ? 'Light mode' : 'Dark mode';
+}
+applyTheme(store.get('theme', null));
+$('#theme-btn').addEventListener('click', function () { var t = isDark() ? 'light' : 'dark'; store.set('theme', t); applyTheme(t); });
+var SIZES = [15, 16, 17, 18, 20, 22, 24, 27];
+var fsi = store.get('fs', 2);
+function applyFs() { root.style.setProperty('--fs', SIZES[fsi] + 'px'); store.set('fs', fsi); }
+applyFs();
+$('#font-up').addEventListener('click', function () { fsi = Math.min(SIZES.length - 1, fsi + 1); applyFs(); });
+$('#font-down').addEventListener('click', function () { fsi = Math.max(0, fsi - 1); applyFs(); });
+
+/* ---------- progress ("test suite") ---------- */
+var sections = $$('main section.lesson');
+var counted = sections.filter(function (s) { return !s.dataset.extra; });
+var TOTAL = counted.length;
+var passed = new Set(store.get('passed', []));
+var toc = $('#toc');
+sections.forEach(function (s) {
+  var li = document.createElement('li');
+  li.dataset.id = s.id;
+  if (s.dataset.extra) li.className = 'extra';
+  li.innerHTML = '<a href="#' + s.id + '"><span class="st" aria-hidden="true"></span><span>' + esc(s.dataset.title) + '</span></a>';
+  toc.appendChild(li);
+});
+function updateProgress() {
+  var n = 0;
+  $$('li', toc).forEach(function (li) {
+    var ok = passed.has(li.dataset.id);
+    li.classList.toggle('passed', ok);
+    li.querySelector('a').setAttribute('aria-label', li.textContent + (li.classList.contains('extra') ? '' : (ok ? ', passed' : ', not passed yet')));
+    if (ok && !li.classList.contains('extra')) n++;
+  });
+  var pct = (n / TOTAL * 100) + '%';
+  $('#runbar-fill').style.width = pct;
+  $('#mini-fill').style.width = pct;
+  $('#runbar').setAttribute('aria-valuenow', n);
+  $('#suite-count').innerHTML = n === TOTAL ? '<b>All ' + TOTAL + ' sections passed</b>' : n + ' of ' + TOTAL + ' sections passed';
+}
+function pass(id) {
+  if (passed.has(id)) return;
+  passed.add(id);
+  store.set('passed', Array.from(passed));
+  updateProgress();
+}
+updateProgress();
+$('#reset-btn').addEventListener('click', function () {
+  if (confirm('Reset your progress for this lesson?')) { store.clear(); location.reload(); }
+});
+
+if ('IntersectionObserver' in window) {
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) {
+        $$('a', toc).forEach(function (a) { a.classList.toggle('current', a.getAttribute('href') === '#' + e.target.id); });
+      }
+    });
+  }, { rootMargin: '-35% 0px -60% 0px' });
+  sections.forEach(function (s) { io.observe(s); });
+}
+
+/* mobile menu */
+var side = $('#side'), menuBtn = $('#menu-btn');
+function setMenu(open) { side.classList.toggle('open', open); menuBtn.setAttribute('aria-expanded', open); }
+menuBtn.addEventListener('click', function (e) { e.stopPropagation(); setMenu(!side.classList.contains('open')); });
+toc.addEventListener('click', function () { setMenu(false); });
+document.addEventListener('click', function (e) { if (side.classList.contains('open') && !side.contains(e.target)) setMenu(false); });
+document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setMenu(false); });
+
+/* ---------- shared helpers ---------- */
+function segment(el, onChange) {
+  var btns = $$('button', el);
+  btns.forEach(function (b) {
+    b.addEventListener('click', function () {
+      btns.forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      onChange(Number(b.dataset.v));
+    });
+  });
+}
+function outMsg(el, html, kind) {
+  el.className = 'out' + (kind ? ' ' + kind : '');
+  el.innerHTML = html;
+}
+var B_PASS = '<span class="badge p">PASSED</span>', B_FAIL = '<span class="badge f">FAILED</span>';
+
+/* Simulated JUnit runner. results: [{name, ok, msg}] */
+function runTests(el, title, results) {
+  el.hidden = false;
+  el.innerHTML = '<div class="runner-head"><span>' + esc(title) + '</span><div class="runbar"><span></span></div><span class="cnt">0 / ' + results.length + '</span></div><ul></ul>';
+  var ul = $('ul', el), fill = $('.runbar span', el), bar = $('.runbar', el), cnt = $('.cnt', el);
+  var okCount = 0;
+  return results.reduce(function (p, r, i) {
+    return p.then(function () { return wait(320); }).then(function () {
+      var li = document.createElement('li');
+      li.className = r.ok ? 'p' : 'f';
+      li.innerHTML = '<span class="ic">' + (r.ok ? '✓' : '✗') + '</span><span>' + esc(r.name) + '()</span>' + (r.ok ? '' : '<span class="msg">' + esc(r.msg) + '</span>');
+      ul.appendChild(li);
+      if (r.ok) okCount++; else bar.classList.add('red');
+      fill.style.width = ((i + 1) / results.length * 100) + '%';
+      cnt.textContent = okCount + ' / ' + results.length + ' passed';
+    });
+  }, Promise.resolve()).then(function () { return okCount === results.length; });
+}
+
+function makeQuiz(el, qs, onDone) {
+  el.innerHTML = '';
+  var answered = 0, right = 0;
+  qs.forEach(function (q) {
+    var item = document.createElement('div');
+    item.className = 'mcq-item';
+    item.innerHTML = '<p class="mcq-q">' + q.q + '</p>' +
+      (q.code ? '<pre class="code" style="margin:0 0 10px"><code>' + esc(q.code) + '</code></pre>' : '') +
+      '<div class="mcq-opts"></div><div class="mcq-why" hidden></div>';
+    if (q.code) renderCode($('pre', item));
+    var box = $('.mcq-opts', item), why = $('.mcq-why', item);
+    q.options.forEach(function (o, oi) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.innerHTML = o;
+      b.addEventListener('click', function () {
+        $$('button', box).forEach(function (x) { x.disabled = true; });
+        var ok = oi === q.answer;
+        b.classList.add(ok ? 'right' : 'wrong');
+        if (!ok) box.children[q.answer].classList.add('right');
+        if (ok) right++;
+        why.hidden = false;
+        why.innerHTML = (ok ? '<b>Correct.</b> ' : '<b>Not quite.</b> ') + q.why;
+        answered++;
+        if (answered === qs.length && onDone) onDone(right, qs.length);
+      });
+      box.appendChild(b);
+    });
+    el.appendChild(item);
+  });
+}
+function fmtD(n) { return Number.isInteger(n) ? n.toFixed(1) : String(n); }
+
+
+/* ================= stack & heap visualizer ================= */
+function F(name, vars) { return { name: name, vars: vars || [] }; }
+function O(id, type, fields, flag) { return { id: id, type: type, fields: fields, flag: flag || '' }; }
+function cellHTML(v) {
+  if (v === null) return '<span class="null">null</span>';
+  if (typeof v === 'string' && v.charAt(0) === '@') return '<span class="dot" data-ref="' + v.slice(1) + '" aria-label="arrow to object ' + v.slice(2) + '"></span>';
+  return esc(String(v));
+}
+var vizUid = 0;
+function Viz(host, prog, onEnd) {
+  var uid = ++vizUid, i = 0, prev = null, timer = null;
+  var codeLines = prog.code.split('\n');
+  host.innerHTML =
+    '<div class="viz-top">' +
+      '<div class="viz-code"><pre class="code"><code></code></pre><div class="viz-out" hidden></div></div>' +
+      '<div class="viz-note" aria-live="polite"></div>' +
+    '</div>' +
+    '<div class="viz-mem">' +
+      '<div class="mem-col stk"><div class="mem-h">Stack <span>newest call on top</span></div><div class="frames"></div></div>' +
+      '<div class="mem-col hp"><div class="mem-h">Heap <span>objects made with new</span></div><div class="objs"></div></div>' +
+      '<svg class="wires" aria-hidden="true"><defs>' +
+        '<marker id="w' + uid + 'a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--ink)"/></marker>' +
+        '<marker id="w' + uid + 'b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="12" markerHeight="12" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--accent)"/></marker>' +
+      '</defs><g></g></svg>' +
+    '</div>' +
+    '<div class="viz-ctrl">' +
+      '<button class="btn" type="button" data-a="back">◀ Back</button>' +
+      '<button class="btn primary" type="button" data-a="next">Next step ▶</button>' +
+      '<button class="btn" type="button" data-a="play">Play</button>' +
+      '<button class="btn" type="button" data-a="restart">Restart</button>' +
+      '<div class="pips" aria-hidden="true"></div>' +
+      '<span class="count"></span>' +
+    '</div>';
+  var pre = $('pre', host), note = $('.viz-note', host), out = $('.viz-out', host);
+  var framesEl = $('.frames', host), objsEl = $('.objs', host), mem = $('.viz-mem', host), wires = $('.wires g', host);
+  var pips = $('.pips', host), count = $('.count', host);
+  var bBack = $('[data-a=back]', host), bNext = $('[data-a=next]', host), bPlay = $('[data-a=play]', host);
+  pips.innerHTML = prog.steps.map(function () { return '<span></span>'; }).join('');
+
+  function snapshot(st) {
+    var m = {};
+    st.f.forEach(function (fr, fi) { fr.vars.forEach(function (v) { m['f' + fi + fr.name + '.' + v[0]] = String(v[1]); }); });
+    st.h.forEach(function (o) { m[o.id] = o.type; o.fields.forEach(function (f) { m[o.id + '.' + f[0]] = String(f[1]); }); });
+    return m;
+  }
+  function render() {
+    var st = prog.steps[i], snap = snapshot(st);
+    var changed = function (k) { return !prev || prev[k] !== snap[k]; };
+    // code
+    pre.querySelector('code').innerHTML = codeLines.map(function (ln, li) {
+      return '<span class="line' + (li + 1 === st.l ? ' hl' : '') + '"><span class="gut">' + (li + 1) + '</span>' + (hlLine(ln) || ' ') + '</span>';
+    }).join('');
+    // note + output
+    note.innerHTML = st.n;
+    out.hidden = !st.out; out.textContent = st.out || '';
+    // stack (newest first)
+    if (!st.f.length) framesEl.innerHTML = '<div class="empty">(empty)</div>';
+    else {
+      framesEl.innerHTML = st.f.map(function (fr, fi) {
+        var top = fi === st.f.length - 1;
+        var rows = fr.vars.map(function (v) {
+          var k = 'f' + fi + fr.name + '.' + v[0];
+          return '<div class="var' + (prev && changed(k) ? ' chg' : '') + '"><span>' + esc(v[0]) + '</span><span class="vv">' + cellHTML(v[1]) + '</span></div>';
+        }).join('');
+        return '<div class="frame' + (top ? '' : ' paused') + '"><div class="fh"><span>' + esc(fr.name) + '()</span><span>' + (top ? 'running' : 'paused') + '</span></div>' + (rows || '<div class="var"><span class="empty">no variables yet</span></div>') + '</div>';
+      }).reverse().join('');
+    }
+    // heap
+    if (!st.h.length) objsEl.innerHTML = '<div class="empty">(empty)</div>';
+    else {
+      objsEl.innerHTML = st.h.map(function (o) {
+        var rows = o.fields.map(function (f) {
+          var k = o.id + '.' + f[0];
+          return '<div class="fld' + (prev && changed(k) && !changed(o.id) ? ' chg' : '') + '"><span>' + esc(f[0]) + '</span><span class="vv">' + cellHTML(f[1]) + '</span></div>';
+        }).join('');
+        var tag = o.flag === 'garbage' ? 'garbage' : o.flag === 'marked' ? 'reachable ✓' : '#' + o.id.slice(1);
+        return '<div class="obj ' + o.flag + '" data-obj="' + o.id + '"><div class="oh"><span>' + esc(o.type) + '</span><span class="oid">' + tag + '</span></div>' + rows + '</div>';
+      }).join('');
+    }
+    // controls
+    $$('span', pips).forEach(function (p, pi) { p.classList.toggle('on', pi <= i); });
+    count.textContent = 'Step ' + (i + 1) + ' of ' + prog.steps.length;
+    bBack.disabled = i === 0;
+    bNext.disabled = i === prog.steps.length - 1;
+    prev = snap;
+    requestAnimationFrame(drawWires);
+    if (i === prog.steps.length - 1) { stop(); if (onEnd) onEnd(); }
+  }
+  function drawWires() {
+    var base = mem.getBoundingClientRect();
+    var paths = '';
+    $$('.dot', mem).forEach(function (d) {
+      var tgt = $('[data-obj="' + d.dataset.ref + '"]', mem);
+      if (!tgt) return;
+      var a = d.getBoundingClientRect(), t = tgt.getBoundingClientRect();
+      var x1 = a.left + a.width / 2 - base.left, y1 = a.top + a.height / 2 - base.top;
+      var ty = t.top - base.top + 13, path;
+      if (t.left - base.left > x1 + 20) {
+        var x2 = t.left - base.left - 2, dx = Math.max(30, (x2 - x1) / 2);
+        path = 'M' + x1 + ',' + y1 + ' C' + (x1 + dx) + ',' + y1 + ' ' + (x2 - dx) + ',' + ty + ' ' + x2 + ',' + ty;
+      } else {
+        var xr = t.right - base.left + 2, bend = Math.max(x1, xr) + 34;
+        path = 'M' + x1 + ',' + y1 + ' C' + bend + ',' + y1 + ' ' + bend + ',' + ty + ' ' + xr + ',' + ty;
+      }
+      var dead = d.closest('.obj.garbage');
+      var isNew = !!d.closest('.chg');
+      paths += '<path d="' + path + '" class="' + (dead ? 'dead' : isNew ? 'new' : '') + '" marker-end="url(#w' + uid + (isNew && !dead ? 'b' : 'a') + ')"/>';
+    });
+    wires.innerHTML = paths;
+  }
+  function go(n) { i = Math.max(0, Math.min(prog.steps.length - 1, n)); render(); }
+  function stop() { if (timer) { clearInterval(timer); timer = null; bPlay.textContent = 'Play'; } }
+  bNext.addEventListener('click', function () { stop(); go(i + 1); });
+  bBack.addEventListener('click', function () { stop(); prev = null; go(i - 1); });
+  $('[data-a=restart]', host).addEventListener('click', function () { stop(); prev = null; go(0); });
+  bPlay.addEventListener('click', function () {
+    if (timer) { stop(); return; }
+    if (i === prog.steps.length - 1) { prev = null; go(0); }
+    bPlay.textContent = 'Pause';
+    timer = setInterval(function () { go(i + 1); }, 2600);
+  });
+  host.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight') { e.preventDefault(); stop(); go(i + 1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); stop(); prev = null; go(i - 1); }
+  });
+  if ('ResizeObserver' in window) new ResizeObserver(function () { requestAnimationFrame(drawWires); }).observe(mem);
+  window.addEventListener('resize', drawWires);
+  go(0);
+}
+
+/* ---------- programs ---------- */
+var STU = function (age, flag) { return [O('o1', 'Student', [['name', '@o2'], ['age', age]], flag), O('o2', 'String', [['text', '"Ayşe"']], flag)]; };
+var PROGRAMS = {
+  refs: {
+    code: 'public static void main(String[] args) {\n    int age = 20;\n    Student s = new Student("Ayşe", age);\n    Student t = s;\n    t.setAge(21);\n    System.out.println(s.getAge());\n}',
+    steps: [
+      { l: 1, f: [F('main')], h: [], n: 'The program starts. Java puts a <b>frame</b> for <code>main()</code> on the stack. It will hold main’s local variables. (We ignore <code>args</code> to keep things simple.)' },
+      { l: 2, f: [F('main', [['age', 20]])], h: [], n: '<code>age</code> is a primitive <code>int</code>, so the value <b>20</b> is stored directly in main’s frame.' },
+      { l: 3, f: [F('main', [['age', 20]])], h: STU(20), n: 'Java does the right side first. <code>new Student(...)</code> builds an object on the <b>heap</b>. The object has its own field <code>age</code>, a copy of 20. Strings are objects too, so <code>"Ayşe"</code> lives on the heap and the <code>name</code> field points to it.' },
+      { l: 3, f: [F('main', [['age', 20], ['s', '@o1']])], h: STU(20), n: 'Now the left side. <code>s</code> is created in main’s frame. It does <b>not</b> contain the student. It contains an <b>arrow</b> (a reference) to where the student lives.' },
+      { l: 4, f: [F('main', [['age', 20], ['s', '@o1'], ['t', '@o1']])], h: STU(20), n: '<code>Student t = s;</code> copies the <b>arrow</b>, not the object. There is still only one Student, and now two arrows point to it.' },
+      { l: 5, f: [F('main', [['age', 20], ['s', '@o1'], ['t', '@o1']])], h: STU(21), n: '<code>t.setAge(21)</code> follows t’s arrow and changes the object’s field to 21. Notice that main’s local <code>age</code> is still 20. It was only ever a copy.' },
+      { l: 6, f: [F('main', [['age', 20], ['s', '@o1'], ['t', '@o1']])], h: STU(21), out: '21', n: '<code>s.getAge()</code> follows s’s arrow to the <b>same object</b>, so it prints <b>21</b>, even though we never called <code>s.setAge</code>.' },
+      { l: 7, f: [], h: STU(21, 'garbage'), out: '21', n: '<code>main()</code> ends and its frame is removed. No variable points to the objects anymore, so they are <b>garbage</b>. The garbage collector will free that memory later (section 6).' }
+    ]
+  },
+  frames: {
+    code: 'public static void main(String[] args) {\n    int x = 5;\n    int y = square(x);\n    System.out.println(y);\n}\n\nstatic int square(int n) {\n    int result = n * n;\n    return result;\n}',
+    steps: [
+      { l: 1, f: [F('main')], h: [], n: 'A frame for <code>main()</code> goes on the stack. This program never uses <code>new</code>, so the heap stays empty.' },
+      { l: 2, f: [F('main', [['x', 5]])], h: [], n: '<code>x</code> is stored in main’s frame.' },
+      { l: 3, f: [F('main', [['x', 5]])], h: [], n: 'To work out <code>square(x)</code>, Java must <b>pause</b> main right here and call <code>square</code>. It remembers exactly where main stopped.' },
+      { l: 7, f: [F('main', [['x', 5]]), F('square', [['n', 5]])], h: [], n: 'A new frame for <code>square()</code> is <b>pushed</b> on top. The parameter <code>n</code> gets a <b>copy</b> of x’s value: 5. main is still underneath, paused.' },
+      { l: 8, f: [F('main', [['x', 5]]), F('square', [['n', 5], ['result', 25]])], h: [], n: '<code>result</code> is a local variable of <code>square</code>, so it lives in square’s frame, not main’s.' },
+      { l: 9, f: [F('main', [['x', 5]]), F('square', [['n', 5], ['result', 25]])], h: [], n: '<code>return result;</code> hands the value 25 back to whoever called <code>square</code>.' },
+      { l: 3, f: [F('main', [['x', 5], ['y', 25]])], h: [], n: 'square’s frame is <b>popped</b>: removed from the stack, and <code>n</code> and <code>result</code> are gone forever. main continues exactly where it paused and stores 25 in <code>y</code>.' },
+      { l: 4, f: [F('main', [['x', 5], ['y', 25]])], h: [], out: '25', n: 'Prints 25.' },
+      { l: 5, f: [], h: [], out: '25', n: '<code>main()</code> ends, its frame is popped, and the stack is empty. The program is finished.' }
+    ]
+  },
+  pass: {
+    code: 'public static void main(String[] args) {\n    Point p = new Point(1, 2);\n    move(p);\n    reset(p);\n    System.out.println(p.x);\n}\n\nstatic void move(Point q) {\n    q.x = q.x + 5;\n}\n\nstatic void reset(Point q) {\n    q = new Point(0, 0);\n}',
+    steps: [
+      { l: 2, f: [F('main', [['p', '@o1']])], h: [O('o1', 'Point', [['x', 1], ['y', 2]])], n: '<code>p</code> is in main’s frame, with an arrow to a Point on the heap.' },
+      { l: 8, f: [F('main', [['p', '@o1']]), F('move', [['q', '@o1']])], h: [O('o1', 'Point', [['x', 1], ['y', 2]])], n: 'Calling <code>move(p)</code> copies <code>p</code> into the parameter <code>q</code>. p holds an arrow, so q gets a <b>copy of the arrow</b>. Two arrows, still one object.' },
+      { l: 9, f: [F('main', [['p', '@o1']]), F('move', [['q', '@o1']])], h: [O('o1', 'Point', [['x', 6], ['y', 2]])], n: '<code>q.x = q.x + 5</code> follows q’s arrow and changes <b>the object</b>. p points to the same object, so main will see x = 6.' },
+      { l: 3, f: [F('main', [['p', '@o1']])], h: [O('o1', 'Point', [['x', 6], ['y', 2]])], n: '<code>move()</code> returns and its frame (with q) disappears. The change stays, because the object lives on the heap, not inside move’s frame.' },
+      { l: 12, f: [F('main', [['p', '@o1']]), F('reset', [['q', '@o1']])], h: [O('o1', 'Point', [['x', 6], ['y', 2]])], n: 'Now <code>reset(p)</code>. Same as before: q gets a copy of p’s arrow.' },
+      { l: 13, f: [F('main', [['p', '@o1']]), F('reset', [['q', '@o2']])], h: [O('o1', 'Point', [['x', 6], ['y', 2]]), O('o2', 'Point', [['x', 0], ['y', 0]])], n: '<code>q = new Point(0, 0)</code> creates a new object and moves <b>q’s</b> arrow to it. That changes only q, reset’s own copy. p in main still points to the old Point.' },
+      { l: 4, f: [F('main', [['p', '@o1']])], h: [O('o1', 'Point', [['x', 6], ['y', 2]]), O('o2', 'Point', [['x', 0], ['y', 0]], 'garbage')], n: '<code>reset()</code> returns. q is gone, and nothing points to Point(0, 0) anymore: it’s <b>garbage</b>. main’s p never changed.' },
+      { l: 5, f: [F('main', [['p', '@o1']])], h: [O('o1', 'Point', [['x', 6], ['y', 2]]), O('o2', 'Point', [['x', 0], ['y', 0]], 'garbage')], out: '6', n: 'Prints <b>6</b>. move’s change survived; reset’s change didn’t.' }
+    ]
+  },
+  garbage: {
+    code: 'public static void main(String[] args) {\n    Point a = new Point(1, 1);\n    Point b = new Point(2, 2);\n    a = b;\n    b = null;\n    // ... later, the garbage collector runs ...\n}',
+    steps: [
+      { l: 2, f: [F('main', [['a', '@o1']])], h: [O('o1', 'Point', [['x', 1], ['y', 1]])], n: '<code>a</code> points to Point(1, 1).' },
+      { l: 3, f: [F('main', [['a', '@o1'], ['b', '@o2']])], h: [O('o1', 'Point', [['x', 1], ['y', 1]]), O('o2', 'Point', [['x', 2], ['y', 2]])], n: '<code>b</code> points to Point(2, 2).' },
+      { l: 4, f: [F('main', [['a', '@o2'], ['b', '@o2']])], h: [O('o1', 'Point', [['x', 1], ['y', 1]], 'garbage'), O('o2', 'Point', [['x', 2], ['y', 2]])], n: '<code>a = b</code> moves a’s arrow. Now <b>no</b> arrow leads to Point(1, 1). There is no way to ever use it again, so it is <b>garbage</b>. It still takes up memory, though.' },
+      { l: 5, f: [F('main', [['a', '@o2'], ['b', null]])], h: [O('o1', 'Point', [['x', 1], ['y', 1]], 'garbage'), O('o2', 'Point', [['x', 2], ['y', 2]])], n: '<code>b = null</code> removes b’s arrow. Is Point(2, 2) garbage now? <b>No</b>: <code>a</code> still points to it. One arrow is enough.' },
+      { l: 6, f: [F('main', [['a', '@o2'], ['b', null]])], h: [O('o1', 'Point', [['x', 1], ['y', 1]], 'garbage'), O('o2', 'Point', [['x', 2], ['y', 2]], 'marked')], n: 'At some moment Java chooses, the garbage collector runs. <b>Mark:</b> it starts from every variable on the stack and follows every arrow. Everything it reaches is marked (green).' },
+      { l: 6, f: [F('main', [['a', '@o2'], ['b', null]])], h: [O('o2', 'Point', [['x', 2], ['y', 2]])], n: '<b>Sweep:</b> everything that wasn’t marked is deleted, and its memory can be reused. Point(1, 1) is gone. This method is called <b>mark and sweep</b>.' },
+      { l: 7, f: [], h: [O('o2', 'Point', [['x', 2], ['y', 2]], 'garbage')], n: 'When <code>main()</code> ends, its frame goes, and Point(2, 2) becomes unreachable too.' }
+    ]
+  }
+};
+$$('[data-viz]').forEach(function (host) {
+  var key = host.dataset.viz;
+  Viz(host, PROGRAMS[key], key === 'pass' ? null : function () { pass(key); });
+});
+
+/* ---------- 1. where does it live ---------- */
+(function () {
+  var items = [
+    { t: 'A local variable <code>int count = 0;</code> inside a method', a: 's', why: 'Local primitive: stored right in the method’s frame.' },
+    { t: 'The object created by <code>new Student("Ali", 19)</code>', a: 'h', why: 'Everything made with <code>new</code> goes on the heap.' },
+    { t: 'The variable <code>s</code> in <code>Student s = new Student(...)</code>', a: 's', why: 'The variable is local, so it’s on the stack. It just holds an arrow to the heap.' },
+    { t: 'The <code>age</code> field inside a Student object', a: 'h', why: 'Fields live <b>inside the object</b>, so on the heap, even when they’re an <code>int</code>.' },
+    { t: 'The parameter <code>n</code> of <code>square(int n)</code>', a: 's', why: 'Parameters are local variables of the call, in its frame.' },
+    { t: 'An array made with <code>new int[100]</code>', a: 'h', why: 'Arrays are objects in Java. <code>new</code> means heap.' }
+  ];
+  var box = $('#where-list'), done = 0, right = 0;
+  items.forEach(function (it) {
+    var d = document.createElement('div');
+    d.className = 'sort-item';
+    d.innerHTML = '<div>' + it.t + '</div><div class="where"><button class="btn" type="button" data-a="s">Stack</button><button class="btn" type="button" data-a="h">Heap</button></div><div class="fb"></div>';
+    $$('button', d).forEach(function (b) {
+      b.addEventListener('click', function () {
+        $$('button', d).forEach(function (x) { x.disabled = true; });
+        b.setAttribute('aria-pressed', 'true');
+        var ok = b.dataset.a === it.a;
+        d.classList.add(ok ? 'ok' : 'no');
+        $('.fb', d).innerHTML = (ok ? '✓ ' : '✗ ') + it.why;
+        done++; if (ok) right++;
+        if (done === items.length) {
+          outMsg($('#where-out'), right + ' of ' + items.length + ' correct. Quick rule: <b><code>new</code> → heap</b>. Local variables and parameters → stack.', right === items.length ? 'pass' : '');
+          pass('two');
+        }
+      });
+    });
+    box.appendChild(d);
+  });
+})();
+
+/* ---------- 4. pass quiz ---------- */
+makeQuiz($('#pass-quiz'), [
+  { q: 'What does this print?', code: 'static void change(int n) {\n    n = 99;\n}\n\n// in main:\nint k = 1;\nchange(k);\nSystem.out.println(k);', options: ['1', '99'], answer: 0,
+    why: '<code>n</code> got a copy of the number 1 in its own frame. Changing the copy doesn’t touch <code>k</code>.' },
+  { q: 'What does this print?', code: 'static void rename(Student s) {\n    s.setName("Can");\n}\n\n// in main:\nStudent st = new Student("Ali", 20);\nrename(st);\nSystem.out.println(st.getName());', options: ['Ali', 'Can'], answer: 1,
+    why: '<code>s</code> is a copy of the arrow, pointing to the same object. <code>setName</code> changes that object, so <code>st</code> sees it.' },
+  { q: 'What does this print?', code: 'static void replace(Student s) {\n    s = new Student("Can", 20);\n}\n\n// in main:\nStudent st = new Student("Ali", 20);\nreplace(st);\nSystem.out.println(st.getName());', options: ['Ali', 'Can'], answer: 0,
+    why: 'Reassigning <code>s</code> only moves the method’s own copy of the arrow. <code>st</code> still points to Ali, and the new Can object becomes garbage when the method ends.' }
+], function () { pass('pass'); });
+
+/* ---------- 5. overflow ---------- */
+(function () {
+  var base = true, busy = false, stack = $('#ovf-stack'), msg = $('#ovf-msg');
+  var CODE = [
+    'static void countdown(int n) {\n    if (n == 0) return;          // base case: stop here\n    countdown(n - 1);\n}',
+    'static void countdown(int n) {\n    // forgot the base case!\n    countdown(n - 1);\n}'
+  ];
+  function reset() {
+    stack.classList.remove('boom');
+    stack.innerHTML = '<div class="mini main">main()</div>';
+    msg.innerHTML = '';
+  }
+  reset();
+  segment($('#ovf-switch'), function (v) { if (busy) return; base = v === 0; setCode($('#ovf-code'), CODE[v], v ? '' : '2', v ? '2' : ''); reset(); });
+  setCode($('#ovf-code'), CODE[0], '2', '');
+  function push(n) { var d = document.createElement('div'); d.className = 'mini'; d.textContent = 'countdown(n = ' + n + ')'; stack.appendChild(d); }
+  $('#ovf-run').addEventListener('click', function () {
+    if (busy) return; busy = true;
+    reset();
+    var p = Promise.resolve();
+    if (base) {
+      [4, 3, 2, 1, 0].forEach(function (n) { p = p.then(function () { return wait(380); }).then(function () { push(n); }); });
+      p = p.then(function () {
+        msg.innerHTML = '<p class="demo-sub" style="margin-top:12px">n is 0: the base case stops the calls. Now each call returns and its frame is popped…</p>';
+        return wait(900);
+      });
+      for (var k = 0; k < 5; k++) p = p.then(function () { return wait(330); }).then(function () { stack.removeChild(stack.lastChild); });
+      p.then(function () {
+        outMsg(msg, B_PASS + '5 frames went up, 5 came down. The stack is back to just <code>main()</code>. Now try it without the base case.', 'pass');
+        msg.className = 'out pass';
+        busy = false;
+      });
+    } else {
+      var n = 4;
+      for (var j = 0; j < 16; j++) {
+        (function (j) {
+          p = p.then(function () { return wait(Math.max(70, 360 - j * 30)); }).then(function () { push(n--); });
+        })(j);
+      }
+      p.then(function () { return wait(250); }).then(function () {
+        stack.classList.add('boom');
+        msg.className = '';
+        msg.innerHTML = '<div class="ovf-err">Exception in thread "main" java.lang.StackOverflowError\n\tat Main.countdown(Main.java:3)\n\tat Main.countdown(Main.java:3)\n\tat Main.countdown(Main.java:3)\n\t... (thousands more lines)</div>' +
+          '<p style="margin-top:10px">n went 4, 3, 2, 1, 0, −1, −2, … and never stopped. Each call added a frame. In a real program this happens after a few thousand calls, when the stack is full.</p>';
+        pass('overflow');
+        busy = false;
+      });
+    }
+  });
+})();
+
+/* ---------- 7. exit quiz ---------- */
+(function () {
+  var QS = [
+    { q: 'Where does the object created by <code>new Point(1, 2)</code> live?', options: ['On the stack', 'On the heap', 'Inside the variable', 'In the class file'], answer: 1,
+      why: '<code>new</code> always creates the object on the heap. The variable only holds an arrow to it.' },
+    { q: 'What is <code>a.x</code> at the end?', code: 'Point a = new Point(1, 2);\nPoint b = a;\nb.x = 9;', options: ['1', '9'], answer: 1,
+      why: '<code>b = a</code> copied the arrow. One object, two arrows, so the change through b is visible through a.' },
+    { q: 'What does this print?', code: 'static void reset(Point q) {\n    q = new Point(0, 0);\n}\n\nPoint p = new Point(5, 5);\nreset(p);\nSystem.out.println(p.x);', options: ['0', '5'], answer: 1,
+      why: 'Reassigning the parameter only changes the method’s copy of the arrow. p still points to Point(5, 5).' },
+    { q: 'When is a method’s frame removed from the stack?', options: ['When the garbage collector runs', 'When the method returns', 'When the program ends', 'Never'], answer: 1,
+      why: 'Frames are popped immediately when their method finishes. The garbage collector only deals with the heap.' },
+    { q: 'When can the garbage collector delete an object?', options: ['When the method that created it ends', 'When you set one variable to <code>null</code>', 'When no chain of arrows from the stack reaches it', 'Every 10 seconds'], answer: 2,
+      why: 'Reachability is what counts. If any arrow chain from a stack variable still reaches the object, it stays.' },
+    { q: 'Where does the <code>int age</code> field of a Student object live?', options: ['On the stack, because it’s an int', 'On the heap, inside the object'], answer: 1,
+      why: 'Fields are part of the object, and the object is on the heap. Only <em>local</em> primitives live on the stack.' },
+    { q: 'What usually causes a <code>StackOverflowError</code>?', options: ['Creating too many objects', 'A recursive method without a working base case', 'Dividing by zero', 'Forgetting to close a file'], answer: 1,
+      why: 'Every call adds a frame. Recursion that never stops fills the stack. Too many objects would cause <code>OutOfMemoryError</code> instead.' }
+  ];
+  function start() {
+    $('#exit-score').innerHTML = '';
+    makeQuiz($('#exit-quiz'), QS, function (r, n) {
+      var m = r === n ? 'Perfect. All green.' : r >= n - 2 ? 'Good work. Reread the explanations for the ones you missed.' : 'Step through the visualisations again, then retry.';
+      $('#exit-score').innerHTML = '<p class="score">' + r + ' / ' + n + '</p><p>' + m + '</p><button class="btn" type="button" id="exit-again">Try again</button>';
+      $('#exit-again').addEventListener('click', function () { start(); $('#quiz').scrollIntoView(); });
+      pass('quiz');
+    });
+  }
+  start();
+})();
+
+})();
+</script>
+</body>
+</html>
