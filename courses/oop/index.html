@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture Courses Directory</title>
+    <style>
+        :root {
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-main: #222222;
+            --text-muted: #666666;
+            --accent-color: #0066cc;
+            --border-color: #dcdcdc;
+            --card-hover-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        header {
+            max-width: 1000px;
+            margin: 0 auto 30px auto;
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: var(--text-main);
+            margin-bottom: 10px;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--card-hover-shadow);
+            border-color: var(--accent-color);
+        }
+
+        .course-tag {
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            color: var(--text-main);
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        .card-footer {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Lecture Courses Directory</h1>
+        <p class="subtitle">Click any course card below to view study materials and lectures.</p>
+    </header>
+
+    <main class="container" id="courses-container">
+        <!-- Course cards will be injected here via JavaScript -->
+    </main>
+
+    <script>
+        // Define course items in a JavaScript object array
+        const coursesData = [
+            {
+                tag: "Stack & Heap",
+                title: "Stack & Heap",
+                description: "",
+                url: "https://kocatekin.github.io/courses/oop/stack_heap.html"
+            },
+            {
+                tag: "Unit Testing-1",
+                title: "Unit Testing-1",
+                description: "",
+                url: "https://kocatekin.github.io/courses/oop/unit_testing_1.html"
+            }
+            ];
+            
+
+        // Function to render courses into the DOM
+        function renderCourses() {
+            const container = document.getElementById('courses-container');
+            let htmlContent = '';
+
+            coursesData.forEach(course => {
+                htmlContent += `
+                    <a href="${course.url}" target="_blank" class="card">
+                        <div>
+                            <div class="course-tag">${course.tag}</div>
+                            <h2>${course.title}</h2>
+                            <p>${course.description}</p>
+                        </div>
+                        <div class="card-footer">View Course &rarr;</div>
+                    </a>
+                `;
+            });
+
+            container.innerHTML = htmlContent;
+        }
+
+        // Run render function once DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', renderCourses);
+    </script>
+
+</body>
+</html>
