@@ -1,0 +1,1775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Week 5: Unit Testing I</title>
+<style>
+:root{
+  --bg:#EDF1EE; --paper:#F9FBFA; --ink:#1B2A31; --muted:#55666B; --line:#C8D2CE; --soft:#E1E8E4;
+  --pass:#1C754D; --pass-bg:#D9EEE1; --fail:#B02E38; --fail-bg:#F6DCDE;
+  --accent:#2A4ABD; --accent-bg:#DFE5F8; --mark:#F3D35A;
+  --arrange:#2A4ABD; --arrange-bg:#DFE5F8; --act:#9A600C; --act-bg:#F6E8CF; --assert:#1C754D; --assert-bg:#D9EEE1;
+  --code-bg:#16232A; --code-ink:#D9E3E0; --code-gutter:#5F7379; --code-hl:#24382E; --code-bad:#43262A;
+  --tk-key:#F2A7CB; --tk-str:#B6E08D; --tk-num:#F6C177; --tk-ann:#F3D35A; --tk-type:#90C8FF; --tk-fn:#A6E3DA; --tk-com:#7F939A;
+  --fs:17px;
+  --serif:"Iowan Old Style","Charter","Bitstream Charter","Sitka Text",Cambria,Georgia,serif;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"Cascadia Code","JetBrains Mono",Consolas,Menlo,monospace;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#101A1E; --paper:#16232A; --ink:#E1EAE6; --muted:#97A8A7; --line:#2C3C42; --soft:#1C2B31;
+    --pass:#4DC48B; --pass-bg:#16392A; --fail:#F2737B; --fail-bg:#3F1D22;
+    --accent:#90A8FF; --accent-bg:#1E2A4C; --mark:#E2C24A;
+    --arrange:#90A8FF; --arrange-bg:#1E2A4C; --act:#F0B65A; --act-bg:#3A2C14; --assert:#4DC48B; --assert-bg:#16392A;
+    --code-bg:#0B1418; --code-hl:#1C3326; --code-bad:#3A1D22;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#101A1E; --paper:#16232A; --ink:#E1EAE6; --muted:#97A8A7; --line:#2C3C42; --soft:#1C2B31;
+  --pass:#4DC48B; --pass-bg:#16392A; --fail:#F2737B; --fail-bg:#3F1D22;
+  --accent:#90A8FF; --accent-bg:#1E2A4C; --mark:#E2C24A;
+  --arrange:#90A8FF; --arrange-bg:#1E2A4C; --act:#F0B65A; --act-bg:#3A2C14; --assert:#4DC48B; --assert-bg:#16392A;
+  --code-bg:#0B1418; --code-hl:#1C3326; --code-bad:#3A1D22;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 24px);scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 var(--fs)/1.62 var(--sans);-webkit-text-size-adjust:100%}
+img,svg{max-width:100%}
+a{color:var(--accent)}
+code{font-family:var(--mono);font-size:.88em;background:var(--soft);padding:.08em .35em;border-radius:4px}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+button{font:inherit;color:inherit}
+
+/* ---------- layout ---------- */
+.shell{display:grid;grid-template-columns:272px minmax(0,1fr);max-width:1200px;margin:0 auto}
+.side{position:sticky;top:0;height:100vh;overflow-y:auto;padding:30px 20px 24px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:18px}
+main{padding:44px clamp(18px,5vw,68px) 140px;min-width:0}
+.topbar{display:none}
+
+.suite{border:1px solid var(--line);background:var(--paper);border-radius:10px;padding:14px 14px 12px}
+.suite-name{font-family:var(--mono);font-size:.82rem;color:var(--muted)}
+.runbar{height:10px;border-radius:5px;background:var(--soft);overflow:hidden;margin:9px 0 7px}
+.runbar span{display:block;height:100%;width:0;background:var(--pass);transition:width .5s ease}
+.suite-count{font-size:.86rem;color:var(--muted)}
+.suite-count b{color:var(--pass)}
+
+.toc{list-style:none;margin:0;padding:0;font-size:.93rem}
+.toc li a{display:flex;gap:10px;align-items:flex-start;padding:7px 8px;border-radius:7px;text-decoration:none;color:var(--ink);line-height:1.35}
+.toc li a:hover{background:var(--soft)}
+.toc li a.current{background:var(--accent-bg)}
+.toc .st{flex:0 0 18px;height:18px;margin-top:1px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:11px;font-weight:700;color:#fff}
+.toc li.passed .st{background:var(--pass);border-color:var(--pass)}
+.toc li.passed .st::after{content:"✓"}
+.toc li.extra .st{border-style:dashed}
+.side-tools{margin-top:auto;display:flex;flex-wrap:wrap;gap:6px}
+.side-tools button{border:1px solid var(--line);background:var(--paper);border-radius:7px;padding:5px 10px;font-size:.85rem;cursor:pointer}
+.side-tools button:hover{border-color:var(--accent)}
+
+@media (max-width:920px){
+  .shell{grid-template-columns:1fr}
+  .side{position:fixed;inset:0 auto 0 0;width:290px;max-width:85vw;height:100%;z-index:40;background:var(--bg);transform:translateX(-102%);transition:transform .25s ease;padding-top:calc(env(safe-area-inset-top,0px) + 24px)}
+  .side.open{transform:none;box-shadow:0 0 0 100vmax rgba(0,0,0,.35)}
+  .topbar{display:flex;position:sticky;top:0;z-index:30;align-items:center;gap:12px;padding:10px 16px;padding-top:calc(env(safe-area-inset-top,0px) + 10px);background:var(--bg);border-bottom:1px solid var(--line)}
+  .topbar button{border:1px solid var(--line);background:var(--paper);border-radius:7px;padding:5px 11px;cursor:pointer}
+  .topbar .runbar{flex:1;margin:0}
+  main{padding-top:28px}
+}
+
+/* ---------- hero ---------- */
+.hero{max-width:780px;margin-bottom:64px}
+.course{color:var(--muted);margin:0 0 6px;font-size:.95rem}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(2.4rem,6vw,3.6rem);line-height:1.04;margin:0 0 18px;letter-spacing:-.01em}
+.lead{font-size:1.14em;line-height:1.55;max-width:62ch;margin:0 0 26px}
+.console{background:var(--code-bg);color:var(--code-ink);font-family:var(--mono);font-size:.86rem;line-height:1.75;border-radius:12px;padding:18px 20px;min-height:208px;overflow-x:auto}
+.console .ln{white-space:pre;opacity:0;transform:translateY(4px);transition:opacity .3s,transform .3s}
+.console .ln.on{opacity:1;transform:none}
+.console .ok{color:#6FD69F}.console .bad{color:#FF8A92}.console .dim{color:var(--code-gutter)}
+.console .bar{display:inline-block;height:9px;width:0;border-radius:5px;vertical-align:middle;transition:width .8s ease}
+.hero-foot{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-top:14px;color:var(--muted);font-size:.95rem}
+.goals{margin:36px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+.goals li{padding-left:28px;position:relative}
+.goals li::before{content:"";position:absolute;left:4px;top:.55em;width:12px;height:12px;border:2px solid var(--pass);border-radius:3px}
+
+/* ---------- lessons ---------- */
+.lesson{max-width:780px;margin:0 0 96px;scroll-margin-top:24px}
+.lesson > h2{font-family:var(--serif);font-weight:600;font-size:clamp(1.7rem,3.6vw,2.2rem);line-height:1.15;margin:0 0 18px;display:flex;gap:14px;align-items:baseline}
+.lesson > h2 .num{font-family:var(--mono);font-size:.5em;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:2px 7px;transform:translateY(-4px)}
+.lesson h3{font-family:var(--serif);font-weight:600;font-size:1.32rem;margin:40px 0 10px}
+.lesson p,.lesson li{max-width:68ch}
+.lesson ul,.lesson ol{padding-left:1.3em}
+.lesson li{margin:.3em 0}
+.mark{background:linear-gradient(transparent 58%,color-mix(in srgb,var(--mark) 65%,transparent) 58%);padding:0 .1em}
+
+.callout{border-left:4px solid var(--accent);background:var(--paper);padding:12px 16px;border-radius:0 8px 8px 0;margin:20px 0}
+.callout.warn{border-color:var(--fail)}
+.callout.good{border-color:var(--pass)}
+.callout p{margin:.3em 0}
+.callout strong:first-child{display:block;margin-bottom:2px}
+
+/* ---------- code ---------- */
+.code-wrap{position:relative;margin:18px 0}
+pre.code{background:var(--code-bg);color:var(--code-ink);font-family:var(--mono);font-size:.84rem;line-height:1.65;padding:14px 0;border-radius:10px;overflow-x:auto;margin:0;tab-size:4}
+pre.code code{background:none;padding:0;font-size:inherit;display:block;min-width:max-content}
+pre.code .line{display:block;padding:0 20px 0 14px;border-left:3px solid transparent}
+pre.code .line.hl{background:var(--code-hl);border-left-color:#6FD69F}
+pre.code .line.bad{background:var(--code-bad);border-left-color:#FF8A92}
+pre.code .gut{display:inline-block;width:2.2em;color:var(--code-gutter);user-select:none;text-align:right;margin-right:14px}
+.tk-key{color:var(--tk-key)}.tk-str{color:var(--tk-str)}.tk-num{color:var(--tk-num)}.tk-ann{color:var(--tk-ann)}.tk-type{color:var(--tk-type)}.tk-fn{color:var(--tk-fn)}.tk-com{color:var(--tk-com);font-style:italic}
+.copy{position:absolute;top:8px;right:8px;border:1px solid #3A4E56;background:#1F3038;color:#C9D6D2;border-radius:6px;font-size:.75rem;padding:3px 9px;cursor:pointer;opacity:.75}
+.copy:hover{opacity:1}
+.code-cap{font-size:.86rem;color:var(--muted);margin:-10px 0 18px}
+
+/* ---------- interactive panel ---------- */
+.demo{border:1.5px solid var(--line);background:var(--paper);border-radius:12px;padding:18px 18px 16px;margin:26px 0}
+.demo-title{font-weight:650;margin:0 0 4px;display:flex;align-items:center;gap:8px}
+.demo-title::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--accent)}
+.demo-sub{color:var(--muted);font-size:.93rem;margin:0 0 14px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{border:1.5px solid var(--line);background:var(--bg);border-radius:8px;padding:7px 14px;cursor:pointer;font-size:.93rem;line-height:1.3}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+[data-theme="dark"] .btn.primary{color:#0D1530}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn.primary{color:#0D1530}}
+.btn.code-btn{font-family:var(--mono);font-size:.85rem}
+.btn[aria-pressed="true"]{background:var(--accent-bg);border-color:var(--accent)}
+.btn:disabled{opacity:.5;cursor:default}
+.seg{display:inline-flex;border:1.5px solid var(--line);border-radius:9px;overflow:hidden;flex-wrap:wrap}
+.seg button{border:0;background:var(--bg);padding:7px 13px;cursor:pointer;font-size:.9rem;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--accent);color:#fff}
+[data-theme="dark"] .seg button[aria-pressed="true"]{color:#0D1530}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .seg button[aria-pressed="true"]{color:#0D1530}}
+
+.out{margin-top:14px;border-radius:9px;padding:12px 14px;background:var(--soft);font-size:.95rem;min-height:1em}
+.out:empty{display:none}
+.out.pass{background:var(--pass-bg)}
+.out.fail{background:var(--fail-bg)}
+.badge{display:inline-block;font-weight:700;font-size:.8rem;border-radius:5px;padding:1px 8px;margin-right:6px;color:#fff;vertical-align:1px}
+.badge.p{background:var(--pass)}.badge.f{background:var(--fail)}.badge.n{background:var(--muted)}
+.mono{font-family:var(--mono);font-size:.88em}
+
+/* test runner tree */
+.runner{margin-top:14px;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--bg)}
+.runner-head{padding:9px 12px;display:flex;align-items:center;gap:10px;font-size:.9rem;border-bottom:1px solid var(--line)}
+.runner-head .runbar{flex:1;margin:0}
+.runner-head .runbar span{transition:width .25s}
+.runner-head .runbar.red span{background:var(--fail)}
+.runner ul{list-style:none;margin:0;padding:6px 0}
+.runner li{padding:5px 12px 5px 14px;font-family:var(--mono);font-size:.84rem;display:grid;grid-template-columns:20px 1fr;gap:6px;max-width:none}
+.runner li .ic{font-weight:700}
+.runner li.p .ic{color:var(--pass)}
+.runner li.f .ic{color:var(--fail)}
+.runner li.w .ic{color:var(--muted)}
+.runner .msg{grid-column:2;color:var(--fail);font-size:.8rem;white-space:pre-wrap}
+
+/* hero-style mini table of expected/actual */
+.cases{width:100%;border-collapse:collapse;margin-top:14px;font-size:.92rem}
+.cases th,.cases td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line)}
+.cases th{font-weight:600;color:var(--muted);font-size:.85rem}
+.cases td.r-p{color:var(--pass);font-weight:700}
+.cases td.r-f{color:var(--fail);font-weight:700}
+.tbl-wrap{overflow-x:auto}
+
+/* ---------- memory diagram ---------- */
+.mem svg{display:block;width:100%;height:auto;max-width:560px;margin:0 auto}
+.mem .box{fill:var(--bg);stroke:var(--line);stroke-width:1.5}
+.mem .obj{fill:var(--paper);stroke:var(--ink);stroke-width:1.5;transition:stroke .3s,fill .3s}
+.mem .obj.lit{stroke:var(--accent);fill:var(--accent-bg);stroke-width:2.5}
+.mem text{fill:var(--ink);font-family:var(--mono);font-size:14px}
+.mem .lbl{fill:var(--muted);font-family:var(--sans);font-size:13px}
+.mem .arr{stroke:var(--muted);stroke-width:2;fill:none;transition:stroke .3s,stroke-width .3s}
+.mem .arr.lit{stroke:var(--accent);stroke-width:3.5}
+.mem .var.lit{stroke:var(--accent);stroke-width:2.5}
+.mem marker path{fill:var(--muted)}
+
+/* ---------- buckets ---------- */
+.buckets{display:grid;grid-template-columns:repeat(8,minmax(56px,1fr));gap:6px;margin-top:16px;overflow-x:auto}
+.bucket{border:1.5px dashed var(--line);border-radius:8px;min-height:74px;padding:4px;display:flex;flex-direction:column;align-items:center;gap:4px;transition:border-color .3s,background .3s}
+.bucket .bi{font-family:var(--mono);font-size:.72rem;color:var(--muted)}
+.bucket.look{border-color:var(--accent);border-style:solid;background:var(--accent-bg)}
+.chipobj{font-family:var(--mono);font-size:.72rem;background:var(--ink);color:var(--bg);border-radius:5px;padding:2px 5px;white-space:nowrap;animation:pop .3s ease}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+.steps{margin:14px 0 0;padding:0;list-style:none;font-size:.92rem}
+.steps li{padding:5px 0 5px 26px;position:relative;opacity:.35;transition:opacity .3s}
+.steps li.on{opacity:1}
+.steps li::before{content:attr(data-n);position:absolute;left:0;top:5px;width:19px;height:19px;border-radius:50%;background:var(--soft);font-size:.72rem;display:grid;place-items:center;font-weight:700}
+.steps li.on::before{background:var(--accent);color:#fff}
+
+/* ---------- anatomy ---------- */
+.anat pre.code .part{all:unset;cursor:pointer;border-radius:4px;outline:1.5px dashed #5C7880;outline-offset:1px}
+.anat pre.code .part:hover,.anat pre.code .part.sel{outline:2px solid var(--tk-ann);background:#2D3F2F}
+.anat pre.code .part:focus-visible{outline:2px solid var(--tk-ann)}
+.anat-info{margin-top:12px;border-radius:9px;padding:12px 14px;background:var(--accent-bg);min-height:3.2em}
+
+/* ---------- AAA ---------- */
+.aaa-line{display:grid;grid-template-columns:118px 1fr;gap:10px;align-items:center;margin:6px 0}
+.aaa-line .tag{border:1.5px dashed var(--line);background:var(--bg);border-radius:7px;padding:6px 8px;cursor:pointer;font-size:.85rem;font-weight:600;text-align:center}
+.aaa-line .tag.arrange{background:var(--arrange-bg);border:1.5px solid var(--arrange);color:var(--arrange)}
+.aaa-line .tag.act{background:var(--act-bg);border:1.5px solid var(--act);color:var(--act)}
+.aaa-line .tag.assert{background:var(--assert-bg);border:1.5px solid var(--assert);color:var(--assert)}
+.aaa-line .tag.wrong{box-shadow:0 0 0 3px var(--fail)}
+.aaa-line pre{margin:0;background:var(--code-bg);color:var(--code-ink);font-family:var(--mono);font-size:.84rem;padding:7px 12px;border-radius:7px;overflow-x:auto}
+.aaa-band{display:flex;border-radius:9px;overflow:hidden;margin:16px 0;font-size:.9rem;font-weight:600}
+.aaa-band div{flex:1;padding:10px 12px}
+.aaa-band .a1{background:var(--arrange-bg);color:var(--arrange)}
+.aaa-band .a2{background:var(--act-bg);color:var(--act)}
+.aaa-band .a3{background:var(--assert-bg);color:var(--assert)}
+.aaa-band span{display:block;font-weight:400;color:var(--ink);font-size:.85rem}
+
+/* ---------- MCQ ---------- */
+.mcq-item{padding:14px 0;border-top:1px solid var(--line)}
+.mcq-item:first-child{border-top:0;padding-top:4px}
+.mcq-q{font-weight:600;margin:0 0 10px}
+.mcq-q pre{font-weight:400}
+.mcq-opts{display:grid;gap:7px}
+.mcq-opts button{text-align:left;border:1.5px solid var(--line);background:var(--bg);border-radius:8px;padding:8px 12px;cursor:pointer;font-size:.93rem}
+.mcq-opts button:hover:not(:disabled){border-color:var(--accent)}
+.mcq-opts button:disabled{cursor:default}
+.mcq-opts button.right{border-color:var(--pass);background:var(--pass-bg)}
+.mcq-opts button.wrong{border-color:var(--fail);background:var(--fail-bg)}
+.mcq-why{margin-top:10px;font-size:.92rem;padding:10px 12px;border-radius:8px;background:var(--soft)}
+.score{font-family:var(--serif);font-size:1.5rem;margin:14px 0 0}
+
+/* ---------- number line ---------- */
+.nl svg{display:block;width:100%;height:auto}
+.nl .seg-r{stroke:var(--bg);stroke-width:2}
+.nl text{font-family:var(--sans);font-size:12px;fill:var(--ink)}
+.nl .tick{fill:var(--muted);font-family:var(--mono);font-size:10.5px}
+.nl .pt{fill:var(--accent);stroke:var(--paper);stroke-width:2}
+.nl .pt.f{fill:var(--fail)}.nl .pt.p{fill:var(--pass)}
+.meter{display:grid;grid-template-columns:auto 1fr auto;gap:6px 10px;align-items:center;font-size:.9rem;margin-top:12px}
+.meter .runbar{margin:0}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{font-family:var(--mono);font-size:.82rem;border:1px solid var(--line);background:var(--bg);border-radius:20px;padding:2px 4px 2px 10px;display:inline-flex;align-items:center;gap:4px}
+.chip button{border:0;background:none;cursor:pointer;color:var(--muted);padding:0 5px;font-size:1rem;line-height:1}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=number]{font:inherit;width:84px;padding:6px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+
+/* ---------- sort game ---------- */
+.sort-item{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.sort-item:first-child{border-top:0}
+.sort-item .fb{grid-column:1/-1;font-size:.88rem;color:var(--muted)}
+.sort-item.ok .fb{color:var(--pass)}
+.sort-item.no .fb{color:var(--fail)}
+
+/* pyramid */
+.pyr{display:grid;grid-template-columns:minmax(220px,340px) 1fr;gap:22px;align-items:center;margin:22px 0}
+.pyr svg text{font-family:var(--sans);font-size:13px;fill:var(--ink)}
+@media (max-width:620px){.pyr{grid-template-columns:1fr}}
+
+details.prob{border:1px solid var(--line);border-radius:9px;padding:10px 14px;margin:8px 0;background:var(--paper)}
+details.prob summary{cursor:pointer;font-weight:600}
+details.prob[open]{border-color:var(--fail)}
+
+.dates{display:flex;flex-wrap:wrap;gap:6px}
+.tm-grid{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;margin-top:14px;font-size:.93rem;align-items:center}
+
+/* cheat sheet */
+.ref{width:100%;border-collapse:collapse;font-size:.92rem;margin:14px 0}
+.ref td,.ref th{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+.ref th{color:var(--muted);font-weight:600;font-size:.85rem}
+.ref td:first-child{font-family:var(--mono);font-size:.84rem;white-space:nowrap}
+
+.done-note{display:none;margin-top:12px;color:var(--pass);font-weight:600;font-size:.93rem}
+.done-note.on{display:block}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}
+}
+@media print{
+  .side,.topbar,.copy,.side-tools{display:none!important}
+  .shell{display:block}
+  .lesson{break-inside:auto}
+}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <button type="button" id="menu-btn" aria-controls="side" aria-expanded="false">Contents</button>
+  <div class="runbar" aria-hidden="true"><span id="mini-fill"></span></div>
+</div>
+
+<div class="shell">
+<aside class="side" id="side" aria-label="Lesson contents">
+  <div class="suite">
+    <div class="suite-name">Week05Test</div>
+    <div class="runbar" role="progressbar" aria-label="Lesson progress" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0" id="runbar"><span id="runbar-fill"></span></div>
+    <div class="suite-count" id="suite-count">0 of 10 sections passed</div>
+  </div>
+  <ol class="toc" id="toc"></ol>
+  <div class="side-tools">
+    <button type="button" id="font-down" aria-label="Smaller text">A−</button>
+    <button type="button" id="font-up" aria-label="Larger text">A+</button>
+    <button type="button" id="theme-btn">Dark mode</button>
+    <button type="button" id="reset-btn">Reset progress</button>
+  </div>
+</aside>
+
+<main>
+
+<header class="hero">
+  <p class="course">Object-Oriented Programming in Java, Week 5</p>
+  <h1>Unit Testing I</h1>
+  <p class="lead">Today you’ll learn to write small pieces of code whose only job is to check your other code. You press one button, and in a second you know whether your program still works.</p>
+  <div class="console" id="hero-console" aria-live="polite"></div>
+  <div class="hero-foot">
+    <button class="btn" type="button" id="hero-replay">Run again</button>
+    <span>That red line caught a real bug. By the end of today you’ll write tests like these and know how to read them.</span>
+  </div>
+  <ul class="goals">
+    <li>Explain why <code>==</code> and <code>.equals()</code> give different answers, and why tests care.</li>
+    <li>Write a JUnit 5 test using the Arrange, Act, Assert pattern.</li>
+    <li>Pick the right assertion, including <code>assertThrows</code> from last week’s exceptions.</li>
+    <li>Choose good test inputs by looking at boundaries.</li>
+    <li>Tell a unit test from an integration test, and spot code that is hard to test.</li>
+  </ul>
+  <p style="color:var(--muted);font-size:.93rem;margin-top:22px">Each section has a small exercise. Finish it and the section turns green in the list on the left, just like a passing test.</p>
+</header>
+
+<!-- ============ 1. WHY TEST ============ -->
+<section class="lesson" id="why" data-title="Why test?">
+  <h2><span class="num">1</span>Why test?</h2>
+  <p>Here is a method from an online shop. It takes a price and a discount percentage and returns the new price. Read it carefully. Does it work?</p>
+
+  <div class="code-wrap"><pre class="code" id="discount-code"><code>public static double priceAfterDiscount(double price, int percent) {
+    return price * (1 - percent / 100);
+}</code></pre></div>
+
+  <p>It looks fine. Most people say yes. Let’s check it the way a test would: call it with a known input, and compare the result with what we <em>expect</em>.</p>
+
+  <div class="demo">
+    <p class="demo-title">Try it: run some checks</p>
+    <p class="demo-sub">Click each check. Which ones would you have tried first by hand?</p>
+    <div class="row" id="disc-btns">
+      <button class="btn code-btn" type="button" data-p="100" data-d="0">(100, 0)</button>
+      <button class="btn code-btn" type="button" data-p="100" data-d="100">(100, 100)</button>
+      <button class="btn code-btn" type="button" data-p="100" data-d="20">(100, 20)</button>
+      <button class="btn code-btn" type="button" data-p="50" data-d="50">(50, 50)</button>
+      <button class="btn primary" type="button" id="disc-all">Run all</button>
+    </div>
+    <div class="tbl-wrap"><table class="cases" id="disc-table" hidden>
+      <thead><tr><th>Call</th><th>Expected</th><th>Actual</th><th>Result</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+    <div class="out" id="disc-out"></div>
+  </div>
+
+  <div id="disc-explain" hidden>
+    <p>The bug is on one line: <code>percent / 100</code>. Both numbers are <code>int</code>, so Java does integer division (remember Week 1). <code>20 / 100</code> is <code>0</code>, not <code>0.2</code>. So the price never changes, except when the discount is exactly 100%.</p>
+    <div class="code-wrap"><pre class="code" data-hl="2"><code>public static double priceAfterDiscount(double price, int percent) {
+    return price * (1 - percent / 100.0);   // 100.0 makes it double division
+}</code></pre></div>
+    <p>Notice something important: the two checks most people try first, 0% and 100%, <strong>both passed</strong>. The bug was hiding in the middle.</p>
+  </div>
+
+  <h3>Checking by hand doesn’t scale</h3>
+  <p>You could test everything by hand with a <code>main</code> method and <code>System.out.println</code>. The problem is that you have to read the output and decide yourself if it’s right, and you have to do it again <em>every time you change the code</em>. Nobody does that for 200 methods.</p>
+  <p>A <strong>unit test</strong> is a small method that calls your code with a known input and checks the output <em>automatically</em>. If the answer is wrong, it fails loudly and tells you what it expected and what it got. That gives you three things:</p>
+  <ul>
+    <li><strong>Bugs are found early</strong>, while you still remember the code, instead of by a customer.</li>
+    <li><strong>You can change code without fear.</strong> If you break something, a test turns red within seconds.</li>
+    <li><strong>Tests explain the code.</strong> A test named <code>twentyPercentOff</code> shows exactly how the method should behave.</li>
+  </ul>
+</section>
+
+<!-- ============ 2. EQUALS ============ -->
+<section class="lesson" id="equals" data-title="Same object or equal object?">
+  <h2><span class="num">2</span>Same object or equal object?</h2>
+  <p>Before we write tests, we need one idea that tests depend on: what does it mean for two objects to be “equal”? Java has two different answers.</p>
+
+  <div class="code-wrap"><pre class="code"><code>Point a = new Point(1, 2);
+Point b = new Point(1, 2);
+Point c = a;</code></pre></div>
+
+  <p>Three variables, but how many objects? Only <strong>two</strong>. Every <code>new</code> creates one object in memory. <code>c = a</code> does not copy the object; it copies the <em>arrow</em> (the reference), so <code>a</code> and <code>c</code> point to the same object.</p>
+
+  <div class="demo mem">
+    <p class="demo-title">Try it: compare the variables</p>
+    <p class="demo-sub">Click an expression to see what Java compares. Then flip the switch and try <code>.equals()</code> again.</p>
+    <svg viewBox="0 0 560 250" role="img" aria-label="Memory diagram: variables a and c point to the first Point object, b points to the second Point object">
+      <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="11" markerHeight="11" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"/></marker>
+      <marker id="ahl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="11" markerHeight="11" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--accent)"/></marker></defs>
+      <text class="lbl" x="30" y="22">Variables</text>
+      <text class="lbl" x="330" y="22">Objects (in memory)</text>
+      <rect class="box var" id="v-a" x="30" y="40" width="90" height="44" rx="6"/><text x="44" y="67">a</text>
+      <rect class="box var" id="v-b" x="30" y="108" width="90" height="44" rx="6"/><text x="44" y="135">b</text>
+      <rect class="box var" id="v-c" x="30" y="176" width="90" height="44" rx="6"/><text x="44" y="203">c</text>
+      <circle cx="100" cy="62" r="4" style="fill:var(--ink)"/><circle cx="100" cy="130" r="4" style="fill:var(--ink)"/><circle cx="100" cy="198" r="4" style="fill:var(--ink)"/>
+      <rect class="obj" id="o-1" x="330" y="38" width="190" height="78" rx="8"/>
+      <text x="345" y="62">Point  #1</text><text x="345" y="86">x = 1</text><text x="345" y="106">y = 2</text>
+      <rect class="obj" id="o-2" x="330" y="146" width="190" height="78" rx="8"/>
+      <text x="345" y="170">Point  #2</text><text x="345" y="194">x = 1</text><text x="345" y="214">y = 2</text>
+      <path class="arr" id="r-a" d="M104,62 C200,62 240,70 326,72" marker-end="url(#ah)"/>
+      <path class="arr" id="r-b" d="M104,130 C200,130 240,180 326,182" marker-end="url(#ah)"/>
+      <path class="arr" id="r-c" d="M104,198 C210,198 230,100 326,92" marker-end="url(#ah)"/>
+    </svg>
+    <div class="row" style="margin-top:12px" id="mem-btns">
+      <button class="btn code-btn" type="button" data-e="ab">a == b</button>
+      <button class="btn code-btn" type="button" data-e="ac">a == c</button>
+      <button class="btn code-btn" type="button" data-e="eqab">a.equals(b)</button>
+      <button class="btn code-btn" type="button" data-e="eqac">a.equals(c)</button>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <span style="font-size:.92rem">Point class:</span>
+      <div class="seg" id="eq-switch">
+        <button type="button" aria-pressed="true" data-v="0">no equals()</button>
+        <button type="button" aria-pressed="false" data-v="1">overrides equals()</button>
+      </div>
+    </div>
+    <div class="out" id="mem-out"></div>
+  </div>
+
+  <p>The rule to remember:</p>
+  <ul>
+    <li><code>==</code> on objects asks: <strong>is it the same object?</strong> (Do both arrows point to the same place?)</li>
+    <li><code>.equals()</code> asks: <strong>do they have the same value?</strong> But only if the class tells Java what “same value” means.</li>
+  </ul>
+  <p>If you don’t override <code>equals()</code>, your class inherits it from <code>Object</code>, and <code>Object.equals()</code> just does <code>==</code>. That’s why <code>a.equals(b)</code> was <code>false</code> until you flipped the switch. For primitives like <code>int</code> and <code>double</code>, <code>==</code> compares values, which is what you want.</p>
+
+  <h3>Writing equals() for Point</h3>
+  <div class="code-wrap"><pre class="code"><code>public class Point {
+    private int x;
+    private int y;
+
+    public Point(int x, int y) { this.x = x; this.y = y; }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) return true;                       // same object
+        if (other == null || getClass() != other.getClass()) return false;
+        Point p = (Point) other;                              // cast (Week 3!)
+        return x == p.x &amp;&amp; y == p.y;                        // same values
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(x, y);    // we'll see why in a minute
+    }
+
+    @Override
+    public String toString() {
+        return "Point(" + x + ", " + y + ")";
+    }
+}</code></pre></div>
+  <p class="code-cap">You rarely type this by hand. In IntelliJ: right-click inside the class, choose Generate, then equals() and hashCode().</p>
+
+  <div class="demo">
+    <p class="demo-title">Check yourself</p>
+    <p class="demo-sub">Predict the answer before you click.</p>
+    <div id="eq-quiz"></div>
+  </div>
+
+  <h3>Why tests care: assertEquals uses equals()</h3>
+  <p>The most common test check is <code>assertEquals(expected, actual)</code>. Behind the scenes it calls <code>expected.equals(actual)</code>. So if your class has no <code>equals()</code>, a test comparing two objects will fail even when the values are identical.</p>
+
+  <div class="code-wrap"><pre class="code" data-hl="5"><code>@Test
+void moveRightAddsOneToX() {
+    Point p = new Point(1, 2);
+    p.moveRight();
+    assertEquals(new Point(2, 2), p);
+}</code></pre></div>
+
+  <div class="demo">
+    <p class="demo-title">Try it: run this test</p>
+    <p class="demo-sub"><code>moveRight()</code> works correctly in both cases. Only the Point class changes.</p>
+    <div class="row">
+      <div class="seg" id="pt-switch">
+        <button type="button" aria-pressed="true" data-v="0">no equals()</button>
+        <button type="button" aria-pressed="false" data-v="1">equals()</button>
+        <button type="button" aria-pressed="false" data-v="2">equals() + toString()</button>
+      </div>
+      <button class="btn primary" type="button" id="pt-run">Run test</button>
+    </div>
+    <div class="runner" id="pt-runner" hidden></div>
+    <div class="out" id="pt-out"></div>
+  </div>
+
+  <h3>The partner rule: hashCode()</h3>
+  <p><code>HashSet</code> and <code>HashMap</code> don’t search every element. They first compute a number from the object, called its <strong>hash code</strong>, and use it to pick a <em>bucket</em>. Then they look only inside that bucket and use <code>equals()</code> there. If two equal objects produce different hash codes, Java looks in the wrong bucket and never finds a match.</p>
+
+  <div class="code-wrap"><pre class="code"><code>Set&lt;Point&gt; set = new HashSet&lt;&gt;();
+set.add(new Point(1, 2));
+boolean found = set.contains(new Point(1, 2));   // true or false?</code></pre></div>
+
+  <div class="demo">
+    <p class="demo-title">Try it: watch the HashSet</p>
+    <p class="demo-sub">Pick what the Point class overrides, then run. Watch which bucket Java looks in. (Simplified: a real HashSet has more buckets.)</p>
+    <div class="row">
+      <div class="seg" id="hs-switch">
+        <button type="button" aria-pressed="true" data-v="0">nothing</button>
+        <button type="button" aria-pressed="false" data-v="1">only equals()</button>
+        <button type="button" aria-pressed="false" data-v="2">equals() + hashCode()</button>
+      </div>
+      <button class="btn primary" type="button" id="hs-run">Run</button>
+    </div>
+    <div class="buckets" id="buckets"></div>
+    <ol class="steps" id="hs-steps"></ol>
+    <div class="out" id="hs-out"></div>
+  </div>
+
+  <div class="callout warn">
+    <strong>The rule</strong>
+    <p>If you override <code>equals()</code>, always override <code>hashCode()</code> too. Equal objects must have equal hash codes. And override <code>toString()</code> so failing tests print something readable.</p>
+  </div>
+</section>
+
+<!-- ============ 3. FIRST TEST ============ -->
+<section class="lesson" id="first" data-title="Your first JUnit test">
+  <h2><span class="num">3</span>Your first JUnit test</h2>
+  <p><strong>JUnit</strong> is the standard testing library for Java. We use JUnit 5. Your test code lives in a separate folder, <code>src/test/java</code>, so it never ships with the real program. For every class <code>Calculator</code> you usually have a test class <code>CalculatorTest</code>.</p>
+
+  <div class="callout">
+    <strong>Setting it up in IntelliJ</strong>
+    <p>Put your cursor on the class name, press <code>Ctrl+Shift+T</code> (Mac: <code>Cmd+Shift+T</code>), choose “Create New Test”, and pick JUnit 5. If IntelliJ says JUnit is missing, click “Fix” and it downloads it. With Maven, the dependency is in the cheat sheet at the end.</p>
+  </div>
+
+  <div class="demo anat">
+    <p class="demo-title">Try it: take a test apart</p>
+    <p class="demo-sub">Click each outlined part to see what it does.</p>
+<pre class="code"><code><span class="line"><button type="button" class="part" data-part="imp"><span class="tk-key">import</span> org.junit.jupiter.api.<span class="tk-type">Test</span>;</button></span><span class="line"><button type="button" class="part" data-part="imp"><span class="tk-key">import static</span> org.junit.jupiter.api.<span class="tk-type">Assertions</span>.assertEquals;</button></span><span class="line"> </span><span class="line"><button type="button" class="part" data-part="cls"><span class="tk-key">class</span> <span class="tk-type">CalculatorTest</span></button> {</span><span class="line"> </span><span class="line">    <button type="button" class="part" data-part="ann"><span class="tk-ann">@Test</span></button></span><span class="line">    <button type="button" class="part" data-part="void"><span class="tk-key">void</span></button> <button type="button" class="part" data-part="name"><span class="tk-fn">addsTwoPositiveNumbers</span></button><button type="button" class="part" data-part="void">()</button> {</span><span class="line">        <button type="button" class="part" data-part="body"><span class="tk-type">Calculator</span> calc = <span class="tk-key">new</span> <span class="tk-type">Calculator</span>();</button></span><span class="line">        <button type="button" class="part" data-part="body"><span class="tk-key">int</span> result = calc.<span class="tk-fn">add</span>(<span class="tk-num">2</span>, <span class="tk-num">3</span>);</button></span><span class="line">        <button type="button" class="part" data-part="assert"><span class="tk-fn">assertEquals</span>(<span class="tk-num">5</span>, result);</button></span><span class="line">    }</span><span class="line">}</span></code></pre>
+    <div class="anat-info" id="anat-info" aria-live="polite">Click an outlined part of the code.</div>
+  </div>
+
+  <p>That’s all a test is: a normal method, marked with <code>@Test</code>, that ends with a check. You don’t write a <code>main</code> method. JUnit finds every <code>@Test</code> method and runs it for you.</p>
+
+  <p>A real test class has several tests, each checking one situation:</p>
+  <div class="code-wrap"><pre class="code"><code>class CalculatorTest {
+
+    @Test
+    void addsTwoPositiveNumbers() {
+        assertEquals(5, new Calculator().add(2, 3));
+    }
+
+    @Test
+    void addsNegativeNumbers() {
+        assertEquals(-5, new Calculator().add(-2, -3));
+    }
+
+    @Test
+    void addingZeroChangesNothing() {
+        assertEquals(7, new Calculator().add(7, 0));
+    }
+}</code></pre></div>
+
+  <div class="demo">
+    <p class="demo-title">Try it: run the test class</p>
+    <p class="demo-sub">First run it with the correct code. Then put a bug into <code>add()</code> and run again. Look closely at the third test.</p>
+    <div class="code-wrap" style="margin-top:0"><pre class="code" id="calc-src"><code>public int add(int a, int b) {
+    return a + b;
+}</code></pre></div>
+    <div class="row">
+      <div class="seg" id="calc-switch">
+        <button type="button" aria-pressed="true" data-v="0">return a + b;</button>
+        <button type="button" aria-pressed="false" data-v="1">return a - b;  (bug)</button>
+      </div>
+      <button class="btn primary" type="button" id="calc-run">Run CalculatorTest</button>
+    </div>
+    <div class="runner" id="calc-runner" hidden></div>
+    <div class="out" id="calc-out"></div>
+  </div>
+
+  <p>In IntelliJ you get the same thing: click the green arrow next to the class or a test method. A green bar means every test passed. One red test makes the whole bar red.</p>
+</section>
+
+<!-- ============ 4. AAA ============ -->
+<section class="lesson" id="aaa" data-title="Arrange, Act, Assert">
+  <h2><span class="num">4</span>Arrange, Act, Assert</h2>
+  <p>Almost every good test has the same three parts, in the same order. If you remember one thing about writing tests, remember this.</p>
+
+  <div class="aaa-band">
+    <div class="a1">Arrange<span>Set up the objects and data you need.</span></div>
+    <div class="a2">Act<span>Call the one method you are testing.</span></div>
+    <div class="a3">Assert<span>Check that the result is what you expected.</span></div>
+  </div>
+
+  <p>Think of a science experiment: prepare the equipment (arrange), do the experiment (act), write down whether it matched your prediction (assert).</p>
+
+  <div class="demo">
+    <p class="demo-title">Try it: label each line</p>
+    <p class="demo-sub">We are testing <code>withdraw()</code>. Click a label to cycle through Arrange, Act, Assert. Then check.</p>
+    <div id="aaa-lines"></div>
+    <div class="row" style="margin-top:12px"><button class="btn primary" type="button" id="aaa-check">Check my labels</button></div>
+    <div class="out" id="aaa-out"></div>
+  </div>
+
+  <h3>One test, one behaviour</h3>
+  <p>A common beginner mistake is to test many things in one long method: act, assert, act again, assert again. When it fails, you don’t know which part broke, and everything after the first failure never runs.</p>
+
+  <div class="demo">
+    <p class="demo-title">Compare</p>
+    <div class="seg" id="split-switch">
+      <button type="button" aria-pressed="true" data-v="0">One messy test</button>
+      <button type="button" aria-pressed="false" data-v="1">Split into focused tests</button>
+    </div>
+    <div class="code-wrap" id="split-0"><pre class="code"><code>@Test
+void testAccount() {
+    BankAccount account = new BankAccount("Ali");
+    account.deposit(100);
+    assertEquals(100, account.getBalance());
+    account.withdraw(30);
+    assertEquals(70, account.getBalance());
+    account.withdraw(500);                      // what should happen here?
+    assertEquals(70, account.getBalance());
+}</code></pre></div>
+    <div class="code-wrap" id="split-1" hidden><pre class="code"><code>@Test
+void depositIncreasesBalance() {
+    BankAccount account = new BankAccount("Ali");
+
+    account.deposit(100);
+
+    assertEquals(100, account.getBalance());
+}
+
+@Test
+void withdrawReducesBalance() {
+    BankAccount account = new BankAccount("Ali");
+    account.deposit(100);
+
+    account.withdraw(30);
+
+    assertEquals(70, account.getBalance());
+}</code></pre></div>
+    <p class="demo-sub" id="split-note" style="margin:6px 0 0">The name <code>testAccount</code> tells you nothing. If the first assert fails, the other checks never run.</p>
+  </div>
+
+  <div class="callout good">
+    <strong>Naming tests</strong>
+    <p>Name the test after the behaviour, as a short sentence: <code>withdrawReducesBalance</code>, <code>emptyCartHasZeroTotal</code>, <code>negativeAgeIsRejected</code>. When it fails, the name alone tells you what’s broken. A blank line between the three parts makes the structure easy to see.</p>
+  </div>
+</section>
+
+<!-- ============ 5. ASSERTIONS ============ -->
+<section class="lesson" id="asserts" data-title="The assertion toolbox">
+  <h2><span class="num">5</span>The assertion toolbox</h2>
+  <p>An <strong>assertion</strong> is the check at the end of a test. If it’s true, nothing happens. If it’s false, the test stops and fails with a message. They all live in <code>org.junit.jupiter.api.Assertions</code>.</p>
+
+  <div class="tbl-wrap"><table class="ref">
+    <thead><tr><th>Assertion</th><th>Use it when</th></tr></thead>
+    <tbody>
+      <tr><td>assertEquals(expected, actual)</td><td>You know the exact value. The one you’ll use most.</td></tr>
+      <tr><td>assertTrue(condition)</td><td>The result is a <code>boolean</code> that should be true.</td></tr>
+      <tr><td>assertFalse(condition)</td><td>The result is a <code>boolean</code> that should be false.</td></tr>
+      <tr><td>assertNull(object)</td><td>Something should be missing, for example “not found”.</td></tr>
+      <tr><td>assertNotNull(object)</td><td>Something should exist, but you don’t care about its exact value.</td></tr>
+      <tr><td>assertEquals(e, a, delta)</td><td>Comparing <code>double</code> values. Allows a tiny difference.</td></tr>
+      <tr><td>assertThrows(Type.class, () -&gt; ...)</td><td>The code should throw an exception.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Expected first, actual second</h3>
+  <p><code>assertEquals</code> takes the <strong>expected</strong> value first. Java can’t check that you got the order right, but the failure message will be backwards and confusing if you swap them.</p>
+
+  <div class="demo">
+    <p class="demo-title">Try it: read the failure message</p>
+    <p class="demo-sub">There’s a bug: the balance is 60 instead of 70. Which message makes it obvious?</p>
+    <div class="row">
+      <button class="btn code-btn" type="button" id="ord-good">assertEquals(70, account.getBalance());</button>
+      <button class="btn code-btn" type="button" id="ord-bad">assertEquals(account.getBalance(), 70);</button>
+    </div>
+    <div class="out" id="ord-out"></div>
+  </div>
+
+  <h3>Doubles are not exact</h3>
+  <p>Computers store <code>double</code> values in binary, and some decimals can’t be stored exactly, like 1/3 in decimal. So never compare doubles with plain <code>assertEquals(expected, actual)</code>.</p>
+  <div class="demo">
+    <p class="demo-title">Try it</p>
+    <div class="row">
+      <button class="btn code-btn" type="button" id="dbl-1">assertEquals(0.3, 0.1 + 0.2);</button>
+      <button class="btn code-btn" type="button" id="dbl-2">assertEquals(0.3, 0.1 + 0.2, 0.0001);</button>
+    </div>
+    <div class="out" id="dbl-out"></div>
+  </div>
+
+  <h3>Testing exceptions: assertThrows</h3>
+  <p>Last week you made methods throw exceptions when something is wrong. A test should check that too. <code>assertThrows</code> runs a piece of code and passes only if the right exception is thrown.</p>
+  <div class="code-wrap"><pre class="code" data-hl="7-10"><code>@Test
+void withdrawingTooMuchThrows() {
+    // Arrange
+    BankAccount account = new BankAccount("Ali");
+    account.deposit(50);
+    // Act + Assert
+    InsufficientFundsException ex = assertThrows(
+            InsufficientFundsException.class,
+            () -&gt; account.withdraw(80)
+    );
+    assertEquals("Balance is 50, cannot withdraw 80", ex.getMessage());
+}</code></pre></div>
+  <p>The new part is <code>() -&gt; account.withdraw(80)</code>. Read it as “here is a piece of code; JUnit, please run it for me.” We can’t just call <code>account.withdraw(80)</code> directly, because the exception would crash the test before <code>assertThrows</code> could catch it. <code>assertThrows</code> also gives you the exception back, so you can check its message.</p>
+
+  <div class="demo">
+    <p class="demo-title">Check yourself: pick the best assertion</p>
+    <div id="pick-quiz"></div>
+  </div>
+</section>
+
+<!-- ============ 6. CHOOSING INPUTS ============ -->
+<section class="lesson" id="cases" data-title="Choosing test inputs">
+  <h2><span class="num">6</span>Choosing test inputs</h2>
+  <p>You can’t test every possible input. The <code>grade</code> method below accepts any <code>int</code>, that’s over four billion values. So which few should you test?</p>
+
+  <div class="code-wrap"><pre class="code"><code>public static char grade(int score) {
+    if (score &lt; 0 || score &gt; 100) {
+        throw new IllegalArgumentException("score must be 0-100");
+    }
+    if (score &gt;= 90) return 'A';
+    if (score &gt;= 80) return 'B';
+    if (score &gt;= 70) return 'C';
+    if (score &gt;= 60) return 'D';
+    return 'F';
+}</code></pre></div>
+
+  <p>Two simple ideas help:</p>
+  <ul>
+    <li><strong>Groups.</strong> Split the inputs into groups that should behave the same way. 72 and 75 are both a C, so testing both doesn’t teach you much. Here there are 7 groups: too low, F, D, C, B, A, too high.</li>
+    <li><strong>Edges.</strong> Bugs love edges. Programmers write <code>&gt;</code> when they meant <code>&gt;=</code>. So test the values right at each edge: 89 <em>and</em> 90, 59 <em>and</em> 60, -1 <em>and</em> 0, 100 <em>and</em> 101.</li>
+  </ul>
+
+  <div class="demo nl">
+    <p class="demo-title">Try it: catch your classmate’s bug</p>
+    <p class="demo-sub">A classmate wrote <code>grade()</code> and says it works. It has exactly one bug. Choose some test scores, then run them against their code. Can you catch it with as few tests as possible?</p>
+    <svg viewBox="0 0 600 120" id="nl-svg" role="img" aria-label="Number line from -10 to 110 split into grade groups, with your chosen test scores marked"></svg>
+    <div class="row" style="margin-top:6px">
+      <label for="nl-range" style="font-size:.9rem">Score</label>
+      <input type="number" id="nl-num" min="-10" max="110" value="75" aria-label="Score to test">
+      <button class="btn" type="button" id="nl-add">Add test</button>
+      <button class="btn" type="button" id="nl-clear">Clear</button>
+    </div>
+    <input type="range" id="nl-range" min="-10" max="110" value="75" aria-label="Score slider">
+    <div class="chips" id="nl-chips"></div>
+    <div class="meter">
+      <span>Groups covered</span><div class="runbar"><span id="nl-g-fill"></span></div><span id="nl-g">0 / 7</span>
+      <span>Edges covered</span><div class="runbar"><span id="nl-b-fill"></span></div><span id="nl-b">0 / 12</span>
+    </div>
+    <div class="row" style="margin-top:14px">
+      <button class="btn primary" type="button" id="nl-run">Run my tests on classmate’s code</button>
+      <button class="btn" type="button" id="nl-suggest">Show the edge values</button>
+    </div>
+    <div class="tbl-wrap"><table class="cases" id="nl-table" hidden>
+      <thead><tr><th>Test</th><th>Expected</th><th>Classmate’s code</th><th>Result</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+    <div class="out" id="nl-out"></div>
+  </div>
+</section>
+
+<!-- ============ 7. UNIT VS INTEGRATION ============ -->
+<section class="lesson" id="kinds" data-title="Unit vs integration tests">
+  <h2><span class="num">7</span>Unit vs integration tests</h2>
+  <p>A <strong>unit test</strong> checks one small piece, usually one method of one class, on its own. It needs nothing outside your code: no database, no internet, no files. So it runs in milliseconds.</p>
+  <p>An <strong>integration test</strong> checks that several pieces work <em>together</em>: your code plus a real database, or your code calling a real web service. These catch different bugs, for example a wrong SQL query, but they are slower and can fail for reasons that aren’t your code’s fault, like the Wi-Fi going down.</p>
+
+  <div class="pyr">
+    <svg viewBox="0 0 340 230" role="img" aria-label="Test pyramid: many unit tests at the wide bottom, fewer integration tests in the middle, very few end-to-end tests at the top">
+      <polygon points="170,10 225,80 115,80" style="fill:var(--soft);stroke:var(--line)"/>
+      <polygon points="115,80 225,80 275,150 65,150" style="fill:var(--accent-bg);stroke:var(--line)"/>
+      <polygon points="65,150 275,150 325,220 15,220" style="fill:var(--pass-bg);stroke:var(--line)"/>
+      <text x="170" y="64" text-anchor="middle">End-to-end</text>
+      <text x="170" y="121" text-anchor="middle">Integration</text>
+      <text x="170" y="191" text-anchor="middle" style="font-weight:700">Unit</text>
+    </svg>
+    <div>
+      <p style="margin-top:0">This is the <strong>test pyramid</strong>. Most of your tests should be unit tests at the wide bottom: fast, many, and precise about what broke. Fewer integration tests sit in the middle. At the top are a handful of end-to-end tests that click through the whole app like a user.</p>
+      <p>This course focuses on the bottom layer.</p>
+    </div>
+  </div>
+
+  <div class="demo">
+    <p class="demo-title">Try it: sort the tests</p>
+    <p class="demo-sub">Is each one a unit test or an integration test?</p>
+    <div id="sort-list"></div>
+    <div class="out" id="sort-out"></div>
+  </div>
+
+  <h3>What makes a good unit test</h3>
+  <p>A useful checklist is <strong>FIRST</strong>. Good unit tests are <strong>F</strong>ast (milliseconds), <strong>I</strong>ndependent (no test depends on another test running first), <strong>R</strong>epeatable (same result every time, on every computer), <strong>S</strong>elf-checking (pass or fail on their own, no human reading output), and <strong>T</strong>imely (written while you write the code, not months later).</p>
+</section>
+
+<!-- ============ 8. TESTABLE CODE ============ -->
+<section class="lesson" id="testable" data-title="Code that is easy to test">
+  <h2><span class="num">8</span>Code that is easy to test</h2>
+  <p>Some code is easy to test and some code fights you. Here is a class that sends a greeting to a student. Try to imagine writing a test for it.</p>
+
+  <div class="seg" id="bd-switch">
+    <button type="button" aria-pressed="true" data-v="0">Before</button>
+    <button type="button" aria-pressed="false" data-v="1">After</button>
+  </div>
+  <div class="code-wrap" id="bd-0"><pre class="code" data-bad="3,6,8"><code>public class BirthdayGreeter {
+    public void greet(Student s) {
+        LocalDate today = LocalDate.now();
+        if (s.getBirthday().getMonth() == today.getMonth()
+                &amp;&amp; s.getBirthday().getDayOfMonth() == today.getDayOfMonth()) {
+            System.out.println("Happy birthday, " + s.getName() + "!");
+        } else {
+            System.out.println("Hello, " + s.getName());
+        }
+    }
+}</code></pre></div>
+  <div class="code-wrap" id="bd-1" hidden><pre class="code" data-hl="2,5-6"><code>public class BirthdayGreeter {
+    public String greeting(Student s, LocalDate today) {
+        boolean birthday = s.getBirthday().getMonth() == today.getMonth()
+                &amp;&amp; s.getBirthday().getDayOfMonth() == today.getDayOfMonth();
+        return birthday ? "Happy birthday, " + s.getName() + "!"
+                        : "Hello, " + s.getName();
+    }
+}</code></pre></div>
+
+  <div id="bd-problems">
+    <p>The red lines are problems. Open each one:</p>
+    <details class="prob"><summary>It secretly asks the calendar for today’s date</summary>
+      <p><code>LocalDate.now()</code> is a hidden input. A test that checks the birthday message passes only on the student’s birthday and fails the other 364 days. A test whose result changes depending on <em>when</em> you run it is called <strong>flaky</strong>, and nobody trusts it.</p></details>
+    <details class="prob"><summary>It prints instead of returning</summary>
+      <p><code>System.out.println</code> sends the text to the screen. A test can’t easily grab it, so there’s nothing to give to <code>assertEquals</code>. A method that <em>returns</em> a value is much easier to check.</p></details>
+    <details class="prob"><summary>It does two jobs at once</summary>
+      <p>It decides what to say <em>and</em> it delivers the message. Those are two reasons to change. Keep the decision separate and you can test it on its own. (You’ll meet this idea again in Week 9 as the Single Responsibility Principle.)</p></details>
+  </div>
+  <div id="bd-fix" hidden>
+    <p>The fix: <strong>pass the date in</strong> as a parameter, and <strong>return the text</strong> instead of printing it. Some other code can do the printing. Now the test controls every input:</p>
+    <div class="code-wrap"><pre class="code"><code>@Test
+void birthdayStudentGetsBirthdayGreeting() {
+    Student ayse = new Student("Ayşe", LocalDate.of(2005, 3, 14));
+    BirthdayGreeter greeter = new BirthdayGreeter();
+
+    String text = greeter.greeting(ayse, LocalDate.of(2026, 3, 14));
+
+    assertEquals("Happy birthday, Ayşe!", text);
+}</code></pre></div>
+  </div>
+
+  <div class="demo">
+    <p class="demo-title">Try it: run the birthday test on different days</p>
+    <p class="demo-sub">Ayşe’s birthday is 14 March. Pretend the test suite runs on each of these days. (For the Before version, imagine we somehow captured what it printed.)</p>
+    <div class="dates" id="tm-dates">
+      <button class="btn" type="button" data-d="13">13 March</button>
+      <button class="btn" type="button" data-d="14">14 March</button>
+      <button class="btn" type="button" data-d="15">15 March</button>
+      <button class="btn" type="button" data-d="0">19 October (today)</button>
+    </div>
+    <div class="tm-grid" id="tm-grid" hidden>
+      <span>Before version</span><span id="tm-before"></span>
+      <span>After version</span><span id="tm-after"></span>
+    </div>
+    <div class="out" id="tm-out"></div>
+  </div>
+
+  <h3>Warning signs of hard-to-test code</h3>
+  <ul>
+    <li>Hidden inputs: <code>LocalDate.now()</code>, <code>Math.random()</code>, reading from the keyboard. <strong>Fix:</strong> pass the value in.</li>
+    <li>Results that are printed instead of returned. <strong>Fix:</strong> return the value; print somewhere else.</li>
+    <li>A method that creates heavy things itself, like <code>new DatabaseConnection()</code>. <strong>Fix:</strong> pass the object in. This is the big topic of Week 8, where we’ll replace real databases with fake ones in tests.</li>
+    <li>One giant method doing many jobs. <strong>Fix:</strong> split it into smaller methods you can test one by one.</li>
+  </ul>
+  <p>Notice the pattern: <span class="mark">code that is easy to test is usually also code that is well designed.</span> Testing is a good way to discover design problems early.</p>
+</section>
+
+<!-- ============ 9. BUG HUNT ============ -->
+<section class="lesson" id="hunt" data-title="Bug hunt">
+  <h2><span class="num">9</span>Bug hunt</h2>
+  <p>Time to read tests like a professional. Below is a test class for a <code>ShoppingCart</code>. Three students each wrote a <code>ShoppingCart</code>, and each version has one bug. You won’t see their code. Run the tests, read the failure, and figure out the bug from the test results alone.</p>
+
+  <div class="code-wrap"><pre class="code"><code>class ShoppingCartTest {
+
+    @Test
+    void emptyCartHasZeroTotal() {
+        ShoppingCart cart = new ShoppingCart();
+        assertEquals(0.0, cart.total(), 0.001);
+    }
+
+    @Test
+    void totalMultipliesPriceByQuantity() {
+        ShoppingCart cart = new ShoppingCart();
+        cart.add("Pen", 5.0, 2);
+        cart.add("Book", 20.0, 1);
+        assertEquals(30.0, cart.total(), 0.001);
+    }
+
+    @Test
+    void itemCountCountsEveryPiece() {
+        ShoppingCart cart = new ShoppingCart();
+        cart.add("Pen", 5.0, 2);
+        cart.add("Book", 20.0, 1);
+        assertEquals(3, cart.itemCount());
+    }
+
+    @Test
+    void removeTakesTheItemOut() {
+        ShoppingCart cart = new ShoppingCart();
+        cart.add("Pen", 5.0, 2);
+        cart.remove("Pen");
+        assertEquals(0, cart.itemCount());
+    }
+
+    @Test
+    void negativeQuantityIsRejected() {
+        ShoppingCart cart = new ShoppingCart();
+        assertThrows(IllegalArgumentException.class,
+                     () -&gt; cart.add("Pen", 5.0, -1));
+    }
+}</code></pre></div>
+
+  <div class="demo">
+    <p class="demo-title">Try it: diagnose all three versions</p>
+    <div class="row">
+      <div class="seg" id="hunt-switch">
+        <button type="button" aria-pressed="true" data-v="0">Emre’s version</button>
+        <button type="button" aria-pressed="false" data-v="1">Zeynep’s version</button>
+        <button type="button" aria-pressed="false" data-v="2">Can’s version</button>
+      </div>
+      <button class="btn primary" type="button" id="hunt-run">Run tests</button>
+    </div>
+    <div class="runner" id="hunt-runner" hidden></div>
+    <div id="hunt-diag" hidden>
+      <p class="mcq-q" style="margin-top:16px">What is the bug in this version?</p>
+      <div class="mcq-opts" id="hunt-opts"></div>
+      <div id="hunt-reveal"></div>
+    </div>
+    <div class="out" id="hunt-out"></div>
+  </div>
+  <p>Notice what you just did: you found three bugs without reading a single line of the buggy code. The test <strong>names</strong> and the <strong>expected vs actual</strong> values told you where to look. That’s why good names and the right argument order matter.</p>
+</section>
+
+<!-- ============ 10. QUIZ ============ -->
+<section class="lesson" id="quiz" data-title="Exit quiz">
+  <h2><span class="num">10</span>Exit quiz</h2>
+  <p>Seven questions on everything from today. Answer all of them to pass this last section.</p>
+  <div class="demo">
+    <div id="exit-quiz"></div>
+    <div id="exit-score"></div>
+  </div>
+</section>
+
+<!-- ============ CHEAT SHEET ============ -->
+<section class="lesson" id="sheet" data-title="Cheat sheet" data-extra="1">
+  <h2><span class="num">+</span>Cheat sheet</h2>
+  <p>Keep this open while you do the lab.</p>
+  <h3>Test template</h3>
+  <div class="code-wrap"><pre class="code"><code>import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+class ThingTest {
+
+    @Test
+    void behaviourInPlainWords() {
+        // Arrange
+        Thing thing = new Thing();
+
+        // Act
+        int result = thing.doSomething(42);
+
+        // Assert
+        assertEquals(84, result);
+    }
+}</code></pre></div>
+
+  <h3>Assertions</h3>
+  <div class="tbl-wrap"><table class="ref">
+    <tbody>
+      <tr><td>assertEquals(expected, actual)</td><td>Exact value. Objects need <code>equals()</code>.</td></tr>
+      <tr><td>assertEquals(e, a, 0.0001)</td><td>For <code>double</code> values.</td></tr>
+      <tr><td>assertTrue(x) / assertFalse(x)</td><td>For booleans.</td></tr>
+      <tr><td>assertNull(x) / assertNotNull(x)</td><td>Missing or present.</td></tr>
+      <tr><td>assertThrows(E.class, () -&gt; code)</td><td>The code must throw <code>E</code>. Returns the exception.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Remember</h3>
+  <ul>
+    <li><code>==</code> means same object; <code>.equals()</code> means same value. Override <code>equals()</code>, <code>hashCode()</code> and <code>toString()</code> together.</li>
+    <li>One behaviour per test, named as a sentence.</li>
+    <li>Test each group of inputs once, and test both sides of every edge.</li>
+    <li>Pass hidden inputs (dates, random numbers) in as parameters. Return values instead of printing.</li>
+  </ul>
+
+  <h3>Maven dependency</h3>
+  <div class="code-wrap"><pre class="code" data-lang="plain"><code>&lt;dependency&gt;
+    &lt;groupId&gt;org.junit.jupiter&lt;/groupId&gt;
+    &lt;artifactId&gt;junit-jupiter&lt;/artifactId&gt;
+    &lt;version&gt;5.11.0&lt;/version&gt;
+    &lt;scope&gt;test&lt;/scope&gt;
+&lt;/dependency&gt;</code></pre></div>
+  <p style="color:var(--muted)">Next week: midterm review. Week 8: making code testable with fake objects (mocks) and dependency injection.</p>
+</section>
+
+</main>
+</div>
+
+<script>
+(function () {
+'use strict';
+var $ = function (s, r) { return (r || document).querySelector(s); };
+var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+var reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+function wait(ms) { return new Promise(function (r) { setTimeout(r, reduceMotion ? 0 : ms); }); }
+function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+/* ---------- storage (works offline; silently ignored if blocked) ---------- */
+var store = {
+  get: function (k, d) { try { var v = localStorage.getItem('oop-w5:' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set: function (k, v) { try { localStorage.setItem('oop-w5:' + k, JSON.stringify(v)); } catch (e) {} },
+  clear: function () { try { Object.keys(localStorage).forEach(function (k) { if (k.indexOf('oop-w5:') === 0) localStorage.removeItem(k); }); } catch (e) {} }
+};
+
+/* ---------- Java syntax highlighting ---------- */
+var KW = new Set(('abstract assert boolean break byte case catch char class const continue default do double else enum extends final finally float for if implements import instanceof int interface long native new package private protected public return short static super switch synchronized this throw throws transient try void volatile while var true false null record').split(' '));
+var TOK = /(\/\/.*$)|("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])')|(@\w+)|(\b\d+(?:\.\d+)?[dDfFL]?\b)|(\b[A-Za-z_]\w*\b)/g;
+function hlLine(line) {
+  var out = '', last = 0, m;
+  TOK.lastIndex = 0;
+  while ((m = TOK.exec(line))) {
+    out += esc(line.slice(last, m.index));
+    var t = m[0], cls = null;
+    if (m[1]) cls = 'tk-com';
+    else if (m[2]) cls = 'tk-str';
+    else if (m[3]) cls = 'tk-ann';
+    else if (m[4]) cls = 'tk-num';
+    else if (m[5]) {
+      if (KW.has(t)) cls = 'tk-key';
+      else if (/^[A-Z]/.test(t)) cls = 'tk-type';
+      else if (/^\s*\(/.test(line.slice(m.index + t.length))) cls = 'tk-fn';
+    }
+    out += cls ? '<span class="' + cls + '">' + esc(t) + '</span>' : esc(t);
+    last = m.index + t.length;
+  }
+  return out + esc(line.slice(last));
+}
+function ranges(str) {
+  var set = new Set();
+  if (!str) return set;
+  str.split(',').forEach(function (p) {
+    var ab = p.split('-').map(Number);
+    if (ab.length === 1) set.add(ab[0]);
+    else for (var i = ab[0]; i <= ab[1]; i++) set.add(i);
+  });
+  return set;
+}
+var rawCode = new WeakMap();
+function renderCode(pre) {
+  var code = pre.querySelector('code');
+  if (!code || code.querySelector('.line')) return;
+  var raw = code.textContent.replace(/\n$/, '');
+  rawCode.set(pre, raw);
+  var hl = ranges(pre.dataset.hl), bad = ranges(pre.dataset.bad), plain = pre.dataset.lang === 'plain';
+  code.innerHTML = raw.split('\n').map(function (ln, i) {
+    var n = i + 1, c = hl.has(n) ? ' hl' : (bad.has(n) ? ' bad' : '');
+    return '<span class="line' + c + '"><span class="gut">' + n + '</span>' + ((plain ? esc(ln) : hlLine(ln)) || ' ') + '</span>';
+  }).join('');
+}
+function setCode(pre, text, hl, bad) {
+  pre.dataset.hl = hl || ''; pre.dataset.bad = bad || '';
+  pre.querySelector('code').textContent = text;
+  renderCode(pre);
+}
+function copyText(text, btn) {
+  function done() { btn.textContent = 'Copied'; setTimeout(function () { btn.textContent = 'Copy'; }, 1400); }
+  function fallback() {
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (e) { btn.textContent = 'Select and copy'; }
+    document.body.removeChild(ta);
+  }
+  if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(done, fallback);
+  else fallback();
+}
+$$('pre.code').forEach(function (pre) {
+  renderCode(pre);
+  if (pre.parentElement.classList.contains('code-wrap')) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'copy'; b.textContent = 'Copy';
+    b.addEventListener('click', function () { copyText(rawCode.get(pre) || pre.textContent, b); });
+    pre.parentElement.appendChild(b);
+  }
+});
+
+/* ---------- theme + font size ---------- */
+var root = document.documentElement;
+function isDark() {
+  if (root.dataset.theme) return root.dataset.theme === 'dark';
+  return window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches;
+}
+function applyTheme(t) {
+  if (t) root.dataset.theme = t; else delete root.dataset.theme;
+  $('#theme-btn').textContent = isDark() ? 'Light mode' : 'Dark mode';
+}
+applyTheme(store.get('theme', null));
+$('#theme-btn').addEventListener('click', function () { var t = isDark() ? 'light' : 'dark'; store.set('theme', t); applyTheme(t); });
+var SIZES = [15, 16, 17, 18, 20, 22, 24, 27];
+var fsi = store.get('fs', 2);
+function applyFs() { root.style.setProperty('--fs', SIZES[fsi] + 'px'); store.set('fs', fsi); }
+applyFs();
+$('#font-up').addEventListener('click', function () { fsi = Math.min(SIZES.length - 1, fsi + 1); applyFs(); });
+$('#font-down').addEventListener('click', function () { fsi = Math.max(0, fsi - 1); applyFs(); });
+
+/* ---------- progress ("test suite") ---------- */
+var sections = $$('main section.lesson');
+var counted = sections.filter(function (s) { return !s.dataset.extra; });
+var TOTAL = counted.length;
+var passed = new Set(store.get('passed', []));
+var toc = $('#toc');
+sections.forEach(function (s) {
+  var li = document.createElement('li');
+  li.dataset.id = s.id;
+  if (s.dataset.extra) li.className = 'extra';
+  li.innerHTML = '<a href="#' + s.id + '"><span class="st" aria-hidden="true"></span><span>' + esc(s.dataset.title) + '</span></a>';
+  toc.appendChild(li);
+});
+function updateProgress() {
+  var n = 0;
+  $$('li', toc).forEach(function (li) {
+    var ok = passed.has(li.dataset.id);
+    li.classList.toggle('passed', ok);
+    li.querySelector('a').setAttribute('aria-label', li.textContent + (li.classList.contains('extra') ? '' : (ok ? ', passed' : ', not passed yet')));
+    if (ok && !li.classList.contains('extra')) n++;
+  });
+  var pct = (n / TOTAL * 100) + '%';
+  $('#runbar-fill').style.width = pct;
+  $('#mini-fill').style.width = pct;
+  $('#runbar').setAttribute('aria-valuenow', n);
+  $('#suite-count').innerHTML = n === TOTAL ? '<b>All ' + TOTAL + ' sections passed</b>' : n + ' of ' + TOTAL + ' sections passed';
+}
+function pass(id) {
+  if (passed.has(id)) return;
+  passed.add(id);
+  store.set('passed', Array.from(passed));
+  updateProgress();
+}
+updateProgress();
+$('#reset-btn').addEventListener('click', function () {
+  if (confirm('Reset your progress for this lesson?')) { store.clear(); location.reload(); }
+});
+
+if ('IntersectionObserver' in window) {
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) {
+        $$('a', toc).forEach(function (a) { a.classList.toggle('current', a.getAttribute('href') === '#' + e.target.id); });
+      }
+    });
+  }, { rootMargin: '-35% 0px -60% 0px' });
+  sections.forEach(function (s) { io.observe(s); });
+}
+
+/* mobile menu */
+var side = $('#side'), menuBtn = $('#menu-btn');
+function setMenu(open) { side.classList.toggle('open', open); menuBtn.setAttribute('aria-expanded', open); }
+menuBtn.addEventListener('click', function (e) { e.stopPropagation(); setMenu(!side.classList.contains('open')); });
+toc.addEventListener('click', function () { setMenu(false); });
+document.addEventListener('click', function (e) { if (side.classList.contains('open') && !side.contains(e.target)) setMenu(false); });
+document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setMenu(false); });
+
+/* ---------- shared helpers ---------- */
+function segment(el, onChange) {
+  var btns = $$('button', el);
+  btns.forEach(function (b) {
+    b.addEventListener('click', function () {
+      btns.forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      onChange(Number(b.dataset.v));
+    });
+  });
+}
+function outMsg(el, html, kind) {
+  el.className = 'out' + (kind ? ' ' + kind : '');
+  el.innerHTML = html;
+}
+var B_PASS = '<span class="badge p">PASSED</span>', B_FAIL = '<span class="badge f">FAILED</span>';
+
+/* Simulated JUnit runner. results: [{name, ok, msg}] */
+function runTests(el, title, results) {
+  el.hidden = false;
+  el.innerHTML = '<div class="runner-head"><span>' + esc(title) + '</span><div class="runbar"><span></span></div><span class="cnt">0 / ' + results.length + '</span></div><ul></ul>';
+  var ul = $('ul', el), fill = $('.runbar span', el), bar = $('.runbar', el), cnt = $('.cnt', el);
+  var okCount = 0;
+  return results.reduce(function (p, r, i) {
+    return p.then(function () { return wait(320); }).then(function () {
+      var li = document.createElement('li');
+      li.className = r.ok ? 'p' : 'f';
+      li.innerHTML = '<span class="ic">' + (r.ok ? '✓' : '✗') + '</span><span>' + esc(r.name) + '()</span>' + (r.ok ? '' : '<span class="msg">' + esc(r.msg) + '</span>');
+      ul.appendChild(li);
+      if (r.ok) okCount++; else bar.classList.add('red');
+      fill.style.width = ((i + 1) / results.length * 100) + '%';
+      cnt.textContent = okCount + ' / ' + results.length + ' passed';
+    });
+  }, Promise.resolve()).then(function () { return okCount === results.length; });
+}
+
+function makeQuiz(el, qs, onDone) {
+  el.innerHTML = '';
+  var answered = 0, right = 0;
+  qs.forEach(function (q) {
+    var item = document.createElement('div');
+    item.className = 'mcq-item';
+    item.innerHTML = '<p class="mcq-q">' + q.q + '</p>' +
+      (q.code ? '<pre class="code" style="margin:0 0 10px"><code>' + esc(q.code) + '</code></pre>' : '') +
+      '<div class="mcq-opts"></div><div class="mcq-why" hidden></div>';
+    if (q.code) renderCode($('pre', item));
+    var box = $('.mcq-opts', item), why = $('.mcq-why', item);
+    q.options.forEach(function (o, oi) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.innerHTML = o;
+      b.addEventListener('click', function () {
+        $$('button', box).forEach(function (x) { x.disabled = true; });
+        var ok = oi === q.answer;
+        b.classList.add(ok ? 'right' : 'wrong');
+        if (!ok) box.children[q.answer].classList.add('right');
+        if (ok) right++;
+        why.hidden = false;
+        why.innerHTML = (ok ? '<b>Correct.</b> ' : '<b>Not quite.</b> ') + q.why;
+        answered++;
+        if (answered === qs.length && onDone) onDone(right, qs.length);
+      });
+      box.appendChild(b);
+    });
+    el.appendChild(item);
+  });
+}
+function fmtD(n) { return Number.isInteger(n) ? n.toFixed(1) : String(n); }
+
+/* ---------- hero console ---------- */
+var heroBusy = false;
+function playHero() {
+  if (heroBusy) return;
+  heroBusy = true;
+  var c = $('#hero-console');
+  c.innerHTML = '';
+  var lines = [
+    ['dim', '▶ Running PriceCalculatorTest'],
+    ['ok', '✓ noDiscountKeepsPrice()           3 ms'],
+    ['ok', '✓ fullDiscountMakesItFree()        1 ms'],
+    ['bad', '✗ twentyPercentOff()               2 ms'],
+    ['bad', '    expected: <80.0> but was: <100.0>'],
+    ['', ' '],
+    ['', 'Tests: <span class="ok">2 passed</span>, <span class="bad">1 failed</span>   <span class="bar" style="background:#6FD69F"></span><span class="bar" style="background:#FF8A92"></span>']
+  ];
+  lines.reduce(function (p, l, i) {
+    return p.then(function () { return wait(i === 0 ? 300 : 520); }).then(function () {
+      var d = document.createElement('div');
+      d.className = 'ln';
+      d.innerHTML = l[0] ? '<span class="' + l[0] + '">' + esc(l[1]) + '</span>' : l[1];
+      c.appendChild(d);
+      requestAnimationFrame(function () { d.classList.add('on'); });
+      if (i === lines.length - 1) {
+        var bars = $$('.bar', d);
+        setTimeout(function () { bars[0].style.width = '110px'; bars[1].style.width = '55px'; }, reduceMotion ? 0 : 80);
+      }
+    });
+  }, Promise.resolve()).then(function () { heroBusy = false; });
+}
+playHero();
+$('#hero-replay').addEventListener('click', playHero);
+
+/* ---------- 1. discount ---------- */
+(function () {
+  var tried = new Set(), tbody = $('#disc-table tbody');
+  function run(p, d) {
+    var key = p + ',' + d;
+    var expected = p * (1 - d / 100);
+    var actual = p * (1 - Math.trunc(d / 100));
+    var ok = expected === actual;
+    var row = $('tr[data-k="' + key + '"]', tbody);
+    if (!row) { row = document.createElement('tr'); row.dataset.k = key; tbody.appendChild(row); }
+    row.innerHTML = '<td class="mono">priceAfterDiscount(' + p + ', ' + d + ')</td><td class="mono">' + fmtD(expected) + '</td><td class="mono">' + fmtD(actual) + '</td><td class="' + (ok ? 'r-p' : 'r-f') + '">' + (ok ? '✓ pass' : '✗ fail') + '</td>';
+    $('#disc-table').hidden = false;
+    tried.add(key);
+    return ok;
+  }
+  function finish() {
+    var failed = $$('td.r-f', tbody).length;
+    if (tried.size === 4) {
+      outMsg($('#disc-out'), '<b>' + failed + ' of 4 checks failed.</b> The method is broken for most discounts. Can you see why? The explanation is below.', 'fail');
+      $('#disc-explain').hidden = false;
+      pass('why');
+    } else {
+      outMsg($('#disc-out'), 'Run all four checks. ' + (4 - tried.size) + ' to go.', '');
+    }
+  }
+  $$('#disc-btns [data-p]').forEach(function (b) {
+    b.addEventListener('click', function () { run(Number(b.dataset.p), Number(b.dataset.d)); finish(); });
+  });
+  $('#disc-all').addEventListener('click', function () {
+    $$('#disc-btns [data-p]').forEach(function (b) { run(Number(b.dataset.p), Number(b.dataset.d)); });
+    finish();
+  });
+})();
+
+/* ---------- 2. memory diagram ---------- */
+(function () {
+  var override = false, last = null;
+  var data = {
+    ab: function () { return { vars: ['a', 'b'], objs: ['1', '2'], res: false, text: '<code>a</code> and <code>b</code> point to <b>two different objects</b>. <code>==</code> asks “is it the same object?”, so the answer is false, even though the values inside are the same.' }; },
+    ac: function () { return { vars: ['a', 'c'], objs: ['1'], res: true, text: '<code>a</code> and <code>c</code> point to <b>the same object</b>, Point #1. Same arrow target, so <code>==</code> is true.' }; },
+    eqab: function () {
+      return override
+        ? { vars: ['a', 'b'], objs: ['1', '2'], res: true, text: 'Point now has its own <code>equals()</code>, which compares the values: x is 1 in both, y is 2 in both. So <code>equals()</code> is true, even though they are two different objects.' }
+        : { vars: ['a', 'b'], objs: ['1', '2'], res: false, text: 'Point has no <code>equals()</code> of its own, so it uses the one inherited from <code>Object</code>. That version just does <code>==</code>. Two different objects, so false. Flip the switch below and try again.' };
+    },
+    eqac: function () { return { vars: ['a', 'c'], objs: ['1'], res: true, text: 'Same object, so <code>equals()</code> is true with or without an override. An object is always equal to itself.' }; }
+  };
+  function show(key) {
+    last = key;
+    var d = data[key]();
+    ['a', 'b', 'c'].forEach(function (v) {
+      var on = d.vars.indexOf(v) >= 0;
+      $('#v-' + v).classList.toggle('lit', on);
+      var r = $('#r-' + v);
+      r.classList.toggle('lit', on);
+      r.setAttribute('marker-end', on ? 'url(#ahl)' : 'url(#ah)');
+    });
+    ['1', '2'].forEach(function (o) { $('#o-' + o).classList.toggle('lit', d.objs.indexOf(o) >= 0); });
+    $$('#mem-btns button').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.e === key ? 'true' : 'false'); });
+    outMsg($('#mem-out'), '<span class="badge n">' + d.res + '</span> ' + d.text, '');
+  }
+  $$('#mem-btns button').forEach(function (b) { b.addEventListener('click', function () { show(b.dataset.e); }); });
+  segment($('#eq-switch'), function (v) { override = v === 1; if (last && last.indexOf('eq') === 0) show(last); });
+})();
+
+makeQuiz($('#eq-quiz'), [
+  { q: 'What is <code>x == y</code>?', code: 'int x = 5;\nint y = 5;', options: ['true', 'false'], answer: 0,
+    why: '<code>int</code> is a primitive, not an object. For primitives, <code>==</code> compares the values. 5 equals 5.' },
+  { q: 'What is <code>s1 == s2</code>?', code: 'String s1 = "java";\nString s2 = new String("java");', options: ['true', 'false'], answer: 1,
+    why: '<code>new String(...)</code> always creates a new object, so they are two different objects. This is why you must <b>never</b> compare strings with <code>==</code>.' },
+  { q: 'Same strings. What is <code>s1.equals(s2)</code>?', options: ['true', 'false'], answer: 0,
+    why: 'The <code>String</code> class overrides <code>equals()</code> to compare the characters. Same characters, so true. Always use <code>.equals()</code> for strings.' },
+  { q: 'Point does <b>not</b> override <code>equals()</code>. What is this?', code: 'new Point(1, 2).equals(new Point(1, 2))', options: ['true', 'false'], answer: 1,
+    why: 'Without an override, <code>equals()</code> is the version from <code>Object</code>, which behaves like <code>==</code>. Two <code>new</code> means two objects, so false.' }
+], function () { pass('equals'); });
+
+/* assertEquals with Point */
+(function () {
+  var v = 0, busy = false;
+  segment($('#pt-switch'), function (x) { v = x; $('#pt-runner').hidden = true; outMsg($('#pt-out'), '', ''); });
+  $('#pt-run').addEventListener('click', function () {
+    if (busy) return; busy = true;
+    var ok = v > 0;
+    outMsg($('#pt-out'), '', '');
+    runTests($('#pt-runner'), 'PointTest', [{ name: 'moveRightAddsOneToX', ok: ok, msg: 'expected: <Point@1b6d3586> but was: <Point@4554617c>' }]).then(function () {
+      busy = false;
+      if (v === 0) outMsg($('#pt-out'), B_FAIL + '<code>moveRight()</code> worked: <code>p</code> really is (2, 2). But <code>assertEquals</code> called <code>equals()</code>, which without an override asks “same object?”. The test created a <em>new</em> Point, so the answer was no.<br><br>Also look at the message: <code>Point@1b6d3586</code> is the default <code>toString()</code>. It tells you nothing about x and y.', 'fail');
+      else if (v === 1) outMsg($('#pt-out'), B_PASS + 'Now <code>equals()</code> compares x and y, so the test passes.', 'pass');
+      else outMsg($('#pt-out'), B_PASS + 'Passes too. The difference shows when a test <em>fails</em>: with <code>toString()</code>, JUnit prints <code>expected: &lt;Point(2, 2)&gt; but was: &lt;Point(1, 2)&gt;</code>, which a human can actually read.', 'pass');
+    });
+  });
+})();
+
+/* HashSet buckets */
+(function () {
+  var v = 0, busy = false, el = $('#buckets');
+  function draw() {
+    el.innerHTML = '';
+    for (var i = 0; i < 8; i++) {
+      var d = document.createElement('div');
+      d.className = 'bucket'; d.dataset.i = i;
+      d.innerHTML = '<span class="bi">bucket ' + i + '</span>';
+      el.appendChild(d);
+    }
+  }
+  draw();
+  segment($('#hs-switch'), function (x) { v = x; draw(); $('#hs-steps').innerHTML = ''; outMsg($('#hs-out'), '', ''); });
+  $('#hs-run').addEventListener('click', function () {
+    if (busy) return; busy = true;
+    draw();
+    var steps = v === 2 ? [
+      'add(new Point(1, 2)): hashCode() is Objects.hash(1, 2) = 994. Bucket 994 % 8 = <b>2</b>.',
+      'contains(new Point(1, 2)): same values, so the same hashCode, 994. Look in bucket <b>2</b>.',
+      'Bucket 2 has one Point. Java calls equals() on it: x and y match. Found!'
+    ] : [
+      'add(new Point(1, 2)): no hashCode() override, so Java uses a number based on the object’s identity: 366712642. Bucket 366712642 % 8 = <b>2</b>.',
+      'contains(new Point(1, 2)): this is a <em>new</em> object, so its identity number is different: 1829164700. Bucket 1829164700 % 8 = <b>4</b>.',
+      'Bucket 4 is empty. Java gives up without ever calling equals().' + (v === 1 ? ' Your equals() would have said true, but it is never reached.' : '')
+    ];
+    var ol = $('#hs-steps');
+    ol.innerHTML = steps.map(function (s, i) { return '<li data-n="' + (i + 1) + '">' + s + '</li>'; }).join('');
+    var lis = $$('li', ol), bk = $$('.bucket', el);
+    outMsg($('#hs-out'), '', '');
+    wait(200).then(function () {
+      lis[0].classList.add('on');
+      var chip = document.createElement('span'); chip.className = 'chipobj'; chip.textContent = 'P(1,2)';
+      bk[2].appendChild(chip);
+      return wait(1300);
+    }).then(function () {
+      lis[1].classList.add('on');
+      bk[v === 2 ? 2 : 4].classList.add('look');
+      return wait(1300);
+    }).then(function () {
+      lis[2].classList.add('on');
+      if (v === 2) outMsg($('#hs-out'), '<span class="badge p">true</span> <code>contains()</code> found the point.', 'pass');
+      else outMsg($('#hs-out'), '<span class="badge f">false</span> <code>contains()</code> says the point is not in the set, even though you just added an equal one.', 'fail');
+      busy = false;
+    });
+  });
+})();
+
+/* ---------- 3. anatomy + calculator ---------- */
+(function () {
+  var info = {
+    imp: '<b>Imports.</b> <code>@Test</code> comes from JUnit. <code>import static</code> lets you write <code>assertEquals(...)</code> instead of <code>Assertions.assertEquals(...)</code>.',
+    cls: '<b>The test class.</b> Named after the class it tests, plus <code>Test</code>. It lives in <code>src/test/java</code>, so it’s never part of the finished program. It doesn’t need to be <code>public</code>.',
+    ann: '<b>@Test</b> is an annotation. It tells JUnit: “this method is a test, run it.” Forget it and JUnit silently skips the method, and you’ll think everything passed.',
+    'void': '<b>void, no parameters.</b> JUnit calls test methods itself, so nobody passes arguments in and nobody receives a return value.',
+    name: '<b>The name</b> describes the behaviour being checked, like a sentence. When the test fails, this is the name you’ll see in red, so make it useful.',
+    body: '<b>Normal Java code.</b> Create the object, then call the method you want to test. Nothing special here.',
+    assert: '<b>The check.</b> Expected value first (<code>5</code>), actual value second (<code>result</code>). If they’re not equal, the test fails right here with a message.'
+  };
+  var parts = $$('.anat .part');
+  parts.forEach(function (p) {
+    p.addEventListener('click', function () {
+      parts.forEach(function (x) { x.classList.toggle('sel', x.dataset.part === p.dataset.part); });
+      $('#anat-info').innerHTML = info[p.dataset.part];
+    });
+  });
+
+  var v = 0, busy = false, ranBug = false;
+  segment($('#calc-switch'), function (x) {
+    v = x;
+    setCode($('#calc-src'), 'public int add(int a, int b) {\n    return a ' + (v ? '-' : '+') + ' b;\n}', '', v ? '2' : '');
+    $('#calc-runner').hidden = true; outMsg($('#calc-out'), '', '');
+  });
+  $('#calc-run').addEventListener('click', function () {
+    if (busy) return; busy = true;
+    var add = function (a, b) { return v ? a - b : a + b; };
+    var tests = [['addsTwoPositiveNumbers', 2, 3, 5], ['addsNegativeNumbers', -2, -3, -5], ['addingZeroChangesNothing', 7, 0, 7]].map(function (t) {
+      var got = add(t[1], t[2]);
+      return { name: t[0], ok: got === t[3], msg: 'expected: <' + t[3] + '> but was: <' + got + '>' };
+    });
+    outMsg($('#calc-out'), '', '');
+    runTests($('#calc-runner'), 'CalculatorTest', tests).then(function (allOk) {
+      busy = false;
+      if (allOk) outMsg($('#calc-out'), B_PASS + 'Green bar. Now switch to the buggy version and run again.', 'pass');
+      else {
+        ranBug = true;
+        outMsg($('#calc-out'), B_FAIL + 'Two tests caught the bug. But look: <code>addingZeroChangesNothing</code> <b>passed</b>, because 7 − 0 and 7 + 0 are both 7. A single passing test proves very little. That’s why we test several different inputs.', 'fail');
+        pass('first');
+      }
+    });
+  });
+})();
+
+/* ---------- 4. AAA ---------- */
+(function () {
+  var lines = [
+    { code: 'BankAccount account = new BankAccount("Ali");', a: 'arrange' },
+    { code: 'account.deposit(100);', a: 'arrange' },
+    { code: 'account.withdraw(30);', a: 'act' },
+    { code: 'assertEquals(70, account.getBalance());', a: 'assert' }
+  ];
+  var ORDER = ['arrange', 'act', 'assert'], NAMES = { arrange: 'Arrange', act: 'Act', assert: 'Assert' };
+  var state = lines.map(function () { return ''; });
+  var box = $('#aaa-lines');
+  lines.forEach(function (l, i) {
+    var row = document.createElement('div');
+    row.className = 'aaa-line';
+    row.innerHTML = '<button type="button" class="tag" aria-label="Label for line ' + (i + 1) + ': not chosen">Choose</button><pre>' + hlLine(l.code) + '</pre>';
+    var tag = $('.tag', row);
+    tag.addEventListener('click', function () {
+      var cur = ORDER.indexOf(state[i]);
+      state[i] = ORDER[(cur + 1) % 3];
+      tag.className = 'tag ' + state[i];
+      tag.textContent = NAMES[state[i]];
+      tag.setAttribute('aria-label', 'Label for line ' + (i + 1) + ': ' + NAMES[state[i]]);
+    });
+    box.appendChild(row);
+  });
+  $('#aaa-check').addEventListener('click', function () {
+    var tags = $$('.tag', box), wrong = 0, missing = 0;
+    tags.forEach(function (t, i) {
+      var bad = state[i] !== lines[i].a;
+      if (!state[i]) missing++;
+      else if (bad) wrong++;
+      t.classList.toggle('wrong', !!state[i] && bad);
+    });
+    if (missing) { outMsg($('#aaa-out'), 'Label every line first. ' + missing + ' still say “Choose”.', ''); return; }
+    if (!wrong) {
+      outMsg($('#aaa-out'), B_PASS + 'All correct. The tricky one is <code>deposit(100)</code>: it’s a method call, but it’s not what we’re testing. It just prepares the account, so it belongs to Arrange. The Act is the single call to the method under test, <code>withdraw(30)</code>.', 'pass');
+      pass('aaa');
+    } else {
+      var hint = state[1] !== 'arrange' ? ' Hint: we are testing <code>withdraw()</code>. Is <code>deposit(100)</code> the thing being tested, or the preparation?' : '';
+      outMsg($('#aaa-out'), B_FAIL + wrong + (wrong === 1 ? ' label is' : ' labels are') + ' wrong (outlined in red).' + hint, 'fail');
+    }
+  });
+
+  segment($('#split-switch'), function (x) {
+    $('#split-0').hidden = x !== 0; $('#split-1').hidden = x !== 1;
+    $('#split-note').innerHTML = x === 0
+      ? 'The name <code>testAccount</code> tells you nothing. If the first assert fails, the other checks never run.'
+      : 'Each test checks one thing, and its name says what. If <code>withdraw()</code> breaks, only <code>withdrawReducesBalance</code> turns red. The “withdraw too much” case gets its own test with <code>assertThrows</code>, coming up next.';
+  });
+})();
+
+/* ---------- 5. assertions ---------- */
+$('#ord-good').addEventListener('click', function () {
+  outMsg($('#ord-out'), B_FAIL + '<span class="mono">expected: &lt;70&gt; but was: &lt;60&gt;</span><br>Clear: the method should give 70, but it gave 60. Go look at the calculation.', 'fail');
+});
+$('#ord-bad').addEventListener('click', function () {
+  outMsg($('#ord-out'), B_FAIL + '<span class="mono">expected: &lt;60&gt; but was: &lt;70&gt;</span><br>Confusing: this says the code returned 70, which is the <em>correct</em> number. You’d start looking for the bug in the wrong place.', 'fail');
+});
+$('#dbl-1').addEventListener('click', function () {
+  outMsg($('#dbl-out'), B_FAIL + '<span class="mono">expected: &lt;0.3&gt; but was: &lt;' + (0.1 + 0.2) + '&gt;</span><br>0.1 + 0.2 is not exactly 0.3 inside the computer. The difference is tiny, but <code>assertEquals</code> without a delta wants an exact match.', 'fail');
+});
+$('#dbl-2').addEventListener('click', function () {
+  outMsg($('#dbl-out'), B_PASS + 'The third argument is the <b>delta</b>: “equal enough if the difference is at most 0.0001.” Use this for every <code>double</code>.', 'pass');
+});
+(function () {
+  var OPTS = ['<code>assertEquals(expected, actual)</code>', '<code>assertTrue(condition)</code>', '<code>assertNull(object)</code>', '<code>assertThrows(Type.class, () -&gt; ...)</code>', '<code>assertEquals(expected, actual, delta)</code>'];
+  makeQuiz($('#pick-quiz'), [
+    { q: 'A new student’s <code>getName()</code> should return <code>"Ali"</code>.', options: OPTS, answer: 0, why: 'You know the exact expected value, so <code>assertEquals("Ali", student.getName())</code>.' },
+    { q: 'For a new, empty list, <code>list.isEmpty()</code> should be true.', options: OPTS, answer: 1, why: 'The result is a boolean, so <code>assertTrue(list.isEmpty())</code>. <code>assertEquals(true, ...)</code> also works but reads worse.' },
+    { q: '<code>findStudent("x")</code> should return nothing when no student has that ID.', options: OPTS, answer: 2, why: '“Nothing” in Java is usually <code>null</code>, so <code>assertNull(findStudent("x"))</code>.' },
+    { q: '<code>divide(5, 0)</code> should throw an <code>ArithmeticException</code>.', options: OPTS, answer: 3, why: '<code>assertThrows(ArithmeticException.class, () -&gt; divide(5, 0))</code>. Remember the <code>() -&gt;</code> so JUnit can run the code and catch the exception.' },
+    { q: '<code>average(0.1, 0.2)</code> should be <code>0.15</code>.', options: OPTS, answer: 4, why: 'It’s a <code>double</code>, so allow a tiny difference: <code>assertEquals(0.15, average(0.1, 0.2), 0.0001)</code>.' }
+  ], function () { pass('asserts'); });
+})();
+
+/* ---------- 6. number line ---------- */
+(function () {
+  var svg = $('#nl-svg'), NS = 'http://www.w3.org/2000/svg';
+  var X = function (v) { return 30 + (v + 10) * 4.5; };
+  var GROUPS = [
+    { lo: -10, hi: -1, label: 'too low', fill: 'var(--fail-bg)' },
+    { lo: 0, hi: 59, label: 'F', fill: 'var(--soft)' },
+    { lo: 60, hi: 69, label: 'D', fill: 'var(--accent-bg)' },
+    { lo: 70, hi: 79, label: 'C', fill: 'var(--soft)' },
+    { lo: 80, hi: 89, label: 'B', fill: 'var(--accent-bg)' },
+    { lo: 90, hi: 100, label: 'A', fill: 'var(--soft)' },
+    { lo: 101, hi: 110, label: 'too high', fill: 'var(--fail-bg)' }
+  ];
+  var EDGES = [-1, 0, 59, 60, 69, 70, 79, 80, 89, 90, 100, 101];
+  var pts = new Set(), results = {};
+  function grade(s, buggy) {
+    if (s < 0 || s > 100) return 'throws';
+    if (buggy ? s > 90 : s >= 90) return "'A'";
+    if (s >= 80) return "'B'";
+    if (s >= 70) return "'C'";
+    if (s >= 60) return "'D'";
+    return "'F'";
+  }
+  function el(tag, attrs, text) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  function draw() {
+    svg.innerHTML = '';
+    GROUPS.forEach(function (g) {
+      var x0 = X(g.lo - 0.5), x1 = X(g.hi + 0.5);
+      var r = el('rect', { x: x0, y: 52, width: x1 - x0, height: 28, 'class': 'seg-r' });
+      r.style.fill = g.fill;
+      svg.appendChild(r);
+      svg.appendChild(el('text', { x: (x0 + x1) / 2, y: 70.5, 'text-anchor': 'middle' }, g.label));
+    });
+    [0, 60, 70, 80, 90, 100].forEach(function (t) {
+      svg.appendChild(el('text', { x: X(t - 0.5), y: 96, 'text-anchor': 'middle', 'class': 'tick' }, String(t)));
+    });
+    var sorted = Array.from(pts).sort(function (a, b) { return a - b; });
+    sorted.forEach(function (v, i) {
+      var cls = 'pt' + (results[v] === true ? ' p' : results[v] === false ? ' f' : '');
+      svg.appendChild(el('line', { x1: X(v), x2: X(v), y1: 42, y2: 52, stroke: 'currentColor', 'stroke-width': 1, opacity: .4 }));
+      svg.appendChild(el('circle', { cx: X(v), cy: 38, r: 5.5, 'class': cls }));
+      svg.appendChild(el('text', { x: X(v), y: i % 2 ? 14 : 26, 'text-anchor': 'middle', 'class': 'tick' }, String(v)));
+    });
+    var chips = $('#nl-chips');
+    chips.innerHTML = '';
+    sorted.forEach(function (v) {
+      var c = document.createElement('span'); c.className = 'chip';
+      c.innerHTML = 'grade(' + v + ')<button type="button" aria-label="Remove test for ' + v + '">×</button>';
+      $('button', c).addEventListener('click', function () { pts.delete(v); delete results[v]; draw(); });
+      chips.appendChild(c);
+    });
+    var gc = GROUPS.filter(function (g) { return sorted.some(function (v) { return v >= g.lo && v <= g.hi; }); }).length;
+    var bc = EDGES.filter(function (e) { return pts.has(e); }).length;
+    $('#nl-g').textContent = gc + ' / 7'; $('#nl-g-fill').style.width = (gc / 7 * 100) + '%';
+    $('#nl-b').textContent = bc + ' / 12'; $('#nl-b-fill').style.width = (bc / 12 * 100) + '%';
+  }
+  function add(v) {
+    v = Math.round(Number(v));
+    if (isNaN(v)) return;
+    v = Math.max(-10, Math.min(110, v));
+    pts.add(v); draw();
+  }
+  var num = $('#nl-num'), rng = $('#nl-range');
+  rng.addEventListener('input', function () { num.value = rng.value; });
+  num.addEventListener('input', function () { rng.value = num.value; });
+  num.addEventListener('keydown', function (e) { if (e.key === 'Enter') add(num.value); });
+  $('#nl-add').addEventListener('click', function () { add(num.value); });
+  $('#nl-clear').addEventListener('click', function () { pts.clear(); results = {}; draw(); $('#nl-table').hidden = true; outMsg($('#nl-out'), '', ''); });
+  $('#nl-suggest').addEventListener('click', function () {
+    EDGES.forEach(function (e) { pts.add(e); }); draw();
+    outMsg($('#nl-out'), 'These are the 12 edge values: both sides of every border. Now run them.', '');
+  });
+  $('#nl-run').addEventListener('click', function () {
+    if (!pts.size) { outMsg($('#nl-out'), 'Add at least one test score first.', ''); return; }
+    var sorted = Array.from(pts).sort(function (a, b) { return a - b; });
+    var tbody = $('#nl-table tbody'), anyFail = false;
+    tbody.innerHTML = '';
+    sorted.forEach(function (v) {
+      var e = grade(v, false), a = grade(v, true), ok = e === a;
+      results[v] = ok; if (!ok) anyFail = true;
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td class="mono">grade(' + v + ')</td><td class="mono">' + e + '</td><td class="mono">' + a + '</td><td class="' + (ok ? 'r-p' : 'r-f') + '">' + (ok ? '✓ pass' : '✗ fail') + '</td>';
+      tbody.appendChild(tr);
+    });
+    $('#nl-table').hidden = false;
+    draw();
+    var gc = GROUPS.filter(function (g) { return sorted.some(function (v) { return v >= g.lo && v <= g.hi; }); }).length;
+    if (anyFail) {
+      outMsg($('#nl-out'), B_PASS.replace('PASSED', 'BUG FOUND') + 'Your ' + sorted.length + (sorted.length === 1 ? ' test' : ' tests') + ' caught it. The classmate wrote:<pre class="code" style="margin:10px 0" data-bad="1"><code>    if (score &gt; 90) return \'A\';     // should be &gt;=</code></pre>So a score of exactly 90 got a B. Only a test at 90 can catch this. 91, 95 or 100 all work fine.', 'pass');
+      renderCode($('#nl-out pre'));
+      pass('cases');
+    } else {
+      outMsg($('#nl-out'), B_FAIL.replace('FAILED', 'BUG MISSED') + 'All ' + sorted.length + ' tests passed, but the code still has a bug. Your tests looked in the wrong places.' + (gc === 7 ? ' You covered every group, so groups alone weren’t enough. Bugs hide at the edges.' : ' Which edges haven’t you tested yet?'), 'fail');
+    }
+  });
+  draw();
+})();
+
+/* ---------- 7. sorting ---------- */
+(function () {
+  var items = [
+    { t: 'Check that <code>grade(85)</code> returns <code>\'B\'</code>.', a: 'unit', why: 'One method, no outside world. Unit.' },
+    { t: 'Save a <code>Student</code> to the real MySQL database, read it back, and compare.', a: 'int', why: 'It needs a running database, a second system. Integration.' },
+    { t: 'Check that <code>withdraw(80)</code> throws when the balance is 50.', a: 'unit', why: 'Just one object in memory. Unit.' },
+    { t: 'Call the real weather website and check that <code>WeatherService</code> reads today’s temperature.', a: 'int', why: 'Needs the internet and someone else’s server. Integration, and it will fail whenever the Wi-Fi does.' },
+    { t: 'Check that <code>ShoppingCart.total()</code> adds up three items.', a: 'unit', why: 'One class, all in memory. Unit.' },
+    { t: 'Check that <code>ReportWriter</code> creates a real PDF file on disk that a PDF viewer can open.', a: 'int', why: 'Touches the file system and another program. Integration.' }
+  ];
+  var box = $('#sort-list'), done = 0, right = 0;
+  items.forEach(function (it) {
+    var d = document.createElement('div');
+    d.className = 'sort-item';
+    d.innerHTML = '<div>' + it.t + '</div><div class="row"><button class="btn" type="button" data-a="unit">Unit</button><button class="btn" type="button" data-a="int">Integration</button></div><div class="fb"></div>';
+    $$('button', d).forEach(function (b) {
+      b.addEventListener('click', function () {
+        $$('button', d).forEach(function (x) { x.disabled = true; });
+        b.setAttribute('aria-pressed', 'true');
+        var ok = b.dataset.a === it.a;
+        d.classList.add(ok ? 'ok' : 'no');
+        $('.fb', d).innerHTML = (ok ? '✓ ' : '✗ ') + it.why;
+        done++; if (ok) right++;
+        if (done === items.length) {
+          outMsg($('#sort-out'), 'You sorted ' + right + ' of ' + items.length + ' correctly. A quick test: if it needs anything outside your Java objects (a database, the internet, files), it’s an integration test.', right === items.length ? 'pass' : '');
+          pass('kinds');
+        }
+      });
+    });
+    box.appendChild(d);
+  });
+})();
+
+/* ---------- 8. testable code ---------- */
+(function () {
+  segment($('#bd-switch'), function (x) {
+    $('#bd-0').hidden = x !== 0; $('#bd-1').hidden = x !== 1;
+    $('#bd-problems').hidden = x !== 0; $('#bd-fix').hidden = x !== 1;
+  });
+  var tried = new Set();
+  $$('#tm-dates button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      $$('#tm-dates button').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      var d = Number(b.dataset.d), bday = d === 14;
+      tried.add(d);
+      $('#tm-grid').hidden = false;
+      $('#tm-before').innerHTML = bday ? B_PASS + 'printed “Happy birthday, Ayşe!”' : B_FAIL + 'printed “Hello, Ayşe”';
+      $('#tm-after').innerHTML = B_PASS + 'the test always hands it 14 March';
+      outMsg($('#tm-out'), bday
+        ? 'Both pass today. Run the same suite tomorrow and the Before version turns red, without anyone changing a line of code.'
+        : 'Nothing is wrong with the code, but the Before test fails today. That’s a <b>flaky</b> test. The After version passes every day, because the test decides the date, not the calendar.', '');
+      if (tried.size >= 2) pass('testable');
+    });
+  });
+})();
+
+/* ---------- 9. bug hunt ---------- */
+(function () {
+  var NAMES = ['emptyCartHasZeroTotal', 'totalMultipliesPriceByQuantity', 'itemCountCountsEveryPiece', 'removeTakesTheItemOut', 'negativeQuantityIsRejected'];
+  var OPTS = ['<code>total()</code> forgets to multiply by the quantity', '<code>itemCount()</code> counts lines instead of pieces', '<code>add()</code> never checks the quantity', '<code>remove()</code> doesn’t remove anything'];
+  var V = [
+    { fail: 1, msg: 'expected: <30.0> but was: <25.0>', answer: 0,
+      why: 'Pen 5.0 × 2 + Book 20.0 × 1 should be 30.0. The code got 25.0, which is just 5 + 20: it added the prices and ignored the quantities. Only the total test failed, so the bug must be in <code>total()</code>.',
+      code: 'public double total() {\n    double total = 0;\n    for (Item item : items) {\n        total += item.price;                    // bug\n        // fix: total += item.price * item.quantity;\n    }\n    return total;\n}', bad: '4', hl: '5' },
+    { fail: 2, msg: 'expected: <3> but was: <2>', answer: 1,
+      why: '2 pens and 1 book are 3 pieces. The code returned 2, the number of different lines in the cart. <code>removeTakesTheItemOut</code> still passed, because an empty cart has 0 lines and 0 pieces.',
+      code: 'public int itemCount() {\n    return items.size();                        // bug: counts lines\n    // fix:\n    // int count = 0;\n    // for (Item item : items) count += item.quantity;\n    // return count;\n}', bad: '2', hl: '' },
+    { fail: 4, msg: 'Expected java.lang.IllegalArgumentException to be thrown, but nothing was thrown.', answer: 2,
+      why: '<code>assertThrows</code> waited for an exception that never came. So <code>add()</code> happily accepted a quantity of -1. A missing check is a bug too, and only a test that tries bad input can find it.',
+      code: 'public void add(String name, double price, int quantity) {\n    // bug: missing check. Fix:\n    // if (quantity < 1) {\n    //     throw new IllegalArgumentException("quantity must be at least 1");\n    // }\n    items.add(new Item(name, price, quantity));\n}', bad: '2', hl: '' }
+  ];
+  var v = 0, busy = false, diagnosed = new Set();
+  function resetView() { $('#hunt-runner').hidden = true; $('#hunt-diag').hidden = true; $('#hunt-reveal').innerHTML = ''; }
+  segment($('#hunt-switch'), function (x) { v = x; resetView(); });
+  function status() {
+    outMsg($('#hunt-out'), 'Diagnosed ' + diagnosed.size + ' of 3 versions.' + (diagnosed.size === 3 ? ' Well done, that’s all of them.' : ' Pick another student’s version above.'), diagnosed.size === 3 ? 'pass' : '');
+  }
+  $('#hunt-run').addEventListener('click', function () {
+    if (busy) return; busy = true;
+    resetView();
+    var ver = V[v];
+    var res = NAMES.map(function (n, i) { return { name: n, ok: i !== ver.fail, msg: ver.msg }; });
+    runTests($('#hunt-runner'), 'ShoppingCartTest', res).then(function () {
+      busy = false;
+      $('#hunt-diag').hidden = false;
+      var opts = $('#hunt-opts');
+      opts.innerHTML = '';
+      OPTS.forEach(function (o, oi) {
+        var b = document.createElement('button');
+        b.type = 'button'; b.innerHTML = o;
+        b.addEventListener('click', function () {
+          if (oi === ver.answer) {
+            $$('button', opts).forEach(function (x) { x.disabled = true; });
+            b.classList.add('right');
+            var rev = $('#hunt-reveal');
+            rev.innerHTML = '<div class="mcq-why"><b>Correct.</b> ' + ver.why + '</div><p style="margin:14px 0 4px;font-size:.92rem">Here is the code they wrote:</p><pre class="code"><code></code></pre>';
+            setCode($('pre', rev), ver.code, ver.hl, ver.bad);
+            diagnosed.add(v);
+            status();
+            if (diagnosed.size === 3) pass('hunt');
+          } else {
+            b.disabled = true; b.classList.add('wrong');
+            $('#hunt-reveal').innerHTML = '<div class="mcq-why"><b>Not that one.</b> Look at the <em>name</em> of the test that failed, and compare expected with actual.</div>';
+          }
+        });
+        opts.appendChild(b);
+      });
+    });
+  });
+})();
+
+/* ---------- 10. exit quiz ---------- */
+(function () {
+  var QS = [
+    { q: 'What does <code>assertEquals(expected, actual)</code> use to compare two objects?', options: ['<code>==</code>', '<code>equals()</code>', '<code>hashCode()</code>', '<code>toString()</code>'], answer: 1,
+      why: 'It calls <code>equals()</code>. That’s why your classes need a proper <code>equals()</code> before tests can compare them. <code>toString()</code> is only used to print the failure message.' },
+    { q: 'In what order do the parts of a good test come?', options: ['Act, Arrange, Assert', 'Arrange, Act, Assert', 'Assert, Arrange, Act', 'Arrange, Assert, Act'], answer: 1,
+      why: 'Set up, do the one thing, check the result.' },
+    { q: 'You override <code>equals()</code> in Point but forget <code>hashCode()</code>. What goes wrong?', options: ['The code doesn’t compile', '<code>==</code> stops working', '<code>HashSet.contains()</code> can return false for an equal point', 'Nothing, <code>hashCode()</code> is optional'], answer: 2,
+      why: 'Equal points get different hash codes, so the set looks in the wrong bucket and never calls <code>equals()</code>.' },
+    { q: 'Which of these is a unit test?', options: ['Checking that <code>grade(85)</code> returns <code>\'B\'</code>', 'Saving a student in the real database and reading it back', 'Clicking through the website in a real browser', 'Sending a real email and checking the inbox'], answer: 0,
+      why: 'Only the first one runs entirely inside your own code, with nothing from the outside world.' },
+    { q: 'Why is a method that calls <code>LocalDate.now()</code> inside hard to test?', options: ['<code>LocalDate</code> is slow', 'The result depends on the day you run the test', '<code>LocalDate</code> can’t be used in tests', 'It throws a checked exception'], answer: 1,
+      why: 'It’s a hidden input. The fix is to pass the date in as a parameter, so the test can choose it.' },
+    { q: '<code>assertEquals(0.3, 0.1 + 0.2)</code> fails. What is the fix?', options: ['Use <code>assertTrue</code> instead', 'Use <code>assertEquals(0.3, 0.1 + 0.2, 0.0001)</code>', 'Use <code>==</code> instead', 'Cast both sides to <code>int</code>'], answer: 1,
+      why: 'Doubles aren’t exact. The delta says “close enough is fine.”' },
+    { q: 'You can only write four tests for <code>grade()</code>. Which set is most likely to find an off-by-one bug like <code>&gt;</code> instead of <code>&gt;=</code>?', options: ['<code>10, 20, 30, 40</code>', '<code>59, 60, 89, 90</code>', '<code>75, 75, 75, 75</code>', '<code>-500, 500, 1000, 2000</code>'], answer: 1,
+      why: 'Off-by-one bugs live at the edges, so test right at the borders.' }
+  ];
+  function start() {
+    $('#exit-score').innerHTML = '';
+    makeQuiz($('#exit-quiz'), QS, function (r, n) {
+      var msg = r === n ? 'Perfect. All green.' : r >= n - 2 ? 'Good work. Reread the explanations for the ones you missed.' : 'Go back to the sections you missed and try the exercises again.';
+      $('#exit-score').innerHTML = '<p class="score">' + r + ' / ' + n + '</p><p>' + msg + '</p><button class="btn" type="button" id="exit-again">Try again</button>';
+      $('#exit-again').addEventListener('click', function () { start(); $('#quiz').scrollIntoView(); });
+      pass('quiz');
+    });
+  }
+  start();
+})();
+
+})();
+</script>
+</body>
+</html>
