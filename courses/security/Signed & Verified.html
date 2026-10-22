@@ -1,0 +1,787 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Signed &amp; Verified</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a lecture handout — sticky table of contents on the left, one reading column on the right, each concept followed by a hands-on demo panel. */
+:root {
+  --paper: #f3f5f8;
+  --surface: #ffffff;
+  --ink: #162033;
+  --muted: #586379;
+  --line: #d6dbe4;
+  --wax: #a8243b;
+  --wax-soft: #f7e4e7;
+  --ok: #17734a;
+  --ok-soft: #dff2e8;
+  --sky: #2a62c4;
+  --sky-soft: #e5eefc;
+  --code-bg: #eef1f6;
+  --display: "Bricolage Grotesque", "Arial Narrow", system-ui, sans-serif;
+  --body: "Literata", Georgia, "Times New Roman", serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0e131c; --surface: #151c28; --ink: #e4e8ef; --muted: #96a1b5; --line: #263044;
+    --wax: #e45d73; --wax-soft: #2d1820; --ok: #4fc58c; --ok-soft: #12291f;
+    --sky: #7ea8ff; --sky-soft: #172340; --code-bg: #1b2333; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0e131c; --surface: #151c28; --ink: #e4e8ef; --muted: #96a1b5; --line: #263044;
+  --wax: #e45d73; --wax-soft: #2d1820; --ok: #4fc58c; --ok-soft: #12291f;
+  --sky: #7ea8ff; --sky-soft: #172340; --code-bg: #1b2333; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { background: var(--paper); color: var(--ink); font: 400 17px/1.65 var(--body); }
+.shell {
+  max-width: 1120px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 40px 80px;
+  display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 56px;
+}
+@media (max-width: 900px) { .shell { grid-template-columns: minmax(0, 1fr); gap: 28px; } }
+
+/* TOC */
+nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; display: grid; gap: 10px; }
+nav.toc .label { margin-bottom: 4px; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; counter-reset: t; }
+nav.toc a { display: grid; grid-template-columns: 1.8em 1fr; color: var(--muted); text-decoration: none; font: 500 0.88rem/1.35 var(--display); padding: 5px 8px; border-radius: 6px; }
+nav.toc a span { font-family: var(--mono); font-size: 0.72rem; padding-top: 2px; }
+nav.toc a:hover, nav.toc a.on { color: var(--ink); background: var(--surface); }
+nav.toc a.on span { color: var(--wax); }
+nav.toc a.eli { color: var(--sky); }
+@media (max-width: 900px) {
+  nav.toc { position: static; }
+  nav.toc ol { display: flex; flex-wrap: wrap; gap: 6px; }
+  nav.toc a { display: inline-flex; gap: 6px; border: 1px solid var(--line); background: var(--surface); padding: 4px 10px; border-radius: 999px; }
+}
+
+main { display: grid; gap: 72px; min-width: 0; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; line-height: 1.08; letter-spacing: -0.01em; }
+h1 { font-size: clamp(2.6rem, 7vw, 4.4rem); font-weight: 800; letter-spacing: -0.03em; }
+h2 { font-size: clamp(1.7rem, 4vw, 2.3rem); font-weight: 700; }
+h3 { font-size: 1.2rem; font-weight: 700; }
+p { margin: 0; max-width: 66ch; }
+.label { font: 600 0.72rem/1 var(--mono); text-transform: uppercase; letter-spacing: 0.13em; color: var(--wax); }
+.muted { color: var(--muted); }
+section { display: grid; gap: 20px; scroll-margin-top: 24px; }
+.sec-head { display: grid; gap: 10px; }
+.stack { display: grid; gap: 14px; }
+ul.plain, ol.plain { margin: 0; padding-left: 1.2em; display: grid; gap: 8px; max-width: 66ch; }
+code, .m { font-family: var(--mono); font-size: 0.86em; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
+.math { font-family: var(--mono); font-size: 0.95rem; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 18px; overflow-x: auto; line-height: 1.9; }
+.math b { color: var(--wax); font-weight: 600; }
+a { color: var(--sky); }
+
+/* Header */
+header.hero { display: grid; gap: 20px; padding-bottom: 32px; border-bottom: 2px solid var(--ink); }
+.hero .lede { font-size: 1.15rem; max-width: 60ch; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 22px; font: 400 0.8rem/1.4 var(--mono); color: var(--muted); }
+.hero-sig { display: flex; align-items: center; gap: 14px; font: 400 0.78rem/1.4 var(--mono); color: var(--muted); flex-wrap: wrap; }
+.hero-sig .seal { width: 46px; height: 46px; flex: none; }
+.hero-sig code { word-break: break-all; }
+
+.objectives { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.obj { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; display: grid; gap: 4px; font-size: 0.95rem; min-width: 0; }
+.obj b { font-family: var(--display); font-size: 1rem; }
+
+/* ELI5 */
+.eli5 { background: var(--sky-soft); border-radius: 18px; padding: clamp(20px, 4vw, 36px); display: grid; gap: 22px; }
+.eli5 .label { color: var(--sky); }
+.eli5 h2 { font-size: clamp(1.8rem, 4.5vw, 2.5rem); }
+.eli5 p { font-size: 1.1rem; }
+.eli-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+@media (max-width: 720px) { .eli-grid { grid-template-columns: minmax(0, 1fr); } }
+.stage { background: var(--surface); border-radius: 14px; border: 1px solid var(--line); overflow: hidden; }
+.stage svg { display: block; width: 100%; height: auto; }
+.stage-bar { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-top: 1px solid var(--line); flex-wrap: wrap; }
+.stage-cap { flex: 1 1 200px; font-size: 0.95rem; min-width: 0; }
+.dots { display: flex; gap: 6px; }
+.dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
+.dots i.on { background: var(--sky); }
+.eli-list { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+.eli-list li { display: grid; grid-template-columns: 2.2em 1fr; gap: 10px; font-size: 1.02rem; }
+.eli-list .ic { width: 2.2em; height: 2.2em; border-radius: 50%; background: var(--surface); display: grid; place-items: center; font: 700 0.9rem/1 var(--display); color: var(--sky); }
+.translate { border-top: 1px dashed var(--sky); padding-top: 16px; display: grid; gap: 8px; }
+.translate table { min-width: 420px; }
+
+/* Buttons */
+button, .btn {
+  font: 600 0.85rem/1 var(--display); color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 8px; padding: 9px 14px; cursor: pointer;
+}
+button:hover { border-color: var(--muted); }
+button.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+button.primary:hover { opacity: 0.88; }
+button.warn { color: var(--wax); border-color: var(--wax); }
+button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visible { outline: 2px solid var(--sky); outline-offset: 2px; }
+button:disabled { opacity: 0.45; cursor: default; }
+
+/* Demo panels */
+.demo { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px; display: grid; gap: 16px; min-width: 0; }
+.demo-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.demo-head .label { color: var(--muted); }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+label.f { display: grid; gap: 6px; font: 600 0.78rem/1 var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; min-width: 0; }
+input[type="text"], textarea {
+  font: 400 0.95rem/1.4 var(--mono); color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; width: 100%;
+}
+textarea { resize: vertical; min-height: 64px; }
+.hex { font: 400 0.84rem/1.6 var(--mono); word-break: break-all; background: var(--paper); border-radius: 8px; padding: 10px 12px; }
+.hex .d { color: var(--wax); font-weight: 600; background: var(--wax-soft); border-radius: 2px; }
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 620px) { .two { grid-template-columns: minmax(0, 1fr); } }
+.meter { height: 10px; background: var(--paper); border-radius: 999px; overflow: hidden; }
+.meter i { display: block; height: 100%; background: var(--wax); width: 0; transition: width .5s ease; }
+.kv { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; font: 400 0.88rem/1.5 var(--mono); }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; word-break: break-all; min-width: 0; }
+.verdict { font: 700 0.95rem/1.3 var(--display); padding: 10px 14px; border-radius: 8px; display: flex; gap: 10px; align-items: center; }
+.verdict.ok { background: var(--ok-soft); color: var(--ok); }
+.verdict.bad { background: var(--wax-soft); color: var(--wax); }
+.verdict.idle { background: var(--paper); color: var(--muted); }
+
+/* Pipeline */
+.pipe svg { width: 100%; height: auto; display: block; min-width: 620px; }
+.pipe .scroll { overflow-x: auto; }
+.pipe .node rect { fill: var(--paper); stroke: var(--line); stroke-width: 1.5; transition: fill .35s, stroke .35s; }
+.pipe .node text { fill: var(--ink); font: 600 13px var(--display); }
+.pipe .node text.s { fill: var(--muted); font: 400 10.5px var(--mono); }
+.pipe .node.on rect { fill: var(--wax-soft); stroke: var(--wax); }
+.pipe .node.done rect { stroke: var(--ink); }
+.pipe .edge { stroke: var(--line); stroke-width: 2; fill: none; transition: stroke .35s; }
+.pipe .edge.on { stroke: var(--wax); stroke-dasharray: 6 5; animation: flow .8s linear infinite; }
+.pipe .edge.done { stroke: var(--ink); }
+.pipe .lane { fill: var(--muted); font: 600 11px var(--mono); letter-spacing: .12em; }
+.pipe .divider { stroke: var(--line); stroke-dasharray: 3 4; }
+.pipe .arrowhead { fill: var(--muted); }
+.pipe .result text { font: 700 14px var(--display); }
+@keyframes flow { to { stroke-dashoffset: -22; } }
+
+/* Tables */
+.tscroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 0.93rem; }
+th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+th { font: 600 0.7rem/1.2 var(--mono); text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.yes { color: var(--ok); font-weight: 600; }
+.no { color: var(--wax); font-weight: 600; }
+
+.callout { border-left: 3px solid var(--wax); background: var(--wax-soft); padding: 14px 18px; border-radius: 0 8px 8px 0; display: grid; gap: 6px; }
+.callout.info { border-color: var(--sky); background: var(--sky-soft); }
+.callout b.t { font-family: var(--display); }
+
+/* Chain */
+.chain { display: grid; gap: 0; justify-items: stretch; max-width: 520px; }
+.cert { background: var(--paper); border: 1.5px solid var(--line); border-radius: 10px; padding: 12px 14px; display: grid; gap: 4px; transition: border-color .35s, background .35s; position: relative; }
+.cert .who { font: 700 1rem/1.2 var(--display); }
+.cert .meta2 { font: 400 0.78rem/1.45 var(--mono); color: var(--muted); }
+.cert .st { position: absolute; right: 12px; top: 12px; font: 700 0.75rem/1 var(--mono); }
+.cert.ok { border-color: var(--ok); background: var(--ok-soft); }
+.cert.ok .st { color: var(--ok); }
+.cert.bad { border-color: var(--wax); background: var(--wax-soft); }
+.cert.bad .st { color: var(--wax); }
+.cert.checking { border-color: var(--sky); }
+.link { height: 34px; display: grid; place-items: center; font: 400 0.72rem/1 var(--mono); color: var(--muted); position: relative; }
+.link::before { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; border-left: 2px dashed var(--line); }
+.link span { background: var(--surface); padding: 2px 8px; position: relative; }
+
+/* Quiz */
+.q { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px; display: grid; gap: 12px; }
+.q p.prompt { font-weight: 600; }
+.opts { display: grid; gap: 8px; }
+.opts button { text-align: left; font: 400 0.95rem/1.4 var(--body); padding: 10px 14px; }
+.opts button.right { border-color: var(--ok); background: var(--ok-soft); color: var(--ok); }
+.opts button.wrong { border-color: var(--wax); background: var(--wax-soft); color: var(--wax); }
+.q .why { font-size: 0.93rem; color: var(--muted); }
+.score { font: 600 0.9rem/1 var(--mono); color: var(--muted); }
+
+.terms { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+.term { border-top: 2px solid var(--ink); padding-top: 8px; display: grid; gap: 4px; font-size: 0.93rem; min-width: 0; }
+.term b { font-family: var(--display); font-size: 1rem; }
+footer { border-top: 1px solid var(--line); padding-top: 18px; font-size: 0.85rem; color: var(--muted); }
+
+/* ELI5 svg */
+.eli-svg .bg { fill: var(--surface); }
+.eli-svg .paper { fill: var(--paper); stroke: var(--line); stroke-width: 2; }
+.eli-svg .ln { stroke: var(--muted); stroke-width: 3; stroke-linecap: round; opacity: .5; }
+.eli-svg .ln.changed { stroke: var(--wax); opacity: 1; }
+.eli-svg .txt { fill: var(--ink); font: 700 15px var(--display); }
+.eli-svg .small { fill: var(--muted); font: 500 12px var(--display); }
+.eli-svg .wax { fill: var(--wax); }
+.eli-svg .waxmark { fill: none; stroke: var(--surface); stroke-width: 2.5; }
+.eli-svg .stamp-handle { fill: var(--ink); }
+.eli-svg .stamp-face { fill: var(--wax); }
+.eli-svg .person { fill: var(--sky); }
+.eli-svg .person-b { fill: var(--muted); }
+.eli-svg .glass { fill: var(--sky-soft); stroke: var(--sky); stroke-width: 4; }
+.eli-svg .okmark { stroke: var(--ok); stroke-width: 6; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.eli-svg .badmark { stroke: var(--wax); stroke-width: 6; fill: none; stroke-linecap: round; }
+.eli-svg .board { fill: var(--sky-soft); stroke: var(--sky); stroke-width: 2; }
+.eli-svg g { transition: transform .7s cubic-bezier(.3,.7,.3,1), opacity .5s; }
+.eli-svg .hide { opacity: 0; }
+.eli-svg .crack { stroke: var(--surface); stroke-width: 3; fill: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .eli-svg g, .cert, .meter i, .pipe .node rect, .pipe .edge { transition: none; }
+  .pipe .edge.on { animation: none; }
+}
+
+/* v2 additions */
+.keys { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 620px) { .keys { grid-template-columns: minmax(0, 1fr); } }
+.key { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px; display: grid; gap: 8px; grid-template-columns: 52px 1fr; align-items: start; min-width: 0; }
+.key svg { width: 52px; height: 52px; }
+.key .kt { font: 700 1.1rem/1.2 var(--display); }
+.key .kd { font-size: 0.95rem; }
+.key .tag { font: 600 0.7rem/1 var(--mono); text-transform: uppercase; letter-spacing: 0.1em; }
+.key.priv .tag { color: var(--wax); }
+.key.pub .tag { color: var(--sky); }
+.big-idea { font: 700 clamp(1.2rem, 3vw, 1.5rem)/1.35 var(--display); max-width: 40ch; border-left: 4px solid var(--wax); padding-left: 16px; }
+.letter { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 10px; }
+.sigbox { font: 600 0.92rem/1.4 var(--mono); padding: 8px 12px; border-radius: 8px; border: 1.5px dashed var(--line); color: var(--muted); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.sigbox.has { border-style: solid; border-color: var(--wax); color: var(--wax); background: var(--wax-soft); }
+.sigbox.can { border-style: solid; border-color: var(--muted); color: var(--ink); background: var(--paper); }
+.steps-mini { display: grid; gap: 6px; margin: 0; padding-left: 1.2em; font-size: 0.95rem; }
+.analogy { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.analogy div { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 4px; font-size: 0.95rem; min-width: 0; }
+.analogy b { font-family: var(--display); }
+</style>
+
+<div class="shell">
+  <nav class="toc" aria-label="Contents">
+    <span class="label">Contents</span>
+    <ol id="toc">
+      <li><a href="#goals"><span>0</span>Goals</a></li>
+      <li><a href="#eli5" class="eli"><span>★</span>ELI5</a></li>
+      <li><a href="#why"><span>1</span>Why we need them</a></li>
+      <li><a href="#keys"><span>2</span>Two keys, two jobs</a></li>
+      <li><a href="#flow"><span>3</span>Sign and verify</a></li>
+      <li><a href="#try"><span>4</span>Try to cheat</a></li>
+      <li><a href="#pki"><span>5</span>Whose key is it?</a></li>
+      <li><a href="#world"><span>6</span>In everyday life</a></li>
+      <li><a href="#pitfalls"><span>7</span>What can go wrong</a></li>
+      <li><a href="#quiz"><span>8</span>Check yourself</a></li>
+      <li><a href="#terms"><span>9</span>Key terms</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="hero" id="top">
+      <span class="label">Lecture notes · Information security</span>
+      <h1>Signed &amp; Verified</h1>
+      <p class="lede">How can a computer be sure who sent a message, and that nobody changed it on the way? This lecture shows the big picture of digital signatures. No math needed: you already know hashing and public-key cryptography, and here we put them together.</p>
+      <div class="meta"><span>Duration: ~60–90 min</span><span>Builds on: hash functions, public-key cryptography</span><span>3 interactive demos</span></div>
+    </header>
+
+    <section id="goals">
+      <div class="sec-head"><span class="label">0 · Learning goals</span><h2>After this lecture you can</h2></div>
+      <div class="objectives">
+        <div class="obj"><b>Say</b>what problem digital signatures solve and what three things they guarantee.</div>
+        <div class="obj"><b>Tell apart</b>the private key (signs) and the public key (checks).</div>
+        <div class="obj"><b>Walk through</b>the steps of signing and checking a message.</div>
+        <div class="obj"><b>Explain</b>why we need certificates to trust a public key.</div>
+        <div class="obj"><b>Name</b>places where you use digital signatures every day.</div>
+      </div>
+    </section>
+
+    <!-- ELI5 -->
+    <section id="eli5" class="eli5">
+      <div class="sec-head">
+        <span class="label">★ Explain like I'm five</span>
+        <h2>The magic stamp</h2>
+      </div>
+      <div class="eli-grid">
+        <div class="stage">
+          <svg class="eli-svg" id="eliSvg" viewBox="0 0 400 260" role="img" aria-label="Animated story of a magic stamp sealing a letter">
+            <rect class="bg" width="400" height="260"/>
+            <g id="eLetter">
+              <rect class="paper" x="40" y="50" width="150" height="180" rx="8"/>
+              <text class="txt" x="58" y="80">Dear Harry,</text>
+              <line class="ln" x1="58" y1="102" x2="172" y2="102"/>
+              <line class="ln" id="eLine2" x1="58" y1="122" x2="160" y2="122"/>
+              <line class="ln" x1="58" y1="142" x2="170" y2="142"/>
+              <line class="ln" x1="58" y1="162" x2="130" y2="162"/>
+              <text class="small" x="58" y="188">— Barney</text>
+            </g>
+            <g id="eSeal" class="hide">
+              <circle class="wax" cx="160" cy="200" r="20"/>
+              <path class="waxmark" d="M151 200l6 6 11-12"/>
+              <path class="crack hide" id="eCrack" d="M146 190l10 9-4 8 10 6"/>
+            </g>
+            <g id="eStamp" style="transform: translate(0px,0px)">
+              <rect class="stamp-handle" x="148" y="10" width="24" height="34" rx="10"/>
+              <rect class="stamp-face" x="138" y="42" width="44" height="12" rx="4"/>
+            </g>
+            <text class="small" id="eStampLbl" x="196" y="30">Barney's secret stamp</text>
+            <g id="eChecker" class="hide">
+              <rect class="board" x="238" y="40" width="130" height="66" rx="10"/>
+              <text class="small" x="250" y="60">Picture on the</text>
+              <text class="small" x="250" y="76">school wall:</text>
+              <circle class="wax" cx="338" cy="72" r="16"/>
+              <path class="waxmark" d="M331 72l5 5 9-10"/>
+              <circle class="person" cx="300" cy="150" r="16"/>
+              <rect class="person" x="284" y="170" width="32" height="50" rx="12"/>
+              <circle class="glass" cx="248" cy="186" r="20"/>
+              <line x1="262" y1="200" x2="280" y2="216" stroke="var(--sky)" stroke-width="5" stroke-linecap="round"/>
+              <text class="small" x="276" y="244">Harry checks</text>
+            </g>
+            <g id="eOk" class="hide"><path class="okmark" d="M330 140l12 12 22-26"/></g>
+            <g id="eBad" class="hide"><path class="badmark" d="M332 128l28 28M360 128l-28 28"/></g>
+            <g id="eTrick" class="hide">
+              <circle class="person-b" cx="214" cy="128" r="12"/>
+              <rect class="person-b" x="202" y="143" width="24" height="38" rx="9"/>
+              <text class="small" x="186" y="200">Attacker</text>
+            </g>
+          </svg>
+          <div class="stage-bar">
+            <button id="eliPrev" type="button" aria-label="Previous scene">←</button>
+            <button id="eliNext" type="button" class="primary">Next scene →</button>
+            <div class="dots" id="eliDots"><i class="on"></i><i></i><i></i><i></i></div>
+            <p class="stage-cap" id="eliCap">Barney writes a letter to Harry. He owns a magic stamp, and he is the only person in the world who has it.</p>
+          </div>
+        </div>
+        <div class="stack">
+          <p>Imagine you have a <b>magic stamp</b> that only you own. When you press it on a letter, it leaves a wax seal that is made from the words of that exact letter.</p>
+          <ul class="eli-list">
+            <li><span class="ic">1</span><span>Only you can <b>make</b> the seal, because only you have the stamp. That's your <b>private key</b>.</span></li>
+            <li><span class="ic">2</span><span>Everyone can <b>check</b> the seal, because a picture of your stamp hangs on the school wall. That's your <b>public key</b>.</span></li>
+            <li><span class="ic">3</span><span>If someone changes even one word, the seal no longer matches the letter. Your friend sees it right away.</span></li>
+            <li><span class="ic">4</span><span>You can't later say "I never sent that". The seal is yours and nobody else could have made it.</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="translate">
+        <span class="label">Now in grown-up words</span>
+        <div class="tscroll">
+          <table>
+            <thead><tr><th>In the story</th><th>In computer security</th></tr></thead>
+            <tbody>
+              <tr><td>The secret stamp</td><td>The private key</td></tr>
+              <tr><td>The picture on the wall</td><td>The public key, which everyone can see</td></tr>
+              <tr><td>A seal made from the letter's words</td><td>The digital signature, made from the message's fingerprint (hash)</td></tr>
+              <tr><td>The seal stops matching</td><td>Checking fails: someone changed the message</td></tr>
+              <tr><td>"Only Barney has the stamp"</td><td>We know who sent it, and he can't deny it</td></tr>
+              <tr><td>The school deciding which picture is really Barney's</td><td>A certificate authority vouching for the public key</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="why">
+      <div class="sec-head"><span class="label">1 · The problem</span><h2>Why we need digital signatures</h2></div>
+      <p>On the internet, anyone can type anything. An email can say it's from your bank. A file can say it's an update from Microsoft. A message can say "Your grade is 95" when the teacher wrote 65. We need a way to answer two questions about any message:</p>
+      <p class="big-idea">Who really sent this? Has anyone changed it since?</p>
+      <p>A digital signature answers both. When the signature checks out, you get three guarantees:</p>
+      <div class="analogy">
+        <div><b>Authenticity</b>It really came from the person who claims to have sent it.</div>
+        <div><b>Integrity</b>Not a single letter has changed since it was signed.</div>
+        <div><b>Non-repudiation</b>The sender can't later say "That wasn't me."</div>
+      </div>
+      <h3>How is this different from signing with a pen?</h3>
+      <div class="tscroll">
+        <table>
+          <thead><tr><th></th><th>Handwritten signature</th><th>Digital signature</th></tr></thead>
+          <tbody>
+            <tr><td>Looks the same on every document?</td><td>Yes, the same squiggle every time</td><td><b>No</b>, it's different for every message</td></tr>
+            <tr><td>Can someone copy it onto another document?</td><td class="no">Yes, with some practice</td><td class="yes">No, a copied signature won't match the new message</td></tr>
+            <tr><td>Shows if the document was changed later?</td><td class="no">No</td><td class="yes">Yes, any change breaks it</td></tr>
+            <tr><td>Who checks it?</td><td>A person looking at it, maybe an expert</td><td>Any computer, in a split second</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout info"><b class="t">The one sentence to remember</b><p>A digital signature is tied to <b>both</b> the person (their private key) <b>and</b> the exact message. Change either one and it stops working.</p></div>
+    </section>
+
+    <section id="keys">
+      <div class="sec-head"><span class="label">2 · Quick recap</span><h2>Two keys, two jobs</h2></div>
+      <p>You've already met key pairs in public-key cryptography. Signatures use the same pair. For signatures, think of the jobs like this:</p>
+      <div class="keys">
+        <div class="key priv">
+          <svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="18" cy="26" r="12" fill="none" stroke="var(--wax)" stroke-width="4"/><path d="M30 26h18M42 26v8M48 26v6" stroke="var(--wax)" stroke-width="4" stroke-linecap="round"/></svg>
+          <div class="stack" style="gap:6px"><span class="tag">Private key</span><span class="kt">Makes signatures</span><span class="kd">Kept secret by its owner, never shared. Like the magic stamp, or your own pen that nobody else can hold.</span></div>
+        </div>
+        <div class="key pub">
+          <svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="22" cy="22" r="13" fill="none" stroke="var(--sky)" stroke-width="4"/><path d="M31 31l14 14" stroke="var(--sky)" stroke-width="5" stroke-linecap="round"/></svg>
+          <div class="stack" style="gap:6px"><span class="tag">Public key</span><span class="kt">Checks signatures</span><span class="kd">Given to everyone. Like the picture of the stamp on the wall. It can check a seal but can't make one.</span></div>
+        </div>
+      </div>
+      <div class="callout"><b class="t">Don't mix it up with encryption</b><p>With <b>encryption</b>, the public key locks and the private key unlocks, so only the owner can read. With <b>signatures</b>, it's the other way around: the private key signs and the public key checks, so everyone can verify that only the owner signed.</p></div>
+    </section>
+
+    <section id="flow">
+      <div class="sec-head"><span class="label">3 · The big picture</span><h2>Sign and verify, step by step</h2></div>
+      <p>Signing happens once, on the sender's computer. Checking can happen many times, on anyone's computer. Step through the animation:</p>
+      <div class="demo pipe">
+        <div class="scroll">
+          <svg viewBox="0 0 720 300" id="pipeSvg" role="img" aria-label="Diagram of signing on the sender side and verifying on the receiver side">
+            <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arrowhead" d="M0 0L10 5L0 10z"/></marker></defs>
+            <text class="lane" x="12" y="24">SENDER (BARNEY) · SIGNS</text>
+            <text class="lane" x="12" y="172">RECEIVER (HARRY) · CHECKS</text>
+            <line class="divider" x1="0" y1="146" x2="720" y2="146"/>
+            <g class="node" data-k="msg"><rect x="12" y="40" width="120" height="58" rx="10"/><text x="72" y="66" text-anchor="middle">Message</text><text class="s" x="72" y="84" text-anchor="middle">"Grade: 85"</text></g>
+            <g class="node" data-k="h1"><rect x="182" y="40" width="120" height="58" rx="10"/><text x="242" y="66" text-anchor="middle">Fingerprint</text><text class="s" x="242" y="84" text-anchor="middle">hash of message</text></g>
+            <g class="node" data-k="sign"><rect x="352" y="40" width="130" height="58" rx="10"/><text x="417" y="66" text-anchor="middle">Sign</text><text class="s" x="417" y="84" text-anchor="middle">with private key</text></g>
+            <g class="node" data-k="sig"><rect x="532" y="40" width="170" height="58" rx="10"/><text x="617" y="66" text-anchor="middle">Message + signature</text><text class="s" x="617" y="84" text-anchor="middle">sent together</text></g>
+            <path class="edge" data-e="1" d="M132 69H180" marker-end="url(#ah)"/>
+            <path class="edge" data-e="2" d="M302 69H350" marker-end="url(#ah)"/>
+            <path class="edge" data-e="3" d="M482 69H530" marker-end="url(#ah)"/>
+            <g class="node" data-k="h2"><rect x="182" y="194" width="120" height="58" rx="10"/><text x="242" y="220" text-anchor="middle">Fingerprint</text><text class="s" x="242" y="238" text-anchor="middle">made again</text></g>
+            <g class="node" data-k="ver"><rect x="352" y="194" width="130" height="58" rx="10"/><text x="417" y="220" text-anchor="middle">Check</text><text class="s" x="417" y="238" text-anchor="middle">with public key</text></g>
+            <g class="node" data-k="res"><rect x="532" y="194" width="170" height="58" rx="10"/><text x="617" y="220" text-anchor="middle">Valid or not?</text><text class="s" x="617" y="238" text-anchor="middle">match → trust it</text></g>
+            <path class="edge" data-e="4" d="M617 98V140Q617 160 597 160H262Q242 160 242 180V192" marker-end="url(#ah)"/>
+            <path class="edge" data-e="5" d="M302 223H350" marker-end="url(#ah)"/>
+            <path class="edge" data-e="6" d="M482 223H530" marker-end="url(#ah)"/>
+            <path class="edge" data-e="5" d="M680 98V176Q680 186 670 186H430Q417 186 417 192" marker-end="url(#ah)"/>
+          </svg>
+        </div>
+        <div class="row">
+          <button type="button" id="pipePrev" aria-label="Previous step">←</button>
+          <button type="button" id="pipeNext" class="primary">Next step →</button>
+          <button type="button" id="pipePlay">Play all</button>
+          <span class="score" id="pipeStep">Step 0 / 6</span>
+        </div>
+        <p id="pipeCap">Press <b>Next step</b> to follow a message from Barney to Harry.</p>
+      </div>
+      <div class="callout info"><b class="t">Why sign the fingerprint instead of the whole message?</b><p>Remember from the hashing lecture: a fingerprint is short, always the same size, and changes completely if the message changes. Signing a small fingerprint is much faster than signing a whole video or a 500-page PDF, and it's just as safe.</p></div>
+      <p>Notice that the signature is <b>not secret</b>. The message and its signature can travel over the open internet. The signature isn't there to hide anything. It's there to prove who sent the message and that it arrived unchanged.</p>
+    </section>
+
+    <section id="try">
+      <div class="sec-head"><span class="label">4 · Hands-on</span><h2>Try to cheat the system</h2></div>
+      <p>Barney, the teacher, sends a student's grade to the student affairs office. Play each role and see what the office's computer says.</p>
+      <div class="demo" id="cheat">
+        <div class="demo-head"><h3>Demo: the grade message</h3><span class="label">Barney's public key is on file at the office</span></div>
+        <div class="letter">
+          <label class="f" for="gMsg">The message<textarea id="gMsg" rows="2">Student no. 20231045: final grade 65. — Barney</textarea></label>
+          <div class="sigbox" id="gSig">No signature yet</div>
+        </div>
+        <div class="stack" style="gap:8px">
+          <span class="label" style="color:var(--muted)">Your moves</span>
+          <div class="row">
+            <button type="button" class="primary" id="gSign">1 · Barney signs it</button>
+            <button type="button" class="warn" id="gEdit">2 · Change 65 to 95</button>
+            <button type="button" class="warn" id="gCan">The attacker signs with their own key</button>
+            <button type="button" id="gCheck">Office checks the signature</button>
+          </div>
+        </div>
+        <div class="verdict idle" id="gVerdict">Start with step 1, then let the office check. After that, try changing the grade and check again.</div>
+        <p class="muted" style="font-size:.9rem">Behind the scenes this page does a real (tiny) signature calculation, so the results aren't faked.</p>
+      </div>
+      <p>Things to notice:</p>
+      <ul class="plain">
+        <li>Changing the grade, even by one digit, makes the check fail. The cheater can't fix this without Barney's private key.</li>
+        <li>The attacker can sign with <i>their own</i> key, but the office checks with <i>Barney's</i> public key, so the attacker's signature doesn't pass.</li>
+        <li>The attacker could copy Barney's real signature from an old message, but it won't match the new message.</li>
+      </ul>
+    </section>
+
+    <section id="pki">
+      <div class="sec-head"><span class="label">5 · The trust problem</span><h2>Whose key is it?</h2></div>
+      <p>There's one trick left for a cheater. What if the attacker makes their own key pair and tells the office: "Hi, I'm Barney, here is my new public key"? Then the attacker's signatures would check out as "Barney's".</p>
+      <p>So we need a trusted party that vouches: <i>"This public key really belongs to Barney."</i> That trusted party is a <b>certificate authority (CA)</b>, and the document it gives out is a <b>certificate</b>.</p>
+      <div class="analogy">
+        <div><b>In real life</b>Your ID card is issued by the government. People trust your photo and name because they trust the government that signed off on them.</div>
+        <div><b>Online</b>A certificate is a digital ID card: a name plus a public key, signed by a CA that everyone's computer already trusts.</div>
+      </div>
+      <p>CAs are arranged like a family tree. A few <b>root CAs</b> come pre-installed in your phone and browser. They vouch for <b>intermediate CAs</b>, which in turn vouch for websites. Your browser follows that chain upward until it reaches a root it already trusts.</p>
+      <div class="demo" id="chainDemo">
+        <div class="demo-head"><h3>Demo: following the chain of trust</h3><span class="label">website → intermediate → root</span></div>
+        <div class="two">
+          <div class="chain" id="chain">
+            <div class="cert" data-i="2"><span class="st"></span><span class="who">Example Root CA</span><span class="meta2">Already trusted · built into your browser</span></div>
+            <div class="link"><span>vouches for</span></div>
+            <div class="cert" data-i="1"><span class="st"></span><span class="who">Example Issuing CA</span><span class="meta2">Vouched for by: Example Root CA</span></div>
+            <div class="link"><span>vouches for</span></div>
+            <div class="cert" data-i="0"><span class="st"></span><span class="who">www.arel.edu.tr</span><span class="meta2">Vouched for by: Example Issuing CA</span></div>
+          </div>
+          <div class="stack">
+            <p style="font-size:.95rem">When you open a website, the browser checks every link in this chain. If each one is properly signed by the one above it, and the top is a root it trusts, you see the padlock.</p>
+            <div class="row">
+              <button type="button" class="primary" id="chainGo">Check the chain</button>
+              <button type="button" class="warn" id="chainBreak">Swap in a fake middle CA</button>
+            </div>
+            <div class="verdict idle" id="chainVerdict">Not checked yet.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="world">
+      <div class="sec-head"><span class="label">6 · Everyday life</span><h2>Where you use signatures every day</h2></div>
+      <p>You probably used digital signatures dozens of times today without noticing.</p>
+      <div class="tscroll">
+        <table>
+          <thead><tr><th>Where</th><th>What the signature protects</th></tr></thead>
+          <tbody>
+            <tr><td>The padlock in your browser</td><td>Proves you're talking to the real website, not an impostor</td></tr>
+            <tr><td>Phone and app updates</td><td>Proves the update came from Apple, Google or the app maker and wasn't changed to add malware</td></tr>
+            <tr><td>e-İmza and mobile signature</td><td>Signing official documents online. In Türkiye, law no. 5070 (2004) gives a secure e-signature the same legal weight as a handwritten one.</td></tr>
+            <tr><td>Email</td><td>Helps mail servers spot emails that fake a company's address</td></tr>
+            <tr><td>Bank and payment apps</td><td>Proves a transfer order really came from your device</td></tr>
+            <tr><td>Cryptocurrency</td><td>Proves the owner of the coins approved the transfer</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="pitfalls">
+      <div class="sec-head"><span class="label">7 · Weak spots</span><h2>What can go wrong</h2></div>
+      <p>Digital signatures are very hard to forge. When things go wrong, it's almost always because of something around them:</p>
+      <ul class="plain">
+        <li><b>The private key gets stolen.</b> Then the thief can sign as you. This is why important keys live on smart cards or special hardware, like the card used for e-İmza.</li>
+        <li><b>A fake public key is trusted.</b> Without a proper certificate, a cheater can pretend their key is yours (section 5).</li>
+        <li><b>Nobody actually checks.</b> A signature only helps if the software verifies it. Bugs that skip the check have happened in real products.</li>
+        <li><b>Only part of the message is signed.</b> If the amount or date isn't covered by the signature, it can be changed.</li>
+        <li><b>Old, broken methods.</b> Fingerprint methods that are now broken, like MD5 and SHA-1, shouldn't be used for signatures anymore.</li>
+      </ul>
+      <div class="callout info"><b class="t">Looking ahead</b><p>Future quantum computers could break today's signature methods. New "post-quantum" signature methods have already been standardized and are slowly being rolled out. The big picture stays the same: private key signs, public key checks.</p></div>
+    </section>
+
+    <section id="quiz">
+      <div class="sec-head"><span class="label">8 · Self-check</span><h2>Check yourself</h2><span class="score" id="qScore">0 / 5 answered</span></div>
+      <div class="stack" id="quizBox"></div>
+    </section>
+
+    <section id="terms">
+      <div class="sec-head"><span class="label">9 · Glossary</span><h2>Key terms</h2></div>
+      <div class="terms">
+        <div class="term"><b>Digital signature</b>A piece of data that proves who sent a message and that it wasn't changed.</div>
+        <div class="term"><b>Private key</b>The secret key that makes signatures. Only the owner has it.</div>
+        <div class="term"><b>Public key</b>The shared key that checks signatures. Anyone can have it.</div>
+        <div class="term"><b>Fingerprint (hash)</b>A short summary of a message. This is what actually gets signed.</div>
+        <div class="term"><b>Verification</b>Checking that a signature matches the message and the sender's public key.</div>
+        <div class="term"><b>Non-repudiation</b>The sender can't deny having signed.</div>
+        <div class="term"><b>Certificate</b>A digital ID card: a name plus a public key, vouched for by a CA.</div>
+        <div class="term"><b>Certificate authority (CA)</b>A trusted organization that issues certificates.</div>
+        <div class="term"><b>Chain of trust</b>Website → intermediate CA → root CA your device already trusts.</div>
+      </div>
+      <div class="callout info"><b class="t">In-class activity (10 min)</b><p>Work in groups of three: one sender, one receiver, one cheater. Using the analogy from the ELI5 section, act out (a) a normal signed message, (b) the cheater changing the message, (c) the cheater pretending to be the sender with their own stamp. For each case, explain how the receiver catches it.</p></div>
+    </section>
+
+    <footer>The demos run entirely in your browser. The signature in section 4 uses tiny numbers for teaching, not real security.</footer>
+  </main>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  /* SHA-256 (pure JS, verified against test vectors) */
+  const SHA256 = (() => {
+    const K = [], H = []; let n = 2, c = 0;
+    const isP = x => { for (let i = 2; i * i <= x; i++) if (x % i === 0) return false; return true; };
+    const frac = x => ((x - Math.floor(x)) * 4294967296) | 0;
+    while (c < 64) { if (isP(n)) { if (c < 8) H[c] = frac(Math.pow(n, 1 / 2)); K[c] = frac(Math.pow(n, 1 / 3)); c++; } n++; }
+    const r = (x, k) => (x >>> k) | (x << (32 - k));
+    return str => {
+      const bytes = new TextEncoder().encode(str);
+      const l = bytes.length, len = (((l + 9) + 63) >> 6) << 6;
+      const buf = new Uint8Array(len); buf.set(bytes); buf[l] = 0x80;
+      const dv = new DataView(buf.buffer);
+      dv.setUint32(len - 4, (l * 8) >>> 0); dv.setUint32(len - 8, Math.floor(l * 8 / 4294967296));
+      let h = H.slice(); const w = new Int32Array(64);
+      for (let off = 0; off < len; off += 64) {
+        for (let i = 0; i < 16; i++) w[i] = dv.getInt32(off + i * 4);
+        for (let i = 16; i < 64; i++) {
+          const a = w[i - 15], b = w[i - 2];
+          w[i] = (w[i - 16] + (r(a, 7) ^ r(a, 18) ^ (a >>> 3)) + w[i - 7] + (r(b, 17) ^ r(b, 19) ^ (b >>> 10))) | 0;
+        }
+        let [A, B, C, D, E, F, G, X] = h;
+        for (let i = 0; i < 64; i++) {
+          const t1 = (X + (r(E, 6) ^ r(E, 11) ^ r(E, 25)) + ((E & F) ^ (~E & G)) + K[i] + w[i]) | 0;
+          const t2 = ((r(A, 2) ^ r(A, 13) ^ r(A, 22)) + ((A & B) ^ (A & C) ^ (B & C))) | 0;
+          X = G; G = F; F = E; E = (D + t1) | 0; D = C; C = B; B = A; A = (t1 + t2) | 0;
+        }
+        h = [h[0] + A, h[1] + B, h[2] + C, h[3] + D, h[4] + E, h[5] + F, h[6] + G, h[7] + X].map(v => v | 0);
+      }
+      return h.map(v => (v >>> 0).toString(16).padStart(8, '0')).join('');
+    };
+  })();
+  const $ = id => document.getElementById(id);
+  const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function setVerdict(el, cls, html) { el.className = "verdict " + cls; el.innerHTML = html; }
+
+  /* TOC highlight */
+  const links = Array.from(document.querySelectorAll("#toc a"));
+  if ("IntersectionObserver" in window) {
+    const io = new IntersectionObserver(es => {
+      es.forEach(e => { if (e.isIntersecting) links.forEach(a => a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id)); });
+    }, { rootMargin: "-30% 0px -60% 0px" });
+    document.querySelectorAll("main section[id]").forEach(s => io.observe(s));
+  }
+
+  /* ELI5 stepper */
+  const eli = {
+    caps: [
+      "Barney writes a letter to Harry. He owns a magic stamp, and he is the only person in the world who has it.",
+      "He presses the stamp on the letter. The wax seal it leaves depends on every word he wrote.",
+      "Harry compares the seal with the picture of Barney's stamp on the school wall. They match, so he knows Barney sent it and nothing changed.",
+      "A sneaky attacker changes one line of the letter. The seal no longer fits the words, so Harry sees right away that it was tampered with."
+    ], i: 0
+  };
+  function eliRender() {
+    const s = eli.i;
+    $("eStamp").style.transform = s === 0 ? "translate(0px,0px)" : s === 1 ? "translate(0px,136px)" : "translate(0px,-80px)";
+    $("eStamp").style.opacity = s >= 2 ? 0 : 1;
+    $("eStampLbl").style.opacity = s >= 2 ? 0 : 1;
+    $("eSeal").classList.toggle("hide", s < 1);
+    $("eChecker").classList.toggle("hide", s < 2);
+    $("eOk").classList.toggle("hide", s !== 2);
+    $("eBad").classList.toggle("hide", s !== 3);
+    $("eTrick").classList.toggle("hide", s !== 3);
+    $("eCrack").classList.toggle("hide", s !== 3);
+    $("eLine2").classList.toggle("changed", s === 3);
+    $("eliCap").textContent = eli.caps[s];
+    document.querySelectorAll("#eliDots i").forEach((d, k) => d.classList.toggle("on", k === s));
+    $("eliPrev").disabled = s === 0;
+    $("eliNext").textContent = s === 3 ? "Start over ↺" : "Next scene →";
+  }
+  $("eliNext").addEventListener("click", () => { eli.i = (eli.i + 1) % 4; eliRender(); });
+  $("eliPrev").addEventListener("click", () => { if (eli.i > 0) { eli.i--; eliRender(); } });
+  eliRender();
+
+  /* Pipeline */
+  const P = {
+    steps: [
+      { nodes: [], edges: [], cap: "Press <b>Next step</b> to follow a message from Barney to Harry." },
+      { nodes: ["msg", "h1"], edges: ["1"], cap: "<b>1. Make a fingerprint.</b> Barney's computer makes a short fingerprint (hash) of the message." },
+      { nodes: ["sign"], edges: ["2"], cap: "<b>2. Sign it.</b> The fingerprint is signed with Barney's private key. Only Barney can do this step." },
+      { nodes: ["sig"], edges: ["3"], cap: "<b>3. Send both.</b> The message and its signature travel together. They don't need to be hidden." },
+      { nodes: ["h2"], edges: ["4"], cap: "<b>4. Make the fingerprint again.</b> Harry's computer makes its own fingerprint of the message it received." },
+      { nodes: ["ver"], edges: ["5"], cap: "<b>5. Check.</b> Using Barney's public key, it checks the signature against that fingerprint." },
+      { nodes: ["res"], edges: ["6"], cap: "<b>6. Decide.</b> If they match, the message is really from Barney and unchanged. If anything changed, the check fails." }
+    ], i: 0, timer: null
+  };
+  function pipeRender() {
+    const on = P.steps[P.i], doneN = new Set(), doneE = new Set();
+    for (let k = 1; k < P.i; k++) { P.steps[k].nodes.forEach(n => doneN.add(n)); P.steps[k].edges.forEach(e => doneE.add(e)); }
+    document.querySelectorAll("#pipeSvg .node").forEach(g => {
+      const k = g.dataset.k; g.classList.toggle("on", on.nodes.includes(k)); g.classList.toggle("done", doneN.has(k) && !on.nodes.includes(k));
+    });
+    document.querySelectorAll("#pipeSvg .edge").forEach(p => {
+      const e = p.dataset.e; p.classList.toggle("on", on.edges.includes(e)); p.classList.toggle("done", doneE.has(e) && !on.edges.includes(e));
+    });
+    $("pipeCap").innerHTML = on.cap;
+    $("pipeStep").textContent = "Step " + P.i + " / 6";
+    $("pipePrev").disabled = P.i === 0;
+    $("pipeNext").disabled = P.i === 6;
+  }
+  function pipeStop() { clearInterval(P.timer); P.timer = null; $("pipePlay").textContent = "Play all"; }
+  $("pipeNext").addEventListener("click", () => { pipeStop(); if (P.i < 6) { P.i++; pipeRender(); } });
+  $("pipePrev").addEventListener("click", () => { pipeStop(); if (P.i > 0) { P.i--; pipeRender(); } });
+  $("pipePlay").addEventListener("click", () => {
+    if (P.timer) { pipeStop(); return; }
+    P.i = 0; pipeRender(); $("pipePlay").textContent = "Pause";
+    P.timer = setInterval(() => { if (P.i >= 6) { pipeStop(); return; } P.i++; pipeRender(); }, reduce ? 2200 : 1700);
+  });
+  pipeRender();
+
+  /* Cheat demo: tiny real RSA under the hood */
+  const BARNEY = { n: 3233n, e: 17n, d: 2753n }, CAN = { n: 2773n, d: 157n };
+  const modpow = (b, e, m) => { let r = 1n; b %= m; while (e > 0n) { if (e & 1n) r = r * b % m; b = b * b % m; e >>= 1n; } return r; };
+  const fp = (m, n) => BigInt("0x" + SHA256(m.trim())) % n;
+  const code = v => "SIG-" + v.toString(16).toUpperCase().padStart(4, "0");
+  let sig = null, signer = null, signedText = null;
+  function showSig() {
+    const b = $("gSig");
+    if (sig === null) { b.className = "sigbox"; b.textContent = "No signature yet"; return; }
+    b.className = "sigbox " + (signer === "Barney" ? "has" : "can");
+    b.textContent = "Signature: " + code(sig) + " · claims to be from Barney";
+  }
+  $("gSign").addEventListener("click", () => {
+    sig = modpow(fp($("gMsg").value, BARNEY.n), BARNEY.d, BARNEY.n); signer = "Barney"; signedText = $("gMsg").value; showSig();
+    setVerdict($("gVerdict"), "idle", "Barney signed the message with his private key. Now let the office check it.");
+  });
+  $("gCan").addEventListener("click", () => {
+    if (!/95/.test($("gMsg").value)) $("gMsg").value = $("gMsg").value.replace(/\b65\b/, "95");
+    sig = modpow(fp($("gMsg").value, CAN.n), CAN.d, CAN.n); signer = "Can"; signedText = $("gMsg").value; showSig();
+    setVerdict($("gVerdict"), "idle", "The attacker changed the grade and signed it with <b>their own</b> private key. They still claim it's from Barney. Let the office check.");
+  });
+  $("gEdit").addEventListener("click", () => {
+    const v = $("gMsg").value;
+    $("gMsg").value = /\b65\b/.test(v) ? v.replace(/\b65\b/, "95") : v.replace(/\b95\b/, "65");
+    setVerdict($("gVerdict"), "idle", "The message text changed, but the signature stayed the same. Let the office check.");
+  });
+  $("gMsg").addEventListener("input", () => { if (sig !== null) setVerdict($("gVerdict"), "idle", "You edited the message. Let the office check."); });
+  $("gCheck").addEventListener("click", () => {
+    if (sig === null) { setVerdict($("gVerdict"), "idle", "There's no signature to check yet. Press <b>Barney signs it</b> first."); return; }
+    const ok = modpow(sig, BARNEY.e, BARNEY.n) === fp($("gMsg").value, BARNEY.n);
+    if (ok) setVerdict($("gVerdict"), "ok", "✓ Valid. This message really comes from Barney and hasn't been changed.");
+    else if (signer === "Can") setVerdict($("gVerdict"), "bad", "✗ Rejected. The signature wasn't made with Barney's private key, so Barney's public key can't confirm it.");
+    else setVerdict($("gVerdict"), "bad", "✗ Rejected. The message no longer matches the signature. Someone changed it after Barney signed.");
+  });
+
+  /* Certificate chain */
+  let forged = false, chainBusy = false;
+  const certs = () => Array.from(document.querySelectorAll("#chain .cert")).sort((a, b) => a.dataset.i - b.dataset.i);
+  function chainReset() { certs().forEach(c => { c.className = "cert"; c.querySelector(".st").textContent = ""; }); }
+  $("chainBreak").addEventListener("click", () => {
+    if (chainBusy) return;
+    forged = !forged; chainReset();
+    const mid = certs()[1];
+    mid.querySelector(".who").textContent = forged ? "Totally Real CA (fake)" : "Example Issuing CA";
+    mid.querySelector(".meta2").textContent = forged ? "Claims: vouched for by Example Root CA" : "Vouched for by: Example Root CA";
+    $("chainBreak").textContent = forged ? "Put the real middle CA back" : "Swap in a fake middle CA";
+    setVerdict($("chainVerdict"), "idle", forged ? "A fake CA is now in the middle. Press <b>Check the chain</b>." : "Not checked yet.");
+  });
+  $("chainGo").addEventListener("click", () => {
+    if (chainBusy) return; chainBusy = true; chainReset();
+    const cs = certs(); let i = 0;
+    const msgs = ["The website's certificate is properly signed by the middle CA", "The middle CA is properly signed by the root", "The root is on the browser's trusted list"];
+    const step = () => {
+      const c = cs[i]; c.classList.add("checking");
+      setVerdict($("chainVerdict"), "idle", "Checking " + c.querySelector(".who").textContent + "…");
+      setTimeout(() => {
+        c.classList.remove("checking");
+        const bad = forged && i === 1;
+        c.classList.add(bad ? "bad" : "ok"); c.querySelector(".st").textContent = bad ? "✗ FAKE" : "✓";
+        if (bad) { setVerdict($("chainVerdict"), "bad", "✗ Chain rejected. The root never signed this middle CA, so the browser shows a security warning."); chainBusy = false; return; }
+        if (i === 2) { setVerdict($("chainVerdict"), "ok", "✓ Chain valid. The browser shows the padlock."); chainBusy = false; return; }
+        setVerdict($("chainVerdict"), "idle", msgs[i] + "."); i++; setTimeout(step, reduce ? 50 : 350);
+      }, reduce ? 100 : 750);
+    };
+    step();
+  });
+
+  /* Quiz */
+  const Q = [
+    { p: "Which key does Barney use to sign a message?", o: ["His public key", "His private key", "Harry's public key", "Harry's private key"], a: 1, w: "Signing is done with the private key, which only Barney has. That's why a valid signature proves it was him." },
+    { p: "Harry wants to check Barney's signature. What does he need?", o: ["Barney's private key", "His own private key", "Barney's public key", "A password from Barney"], a: 2, w: "Checking only needs Barney's public key, which anyone can have." },
+    { p: "Someone changes one word in a signed message. What happens when it's checked?", o: ["Nothing, it still passes", "The check fails", "The message gets encrypted", "The signature fixes the word"], a: 1, w: "The signature is tied to the exact message. Any change makes the check fail." },
+    { p: "An attacker copies Barney's signature from an old message and attaches it to a new one. Does it work?", o: ["Yes, a signature is the same on every message", "No, a signature only matches the message it was made for", "Only if the messages are short", "Only if the attacker also has Barney's public key"], a: 1, w: "Unlike a handwritten signature, a digital signature is different for every message, so copying it is useless." },
+    { p: "Why do we need certificates?", o: ["To make messages secret", "To make signing faster", "To prove a public key really belongs to the person it claims to", "To store private keys"], a: 2, w: "Without a certificate, a cheater could hand out their own public key and pretend to be someone else." }
+  ];
+  let answered = 0, correct = 0;
+  const box = $("quizBox");
+  Q.forEach((q, qi) => {
+    const d = document.createElement("div"); d.className = "q";
+    d.innerHTML = '<p class="prompt">' + (qi + 1) + ". " + q.p + '</p><div class="opts"></div><p class="why" hidden></p>';
+    const opts = d.querySelector(".opts");
+    q.o.forEach((t, oi) => {
+      const b = document.createElement("button"); b.type = "button"; b.id = "q" + qi + "o" + oi; b.textContent = t;
+      b.addEventListener("click", () => {
+        if (d.dataset.done) return; d.dataset.done = "1"; answered++;
+        if (oi === q.a) correct++;
+        opts.querySelectorAll("button").forEach((x, xi) => { x.disabled = xi !== oi && xi !== q.a; if (xi === q.a) x.classList.add("right"); });
+        if (oi !== q.a) b.classList.add("wrong");
+        const why = d.querySelector(".why"); why.hidden = false; why.textContent = (oi === q.a ? "Correct. " : "Not quite. ") + q.w;
+        $("qScore").textContent = correct + " correct · " + answered + " / " + Q.length + " answered";
+      });
+      opts.appendChild(b);
+    });
+    box.appendChild(d);
+  });
+})();
+</script>
+
+</body></html>
